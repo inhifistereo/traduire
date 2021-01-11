@@ -10,16 +10,14 @@
 - Data layer to store data (Postgresql)
 - Cognitive Services will transcribe mp3's
 
-Web interface is SPA and hosted in containers
+**Languages**
+- Web interface written in React
+- Query and Service layer written in dotnet 5
 
-Query and Service layers hosted in containers
-
-Pub/Sub, Blob, and Data Layer in PaaS
-
-
-Web interface written in React
-
-Query and Service layer written in dotnet 5
+**Hosting choices**
+- Web interface is SPA and hosted in containers
+- Query and Service layers hosted in containers
+- Pub/Sub, Blob, and Data Layer in PaaS
 
 **Deployment**
 - GitHub for SRC
@@ -28,7 +26,5 @@ Query and Service layer written in dotnet 5
 - Helm for container deployment
 
 **Branching strategy**
-
-New feature == new branch
-
-Merge back to master when done
+- New feature == new branch
+- Merge back to master when done
