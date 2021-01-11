@@ -1,6 +1,6 @@
 # Traduire
 
-## Transcription app 
+** Transcription app **
 - Accept/upload mp3 files via web interface
 - Store mp3 in BLOB storage (Azure Storage)
 - Add authentication provider (AAD for starters)
@@ -17,12 +17,12 @@ Pub/Sub, Blob, and Data Layer in PaaS
 Web interface written in React
 Query and Service layer written in dotnet 5
 
-## Deployment
+** Deployment **
 - GitHub for SRC
 - Actions for CI/CD
 - Terraform (ARM later)
 - Helm for container deployment
 
-## Branching strategy
+** Branching strategy **
 New feature == new branch
 Merge back to master when done
