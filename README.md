@@ -28,3 +28,6 @@
 **Branching strategy**
 - New feature == new branch
 - Merge back to master when done
+
+**Concept architecture**
+![Architecture](./initial_concept.png)
