@@ -24,5 +24,6 @@ Query and Service layer written in dotnet 5
 - Helm for container deployment
 
 **Branching strategy**
+
 New feature == new branch
 Merge back to master when done
