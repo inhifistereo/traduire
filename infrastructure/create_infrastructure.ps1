@@ -43,7 +43,7 @@ ui_storage_name = "$uiStorageAccountName"
 mp3_storage_name = "$mp3StorageAccountName"
 service_bus_namespace_name = "$serviceBusAccountName"
 keyvault_name = "$keyVaultAccountName"
-ssh_public_key = $ssh_pub_key
+ssh_public_key = "$ssh_pub_key"
 api_server_authorized_ip_ranges = "$public_ip/32"
 "@
 Set-Content -Value $configuration -Path ./terraform/$tfVarFileName -Encoding ascii
