@@ -15,7 +15,8 @@ resource "azurerm_servicebus_namespace" "traduire_app" {
   name                      = var.service_bus_namespace_name
   location                  = azurerm_resource_group.traduire_app.location
   resource_group_name       = azurerm_resource_group.traduire_app.name
-  sku                       = "Standard"
+  sku                       = "Premium"
+  capacity                  = 2
 }
 
 resource "azurerm_servicebus_queue" "traduire_app" {
