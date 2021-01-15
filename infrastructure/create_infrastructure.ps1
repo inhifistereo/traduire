@@ -14,8 +14,13 @@ Import-Module -Name bjd.Common.Functions
 $today = (Get-Date).ToString("yyyyMMdd")
 $uuid = New-Uuid
 
-az login
+az account show -o none
+if(!$?) {
+    az login
+}
 az account set -s $SubscriptionName
+
+#Azure Environment 
 $tenantId = (az account show --query "tenantId" -o tsv)
 $objectId = (az ad signed-in-user show --query "objectId" -o tsv)
 $objectUPN = (az ad signed-in-user show --query "mail" -o tsv)
