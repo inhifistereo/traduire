@@ -55,7 +55,7 @@ variable "ui_storage_name" {
   type        = string
 }
 
-variable "mp3_storage_name " {
+variable "mp3_storage_name" {
   description = "Storage Account for the mp3s transcribed"
   type        = string
 }
