@@ -285,3 +285,16 @@ resource "azurerm_private_endpoint" "acr_account" {
     private_dns_zone_ids          = [ azurerm_private_dns_zone.privatelink_azurecr_io.id ]
   }
 }
+
+resource "azurerm_cognitive_account" "traduire_app" {
+  name                = "${var.application_name}-cogs01"
+  location            = azurerm_resource_group.traduire_app.location
+  resource_group_name = azurerm_resource_group.traduire_app.name
+  kind                = "Speech"
+
+  sku_name = "S0"
+
+  tags = {
+    Acceptance = "Test"
+  }
+}
