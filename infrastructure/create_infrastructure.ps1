@@ -3,6 +3,9 @@ param(
   [string] $AppName,
 
   [Parameter(Mandatory=$true)]
+  [string] $SubscriptionName,
+
+  [Parameter(Mandatory=$true)]
   [string] $region
 )
 
@@ -10,6 +13,12 @@ Import-Module -Name bjd.Common.Functions
 
 $today = (Get-Date).ToString("yyyyMMdd")
 $uuid = New-Uuid
+
+az login
+az account set -s $SubscriptionName
+$tenantId = (az account show --query "tenantId" -o tsv)
+$objectId = (az ad signed-in-user show --query "objectId" -o tsv)
+$objectUPN = (az ad signed-in-user show --query "mail" -o tsv)
 
 #Terraform Variables
 $tfVarFileName = "variables.tfvars"
@@ -24,6 +33,7 @@ $aks = "{0}-aks01" -f $appName
 $mp3StorageAccountName = "{0}files01" -f $appName
 $uiStorageAccountName = "{0}ui01" -f $appName
 $postgresqlAccountName = "{0}-psql01" -f $appName
+$postgresqlPassword = New-Password -Length 25 -ExcludedSpecialCharacters
 $serviceBusAccountName = "{0}-sb01" -f $appName
 $keyVaultAccountName = "{0}-kv01" -f $appName
 
@@ -33,7 +43,11 @@ $ssh_pub_key= (Get-Content -Path ~/.ssh/id_rsa.pub)
 $configuration=@"
 application_name = "$appName"
 region = "$region"
+tenant_id = "$tenantId"
+admin_user_object_id = "$objectId"
+admin_user_name = "$objectUPN"
 postgresql_name = "$postgresqlAccountName"
+postgresql_user_password = "$postgresqlPassword"
 acr_account_name = "$acrAccountName"
 ai_account_name = "$appInsightsName"
 loganalytics_account_name = "$logAnalyticsWorkspace"

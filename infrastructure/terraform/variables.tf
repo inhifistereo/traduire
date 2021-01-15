@@ -1,3 +1,18 @@
+variable "tenant_id" {
+  description = "Azure AD Tenant ID"
+  type        = string 
+}
+
+variable "admin_user_object_id" {
+  description = "Azure AD Object ID of PostgreSQL Admin User"
+  type        = string 
+}
+
+variable "admin_user_name" {
+  description = "Azure AD UPN of PostgreSQL Admin User"
+  type        = string 
+}
+
 variable "application_name" {
   description = "Unique Name for this deployment"
   type        = string 
@@ -14,10 +29,21 @@ variable "postgresql_name" {
   type        = string
 }
 
+variable "postgresql_user_name" {
+  description = "Azure PostgreSQL User Name"
+  type        = string
+  default     = "manager"
+}
+
+variable "postgresql_user_password" {
+  description = "Azure PostgreSQL User Password"
+  type        = string
+}
+
 variable "postgresql_database_name" {
   description = "PostgreSQL Database Name"
   type        = string
-  default     = "Transcripts"
+  default     = "Transcriptsdb"
 }
 
 variable "acr_account_name" {

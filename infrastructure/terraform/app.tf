@@ -7,9 +7,48 @@ resource "azurerm_resource_group" "traduire_app" {
   }
 }
 
-#resource "azurerm_postgresql_database" "traduire_app" { 
-#
-#}
+resource "azurerm_postgresql_server" "traduire_app" {
+  name                = var.postgresql_name
+  location            = azurerm_resource_group.traduire_app.location
+  resource_group_name = azurerm_resource_group.traduire_app.name
+
+  sku_name = "GP_Gen5_2"
+
+  geo_redundant_backup_enabled = false
+  auto_grow_enabled            = true
+
+  administrator_login          = var.postgresql_user_name
+  administrator_login_password = var.postgresql_user_password
+  version                      = "11"
+  ssl_enforcement_enabled      = true
+}
+
+resource "azurerm_postgresql_database" "transcription" {
+  name                = var.postgresql_database_name
+  resource_group_name = azurerm_resource_group.traduire_app.name
+  server_name         = azurerm_postgresql_server.traduire_app.name
+  charset             = "UTF8"
+  collation           = "English_United States.1252"
+}
+
+resource "azurerm_private_endpoint" "postgresql_database" {
+  name                      = "${var.postgresql_name}-ep"
+  resource_group_name       = azurerm_resource_group.traduire_app.name
+  location                  = azurerm_resource_group.traduire_app.location
+  subnet_id                 = azurerm_subnet.private-endpoints.id
+
+  private_service_connection {
+    name                           = "${var.postgresql_name}-ep"
+    private_connection_resource_id = azurerm_postgresql_server.traduire_app.id
+    subresource_names              = [ "pstgresqlServer" ]
+    is_manual_connection           = false
+  }
+
+  private_dns_zone_group { 
+    name                          = azurerm_private_dns_zone.privatelink_postgres_database_azure_com.name
+    private_dns_zone_ids          = [ azurerm_private_dns_zone.privatelink_postgres_database_azure_com.id ]
+  }
+}
 
 resource "azurerm_servicebus_namespace" "traduire_app" {
   name                      = var.service_bus_namespace_name
