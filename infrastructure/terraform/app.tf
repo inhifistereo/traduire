@@ -14,13 +14,16 @@ resource "azurerm_postgresql_server" "traduire_app" {
 
   sku_name = "GP_Gen5_2"
 
-  geo_redundant_backup_enabled = false
-  auto_grow_enabled            = true
-
-  administrator_login          = var.postgresql_user_name
-  administrator_login_password = var.postgresql_user_password
-  version                      = "11"
-  ssl_enforcement_enabled      = true
+  geo_redundant_backup_enabled      = false
+  auto_grow_enabled                 = true
+  
+  administrator_login               = var.postgresql_user_name
+  administrator_login_password      = var.postgresql_user_password
+  version                           = "11"
+  
+  public_network_access_enabled     = false
+  ssl_enforcement_enabled           = true
+  ssl_minimal_tls_version_enforced  = "TLS1_2"
 }
 
 resource "azurerm_postgresql_database" "transcription" {
@@ -29,6 +32,14 @@ resource "azurerm_postgresql_database" "transcription" {
   server_name         = azurerm_postgresql_server.traduire_app.name
   charset             = "UTF8"
   collation           = "English_United States.1252"
+}
+
+resource "azurerm_postgresql_active_directory_administrator" "transcription" {
+  server_name         = azurerm_postgresql_server.traduire_app.name
+  resource_group_name = azurerm_resource_group.traduire_app.name
+  login               = var.admin_user_name
+  tenant_id           = var.tenant_id
+  object_id           = var.admin_user_object_id
 }
 
 resource "azurerm_private_endpoint" "postgresql_database" {
@@ -40,7 +51,7 @@ resource "azurerm_private_endpoint" "postgresql_database" {
   private_service_connection {
     name                           = "${var.postgresql_name}-ep"
     private_connection_resource_id = azurerm_postgresql_server.traduire_app.id
-    subresource_names              = [ "pstgresqlServer" ]
+    subresource_names              = [ "postgresqlServer" ]
     is_manual_connection           = false
   }
 
@@ -84,6 +95,32 @@ resource "azurerm_private_endpoint" "servicebus_namespace" {
   }
 }
 
+resource "azurerm_user_assigned_identity" "service_bus_reader" {
+  resource_group_name = azurerm_resource_group.traduire_app.name
+  location            = azurerm_resource_group.traduire_app.location
+  name                = "${var.service_bus_namespace_name}-reader-account"
+}
+
+resource "azurerm_role_assignment" "azurerm_servicebus_reader" {
+  scope                     = azurerm_servicebus_namespace.traduire_app.id
+  role_definition_name      = "Azure Service Bus Data Receiver"
+  principal_id              = azurerm_user_assigned_identity.service_bus_reader.principal_id
+  skip_service_principal_aad_check = true
+}
+
+resource "azurerm_user_assigned_identity" "service_bus_writer" {
+  resource_group_name = azurerm_resource_group.traduire_app.name
+  location            = azurerm_resource_group.traduire_app.location
+  name                = "${var.service_bus_namespace_name}-writer-account"
+}
+
+resource "azurerm_role_assignment" "azurerm_servicebus_writer" {
+  scope                     = azurerm_servicebus_namespace.traduire_app.id
+  role_definition_name      = "Azure Service Bus Data Sender"
+  principal_id              = azurerm_user_assigned_identity.service_bus_writer.principal_id
+  skip_service_principal_aad_check = true
+}
+
 resource "azurerm_storage_account" "traduire_app" {
   name                     = var.mp3_storage_name
   resource_group_name      = azurerm_resource_group.traduire_app.name
@@ -91,6 +128,12 @@ resource "azurerm_storage_account" "traduire_app" {
   account_tier             = "Standard"
   account_replication_type = "LRS"
   account_kind             = "StorageV2"
+}
+
+resource "azurerm_storage_container" "mp3" {
+  name                  = "mp3files"
+  storage_account_name  = azurerm_storage_account.traduire_app.name
+  container_access_type = "private"
 }
 
 resource "azurerm_private_endpoint" "storage_account" {
@@ -110,6 +153,20 @@ resource "azurerm_private_endpoint" "storage_account" {
     name                          = azurerm_private_dns_zone.privatelink_blob_core_windows_net.name
     private_dns_zone_ids          = [ azurerm_private_dns_zone.privatelink_blob_core_windows_net.id ]
   }
+}
+
+resource "azurerm_user_assigned_identity" "application_writer" {
+  resource_group_name = azurerm_resource_group.traduire_app.name
+  location            = azurerm_resource_group.traduire_app.location
+
+  name                = "${var.application_name}-writer-account"
+}
+
+resource "azurerm_role_assignment" "application_writer" {
+  scope                     = azurerm_storage_account.traduire_app.id
+  role_definition_name      = "Storage Blob Data Contributor"
+  principal_id              = azurerm_user_assigned_identity.application_writer.principal_id
+  skip_service_principal_aad_check = true
 }
 
 resource "azurerm_kubernetes_cluster" "traduire_app" {
