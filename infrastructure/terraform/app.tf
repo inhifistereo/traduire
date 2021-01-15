@@ -20,7 +20,7 @@ resource "azurerm_servicebus_namespace" "traduire_app" {
 
 resource "azurerm_servicebus_queue" "traduire_app" {
   name                  = "events"
-  namespace_name        = azurerm_eventhub_namespace.traduire_app.name
+  namespace_name        = azurerm_servicebus_namespace.traduire_app.name
   resource_group_name   = azurerm_resource_group.traduire_app.name
   enable_partitioning   = true
 }
@@ -171,7 +171,6 @@ resource "azurerm_container_registry" "traduire_acr" {
 }
 
 resource "azurerm_private_endpoint" "acr_account" {
-  count                     = length(var.locations)
   name                      = "${var.acr_account_name}-ep"
   resource_group_name       = azurerm_resource_group.traduire_app.name
   location                  = azurerm_resource_group.traduire_app.location
