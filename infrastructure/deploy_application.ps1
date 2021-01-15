@@ -5,6 +5,31 @@ param(
     [Parameter(Mandatory=$true)]
     [string] $SubscriptionName
 )
+Import-Module bjd.Common.Functions
+
+function Get-GitBranchRevision
+{
+    return (git rev-parse HEAD).Substring(0,8)
+}
+
+function Start-Docker
+{
+    if(Get-OSType -eq "Unix") {
+        sudo /etc/init.d/docker start
+    }
+    else {
+        Start-Service -Name docker
+    }
+}
+
+function Connect-Azure
+{
+    az account show 
+    if(!$?) {
+        az login
+    }
+    az account set -s $SubscriptionName -o none
+}
 
 Set-Variable -Name DAPR_VERSION -Value "1.0.0-rc.2" -Option Constant
 Set-Variable -Name KEDA_VERSION -Value "1.5.0" -Option Constant
@@ -12,11 +37,8 @@ Set-Variable -Name APP_RG_NAME  -Value ("{0}_app_rg" -f $AppName)   -Option Cons
 Set-Variable -Name APP_K8S_NAME -Value ("{0}-aks01" -f $AppName)    -Option Constant
 Set-Variable -Name APP_ACR_NAME -Value ("{0}acr01" -f $AppName)     -Option Constant
 
-az account show
-if(!$?) {
-    az login
-}
-az account set -s $SubscriptionName
+Start-Docker
+Connect-Azure
 
 #Set Subscription and login into ACR
 az acr login -n $APP_ACR_NAME
@@ -39,6 +61,11 @@ helm repo add dapr https://dapr.github.io/helm-charts
 helm repo update
 kubectl create namespace dapr-system
 helm install dapr dapr/dapr --namespace dapr-system --version $DAPR_VERSION
+
+# Install Pod Identity 
+helm repo add aad-pod-identity https://raw.githubusercontent.com/Azure/aad-pod-identity/master/charts
+helm repo update
+helm install aad-pod-identity aad-pod-identity/aad-pod-identity
 
 # Install App
 # helm upgrade --install --set key=value traduire .
