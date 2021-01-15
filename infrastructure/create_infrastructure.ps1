@@ -28,7 +28,7 @@ $serviceBusAccountName = "{0}-sb01" -f $appName
 $keyVaultAccountName = "{0}-kv01" -f $appName
 
 $public_ip = (Invoke-RestMethod http://checkip.amazonaws.com/).Trim()
-$ssh_pub_key= (Get-Contet -Path ~/.ssh/id_rsa.pub)
+$ssh_pub_key= (Get-Content -Path ~/.ssh/id_rsa.pub)
 
 $configuration=@"
 application_name = "$appName"
@@ -49,19 +49,19 @@ api_server_authorized_ip_ranges = "$public_ip/32"
 Set-Content -Value $configuration -Path ./terraform/$tfVarFileName -Encoding ascii
 
 Set-Location ./terraform
-terraform init 
-terraform plan -out="$tfPlanFileName" -var-file="$tfVarFileName"
-terraform apply -auto-approve $tfPlanFileName
+#terraform init 
+#terraform plan -out="$tfPlanFileName" -var-file="$tfVarFileName"
+#terraform apply -auto-approve $tfPlanFileName
 
 # echo Application name
 if($?){
   Write-Host "------------------------------------"
-  Write-Host "Infrastructure built successfully. Application Name: ${0}" -f $appName
+  Write-Host ("Infrastructure built successfully. Application Name: {0}" -f $AppName)
   Write-Host "------------------------------------"
 }
 else {
   Write-Host "------------------------------------"
-  Write-Host "Errors encountered while building infrastructure. Please review. Application Name: ${0}" -f $appName
+  Write-Host ("Errors encountered while building infrastructure. Please review. Application Name: {0}" -f $AppName )
   Write-Host "------------------------------------"
 }
 Set-Location ..
