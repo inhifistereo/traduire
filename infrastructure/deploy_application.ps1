@@ -60,12 +60,12 @@ helm upgrade -i keda kedacore/keda --namespace keda --version $KEDA_VERSION
 helm repo add dapr https://dapr.github.io/helm-charts
 helm repo update
 kubectl create namespace dapr-system
-helm install dapr dapr/dapr --namespace dapr-system --version $DAPR_VERSION
+helm upgrade -i dapr dapr/dapr --namespace dapr-system --version $DAPR_VERSION
 
 # Install Pod Identity 
 helm repo add aad-pod-identity https://raw.githubusercontent.com/Azure/aad-pod-identity/master/charts
 helm repo update
-helm install aad-pod-identity aad-pod-identity/aad-pod-identity
+helm upgrade -i aad-pod-identity aad-pod-identity/aad-pod-identity
 
 # Install App
 # helm upgrade --install --set key=value traduire .
