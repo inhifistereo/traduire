@@ -16,13 +16,13 @@ $tfVarFileName = "variables.tfvars"
 $tfPlanFileName = "{0}.plan.{1}-{2}" -f $AppName, $today, $uuid
 
 #Resource Names
-$acrAccountName = "{0}-acr01" -f $appName
+$acrAccountName = "{0}acr01" -f $appName
 $appInsightsName = "{0}-ai01" -f $appName
 $logAnalyticsWorkspace = "{0}-logs01" -f $appName
 $vnetName = "{0}-vnet01" -f $appName 
 $aks = "{0}-aks01" -f $appName
-$mp3StorageAccountName = "{0}-files01" -f $appName
-$uiStorageAccountName = "{0}-ui01" -f $appName
+$mp3StorageAccountName = "{0}files01" -f $appName
+$uiStorageAccountName = "{0}ui01" -f $appName
 $postgresqlAccountName = "{0}-psql01" -f $appName
 $serviceBusAccountName = "{0}-sb01" -f $appName
 $keyVaultAccountName = "{0}-kv01" -f $appName
