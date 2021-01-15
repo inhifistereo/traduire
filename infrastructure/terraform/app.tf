@@ -141,14 +141,14 @@ resource "azurerm_role_assignment" "acr_pullrole_cluster" {
 }
 
 resource "azurerm_role_assignment" "network_contributor_cluster" {
-  scope                     = azurerm_resource_group.traduire_app.id
+  scope                     = azurerm_resource_group.traduire_core.id
   role_definition_name      = "Network Contributor"
   principal_id              = azurerm_kubernetes_cluster.traduire_app.kubelet_identity.0.object_id 
   skip_service_principal_aad_check = true
 }
 
 resource "azurerm_role_assignment" "network_contributor_node" {
-  scope                     = azurerm_resource_group.traduire_app.id
+  scope                     = azurerm_resource_group.traduire_core.id
   role_definition_name      = "Network Contributor"
   principal_id              = azurerm_kubernetes_cluster.traduire_app.identity.0.principal_id
   skip_service_principal_aad_check = true
@@ -156,8 +156,8 @@ resource "azurerm_role_assignment" "network_contributor_node" {
 
 resource "azurerm_container_registry" "traduire_acr" {
   name                     = var.acr_account_name
-  resource_group_name      = azurerm_resource_group.traduire_core.name
-  location                 = azurerm_resource_group.traduire_core.location
+  resource_group_name      = azurerm_resource_group.traduire_app.name
+  location                 = azurerm_resource_group.traduire_app.location
   sku                      = "Premium"
   admin_enabled            = false
 
