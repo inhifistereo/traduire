@@ -1,6 +1,28 @@
 param(
-
+    [Parameter(Mandatory=$true)]
+    [string] $AppName,
+  
+    [Parameter(Mandatory=$true)]
+    [string] $SubscriptionName
 )
+
+Set-Variable -Name DAPR_VERSION -Value "1.0.0-rc.2" -Option Constant
+Set-Variable -Name KEDA_VERSION -Value "1.5.0" -Option Constant
+Set-Variable -Name APP_RG_NAME  -Value ("{0}_app_rg" -f $AppName)   -Option Constant
+Set-Variable -Name APP_K8S_NAME -Value ("{0}-aks01" -f $AppName)    -Option Constant
+Set-Variable -Name APP_ACR_NAME -Value ("{0}acr01" -f $AppName)     -Option Constant
+
+az account show
+if(!$?) {
+    az login
+}
+az account set -s $SubscriptionName
+
+#Set Subscription and login into ACR
+az acr login -n $APP_ACR_NAME
+
+#Get AKS Credential file
+az aks get-credentials -n $APP_K8S_NAME -g $APP_RG_NAME
 
 # Install Traefik Ingress 
 helm repo add traefik https://helm.traefik.io/traefik    
@@ -10,7 +32,13 @@ helm upgrade -i traefik traefik/traefik -f  ../Infrastructure/traefik/values.yam
 helm repo add kedacore https://kedacore.github.io/charts
 helm repo update
 kubectl create namespace keda
-helm upgrade -i keda kedacore/keda --namespace keda --version 1.5.0
+helm upgrade -i keda kedacore/keda --namespace keda --version $KEDA_VERSION
+
+# Install Dapr
+helm repo add dapr https://dapr.github.io/helm-charts
+helm repo update
+kubectl create namespace dapr-system
+helm install dapr dapr/dapr --namespace dapr-system --version $DAPR_VERSION
 
 # Install App
-helm upgrade --install --set key=value traduire .
+# helm upgrade --install --set key=value traduire .
