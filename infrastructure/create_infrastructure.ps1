@@ -8,8 +8,8 @@ param(
 
 Import-Module -Name bjd.Common.Functions
 
-$today= (Get-Date).ToString("yyyyMMdd")
-$uuid= New-Uuid
+$today = (Get-Date).ToString("yyyyMMdd")
+$uuid = New-Uuid
 
 #Terraform Variables
 $tfVarFileName = "variables.tfvars"
@@ -49,9 +49,9 @@ api_server_authorized_ip_ranges = "$public_ip/32"
 Set-Content -Value $configuration -Path ./terraform/$tfVarFileName -Encoding ascii
 
 Set-Location ./terraform
-#terraform init 
-#terraform plan -out="$tfPlanFileName" -var-file="$tfVarFileName"
-#terraform apply -auto-approve $tfPlanFileName
+terraform init 
+terraform plan -out="$tfPlanFileName" -var-file="$tfVarFileName"
+terraform apply -auto-approve $tfPlanFileName
 
 # echo Application name
 if($?){
