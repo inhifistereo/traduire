@@ -7,6 +7,9 @@ resource "azurerm_resource_group" "traduire_app" {
   }
 }
 
+data "azurerm_subscription" "current" {
+}
+
 resource "azurerm_postgresql_server" "traduire_app" {
   name                = var.postgresql_name
   location            = azurerm_resource_group.traduire_app.location
@@ -95,32 +98,6 @@ resource "azurerm_private_endpoint" "servicebus_namespace" {
   }
 }
 
-resource "azurerm_user_assigned_identity" "service_bus_reader" {
-  resource_group_name = azurerm_resource_group.traduire_app.name
-  location            = azurerm_resource_group.traduire_app.location
-  name                = "${var.service_bus_namespace_name}-reader-account"
-}
-
-resource "azurerm_role_assignment" "azurerm_servicebus_reader" {
-  scope                     = azurerm_servicebus_namespace.traduire_app.id
-  role_definition_name      = "Azure Service Bus Data Receiver"
-  principal_id              = azurerm_user_assigned_identity.service_bus_reader.principal_id
-  skip_service_principal_aad_check = true
-}
-
-resource "azurerm_user_assigned_identity" "service_bus_writer" {
-  resource_group_name = azurerm_resource_group.traduire_app.name
-  location            = azurerm_resource_group.traduire_app.location
-  name                = "${var.service_bus_namespace_name}-writer-account"
-}
-
-resource "azurerm_role_assignment" "azurerm_servicebus_writer" {
-  scope                     = azurerm_servicebus_namespace.traduire_app.id
-  role_definition_name      = "Azure Service Bus Data Sender"
-  principal_id              = azurerm_user_assigned_identity.service_bus_writer.principal_id
-  skip_service_principal_aad_check = true
-}
-
 resource "azurerm_storage_account" "traduire_app" {
   name                     = var.mp3_storage_name
   resource_group_name      = azurerm_resource_group.traduire_app.name
@@ -153,20 +130,6 @@ resource "azurerm_private_endpoint" "storage_account" {
     name                          = azurerm_private_dns_zone.privatelink_blob_core_windows_net.name
     private_dns_zone_ids          = [ azurerm_private_dns_zone.privatelink_blob_core_windows_net.id ]
   }
-}
-
-resource "azurerm_user_assigned_identity" "application_writer" {
-  resource_group_name = azurerm_resource_group.traduire_app.name
-  location            = azurerm_resource_group.traduire_app.location
-
-  name                = "${var.application_name}-writer-account"
-}
-
-resource "azurerm_role_assignment" "application_writer" {
-  scope                     = azurerm_storage_account.traduire_app.id
-  role_definition_name      = "Storage Blob Data Contributor"
-  principal_id              = azurerm_user_assigned_identity.application_writer.principal_id
-  skip_service_principal_aad_check = true
 }
 
 resource "azurerm_kubernetes_cluster" "traduire_app" {
@@ -293,4 +256,53 @@ resource "azurerm_cognitive_account" "traduire_app" {
   kind                = "SpeechServices"
 
   sku_name            = "S0"
+}
+
+resource "azurerm_user_assigned_identity" "dapr_kv_reader" {
+  resource_group_name = azurerm_resource_group.traduire_app.name
+  location            = azurerm_resource_group.traduire_app.location
+  name                = "${var.application_name}-dapr-reader"
+}
+
+resource "azurerm_role_assignment" "dapr_kv_reader_reader" {
+  scope                     = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_kubernetes_cluster.traduire_app.node_resource_group}"
+  role_definition_name      = "Reader"
+  principal_id              = azurerm_user_assigned_identity.dapr_kv_reader.principal_id 
+  skip_service_principal_aad_check = true
+}
+
+resource "azurerm_role_assignment" "dapr_kv_reader_msi_operator" {
+  scope                     = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_kubernetes_cluster.traduire_app.node_resource_group}"
+  role_definition_name      = "Managed Identity Operator"
+  principal_id              = azurerm_user_assigned_identity.dapr_kv_reader.principal_id 
+  skip_service_principal_aad_check = true
+}
+
+resource "azurerm_role_assignment" "dapr_kv_reader_vm_contributor" {
+  scope                     = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_kubernetes_cluster.traduire_app.node_resource_group}"
+  role_definition_name      = "Virtual Machine Contributor" 
+  principal_id              = azurerm_user_assigned_identity.dapr_kv_reader.principal_id 
+  skip_service_principal_aad_check = true
+}
+
+resource "azurerm_key_vault" "traduire_app" {
+  name                        = var.keyvault_name
+  resource_group_name         = azurerm_resource_group.traduire_app.name
+  location                    = azurerm_resource_group.traduire_app.location
+  tenant_id                   = data.azurerm_subscription.current.tenant_id
+  soft_delete_retention_days  = 7
+  purge_protection_enabled    = false
+
+  sku_name = "standard"
+
+  access_policy {
+    tenant_id = data.azurerm_subscription.current.tenant_id
+    object_id = azurerm_user_assigned_identity.dapr_kv_reader.principal_id 
+
+    secret_permissions = [
+      "list",
+      "get"
+    ]
+
+  }
 }
