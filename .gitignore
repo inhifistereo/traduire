@@ -348,3 +348,8 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+infrastructure/terraform/terraform.tfstate
+infrastructure/terraform/terraform.tfstate.backup
+infrastructure/terraform/variables.tfvars
+infrastructure/terraform/.terraform/plugins/registry.terraform.io/hashicorp/azurerm/2.43.0/windows_amd64/terraform-provider-azurerm_v2.43.0_x5.exe
+infrastructure/deploy_application.ps1
