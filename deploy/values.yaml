@@ -1,0 +1,8 @@
+app_name                                : ""
+msi_client_id                           : ""
+msi_resource_id                         : ""
+keyvault_name                           : ""
+msi_selector                            : "dapr-podidentity"
+service_bus_connection_string_secret    : "sb_connection" 
+service_bus_queue                       : "events"
+utils_container                         : "bjd145/utils:latest"
