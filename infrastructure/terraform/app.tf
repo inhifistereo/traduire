@@ -7,8 +7,8 @@ resource "azurerm_resource_group" "traduire_app" {
   }
 }
 
-data "azurerm_subscription" "current" {
-}
+data "azurerm_subscription" "current" {}
+data "azurerm_client_config" "current" {}
 
 resource "azurerm_postgresql_server" "traduire_app" {
   name                = var.postgresql_name
@@ -303,6 +303,30 @@ resource "azurerm_key_vault" "traduire_app" {
       "list",
       "get"
     ]
-
   }
+
+  access_policy {
+    tenant_id = data.azurerm_client_config.current.tenant_id
+    object_id = data.azurerm_client_config.current.object_id 
+
+    secret_permissions = [
+      "set",
+      "get",
+      "delete",
+      "purge",
+      "recover"
+    ]
+  }
+}
+
+resource "azurerm_key_vault_secret" "service_bus_connection_string" {
+  name         = var.service_bus_secret_name
+  value        = azurerm_servicebus_namespace.traduire_app.default_primary_connection_string
+  key_vault_id = azurerm_key_vault.traduire_app.id
+}
+
+resource "azurerm_key_vault_secret" "storage_secret_name" {
+  name         = var.storage_secret_name
+  value        = azurerm_storage_account.traduire_app.primary_access_key 
+  key_vault_id = azurerm_key_vault.traduire_app.id
 }

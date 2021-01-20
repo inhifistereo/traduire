@@ -100,3 +100,16 @@ variable "api_server_authorized_ip_ranges" {
   description = "IP Range for K8S API Access"
   type        = string
 }
+
+variable "service_bus_secret_name" {
+  description = "Key Vault Secret Name for Service Bus Connection String"
+  type        = string
+  default     = "sbconnection"
+}
+
+variable "storage_secret_name" {
+  description = "Key Vault Secret Name for Azure Storage Access Key"
+  type        = string
+  default     = "storagekey"
+}
+
