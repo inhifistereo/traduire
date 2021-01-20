@@ -7,11 +7,6 @@ param(
 )
 Import-Module bjd.Common.Functions
 
-function Get-GitBranchRevision
-{
-    return (git rev-parse HEAD).Substring(0,8)
-}
-
 function Start-Docker
 {
     if(Get-OSType -eq "Unix") {
