@@ -75,10 +75,10 @@ helm upgrade -i keda kedacore/keda --namespace keda --version $KEDA_VERSION
 helm repo add dapr https://dapr.github.io/helm-charts
 helm repo update
 kubectl create namespace dapr-system
-helm upgrade -i dapr dapr/dapr --namespace dapr-system --version $DAPR_VERSION --wait
+helm upgrade -i dapr dapr/dapr --namespace dapr-system --version $DAPR_VERSION --set global.logAsJson=true --set global.ha.enabled=true --wait
 
 #Due to https://github.com/dapr/dapr/issues/1621#
-#kubectl -n dapr-system rollout restart deployment dapr-sidecar-injector
+kubectl -n dapr-system rollout restart deployment dapr-sidecar-injector
 
 # Install Pod Identity 
 helm repo add aad-pod-identity https://raw.githubusercontent.com/Azure/aad-pod-identity/master/charts
@@ -94,7 +94,7 @@ helm upgrade -i `
    traduire . 
 
 #Testing from within utils containers
-#Invoke-RestMethod -Method Post -Uri "http://localhost:3500/v1.0/bindings/vxzjl-servicebus" -Body '{ "data": { "message": "bye" }, "operation": "message" }'
+#Invoke-RestMethod -Method Post -Uri "http://localhost:3500/v1.0/bindings/vxzjl-servicebus" -Body '{ "data": { "message": "bye" }, "operation": "create" }'
 #Invoke-RestMethod -Uri "http://localhost:3500/v1.0/secrets/vxzjl-vault"
 
 Set-location -Path $cwd
