@@ -213,7 +213,7 @@ resource "azurerm_role_assignment" "network_contributor_node" {
 }
 
 resource "azurerm_role_assignment" "msi_operator_cluster_node_rg" {
-  scope                     = "${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_kubernetes_cluster.traduire_app.node_resource_group}"
+  scope                     = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_kubernetes_cluster.traduire_app.node_resource_group}"
   role_definition_name      = "Managed Identity Operator"
   principal_id              = azurerm_kubernetes_cluster.traduire_app.kubelet_identity.0.object_id
   skip_service_principal_aad_check = true
@@ -227,7 +227,7 @@ resource "azurerm_role_assignment" "msi_operator_cluster_msi_rg" {
 }
 
 resource "azurerm_role_assignment" "vm_contributor_cluster" {
-  scope                     = "${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_kubernetes_cluster.traduire_app.node_resource_group}"
+  scope                     = "/subscriptions/${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_kubernetes_cluster.traduire_app.node_resource_group}"
   role_definition_name      = "Virtual Machine Contributor" 
   principal_id              = azurerm_kubernetes_cluster.traduire_app.kubelet_identity.0.object_id
   skip_service_principal_aad_check = true
@@ -327,5 +327,11 @@ resource "azurerm_key_vault_secret" "service_bus_connection_string" {
 resource "azurerm_key_vault_secret" "storage_secret_name" {
   name         = var.storage_secret_name
   value        = azurerm_storage_account.traduire_app.primary_access_key 
+  key_vault_id = azurerm_key_vault.traduire_app.id
+}
+
+resource "azurerm_key_vault_secret" "postgresql_connection_string" {
+  name         = var.postgresql_secret_name
+  value        = "postgres://${azurerm_postgresql_server.traduire_app.administrator_login}:${azurerm_postgresql_server.traduire_app.administrator_login_password}@${azurerm_postgresql_server.traduire_app.name}.postgres.database.azure.com:5432/${var.postgresql_database_name}?sslmode=verify-ca"
   key_vault_id = azurerm_key_vault.traduire_app.id
 }

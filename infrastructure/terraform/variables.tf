@@ -113,3 +113,8 @@ variable "storage_secret_name" {
   default     = "storagekey"
 }
 
+variable "postgresql_secret_name" {
+  description = "Key Vault Secret Name for PostgreSQL Connection String"
+  type        = string
+  default     = "postgresqlconnection"
+}
