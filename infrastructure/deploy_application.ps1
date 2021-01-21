@@ -32,6 +32,7 @@ Set-Variable -Name APP_RG_NAME  -Value ("{0}_app_rg" -f $AppName)       -Option 
 Set-Variable -Name APP_K8S_NAME -Value ("{0}-aks01" -f $AppName)        -Option Constant
 Set-Variable -Name APP_ACR_NAME -Value ("{0}acr01" -f $AppName)         -Option Constant
 Set-Variable -Name APP_KV_NAME  -Value ("{0}-kv01" -f $AppName)         -Option Constant
+Set-Variable -Name APP_SA_NAME  -Value ("{0}files01" -f $AppName)       -Option Constant
 Set-Variable -Name APP_MSI_NAME -Value ("{0}-dapr-reader" -f $AppName)  -Option Constant
 
 $cwd = $PWD.Path
@@ -50,12 +51,6 @@ az aks get-credentials -n $APP_K8S_NAME -g $APP_RG_NAME
 $ms_resource_id = az identity show -n $APP_MSI_NAME -g $APP_RG_NAME --query id -o tsv
 $ms_client_id = az identity show -n $APP_MSI_NAME -g $APP_RG_NAME --query clientId -o tsv
 
-#Get Service Bus Connection String
-#TBC
-
-#Set Key Vault Secret for Connection Strings
-#TBC
-
 # Install Traefik Ingress 
 helm repo add traefik https://helm.traefik.io/traefik    
 helm upgrade -i traefik traefik/traefik -f  ../Infrastructure/traefik/values.yaml --wait
@@ -73,7 +68,7 @@ kubectl create namespace dapr-system
 helm upgrade -i dapr dapr/dapr --namespace dapr-system --version $DAPR_VERSION --set global.logAsJson=true --set global.ha.enabled=true --wait
 
 #Due to https://github.com/dapr/dapr/issues/1621#
-kubectl -n dapr-system rollout restart deployment dapr-sidecar-injector
+#kubectl -n dapr-system rollout restart deployment dapr-sidecar-injector
 
 # Install Pod Identity 
 helm repo add aad-pod-identity https://raw.githubusercontent.com/Azure/aad-pod-identity/master/charts
@@ -86,10 +81,12 @@ helm upgrade -i `
    --set msi_client_id=$ms_client_id `
    --set msi_resource_id=$ms_resource_id `
    --set keyvault_name=$APP_KV_NAME `
+   --set storage_name=$APP_SA_NAME `
    traduire . 
 
 #Testing from within utils containers
 #Invoke-RestMethod -Method Post -Uri "http://localhost:3500/v1.0/bindings/vxzjl-servicebus" -Body '{ "data": { "message": "bye" }, "operation": "create" }'
 #Invoke-RestMethod -Uri "http://localhost:3500/v1.0/secrets/vxzjl-vault"
+#Invoke-RestMethod -Uri "http://localhost:3500/v1.0/bindings/vxzjl-storage" -Body '{ "operation": "create", "data": { "field1": "value1" }}' 
 
 Set-location -Path $cwd
