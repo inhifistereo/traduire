@@ -7,7 +7,6 @@ resource "azurerm_resource_group" "traduire_app" {
   }
 }
 
-data "azurerm_subscription" "current" {}
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_postgresql_server" "traduire_app" {
@@ -214,7 +213,7 @@ resource "azurerm_role_assignment" "network_contributor_node" {
 }
 
 resource "azurerm_role_assignment" "msi_operator_cluster_node_rg" {
-  scope                     = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_kubernetes_cluster.traduire_app.node_resource_group}"
+  scope                     = "${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_kubernetes_cluster.traduire_app.node_resource_group}"
   role_definition_name      = "Managed Identity Operator"
   principal_id              = azurerm_kubernetes_cluster.traduire_app.kubelet_identity.0.object_id
   skip_service_principal_aad_check = true
@@ -228,7 +227,7 @@ resource "azurerm_role_assignment" "msi_operator_cluster_msi_rg" {
 }
 
 resource "azurerm_role_assignment" "vm_contributor_cluster" {
-  scope                     = "${data.azurerm_subscription.current.id}/resourceGroups/${azurerm_kubernetes_cluster.traduire_app.node_resource_group}"
+  scope                     = "${data.azurerm_client_config.current.subscription_id}/resourceGroups/${azurerm_kubernetes_cluster.traduire_app.node_resource_group}"
   role_definition_name      = "Virtual Machine Contributor" 
   principal_id              = azurerm_kubernetes_cluster.traduire_app.kubelet_identity.0.object_id
   skip_service_principal_aad_check = true
@@ -289,14 +288,14 @@ resource "azurerm_key_vault" "traduire_app" {
   name                        = var.keyvault_name
   resource_group_name         = azurerm_resource_group.traduire_app.name
   location                    = azurerm_resource_group.traduire_app.location
-  tenant_id                   = data.azurerm_subscription.current.tenant_id
+  tenant_id                   = data.azurerm_client_config.current.tenant_id
   soft_delete_retention_days  = 7
   purge_protection_enabled    = false
 
   sku_name = "standard"
 
   access_policy {
-    tenant_id = data.azurerm_subscription.current.tenant_id
+    tenant_id = data.azurerm_client_config.current.tenant_id
     object_id = azurerm_user_assigned_identity.dapr_kv_reader.principal_id 
 
     secret_permissions = [
