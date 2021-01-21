@@ -98,12 +98,18 @@ resource "azurerm_private_endpoint" "servicebus_namespace" {
 }
 
 resource "azurerm_storage_account" "traduire_app" {
-  name                     = var.mp3_storage_name
-  resource_group_name      = azurerm_resource_group.traduire_app.name
-  location                 = azurerm_resource_group.traduire_app.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  account_kind             = "StorageV2"
+  name                      = var.mp3_storage_name
+  resource_group_name       = azurerm_resource_group.traduire_app.name
+  location                  = azurerm_resource_group.traduire_app.location
+  account_tier              = "Standard"
+  account_replication_type  = "LRS"
+  account_kind              = "StorageV2"
+  enable_https_traffic_only = true
+  min_tls_version           = "TLS1_2"
+  network_rules {
+    default_action          = "Deny"
+    ip_rules                = [ split("/", var.api_server_authorized_ip_ranges)[0] ]
+  }
 }
 
 resource "azurerm_storage_container" "mp3" {
@@ -294,6 +300,12 @@ resource "azurerm_key_vault" "traduire_app" {
 
   sku_name = "standard"
 
+  network_acls {
+    bypass                    = "AzureServices"
+    default_action            = "Deny"
+    ip_rules                  = [ var.api_server_authorized_ip_ranges ]
+  }
+
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
     object_id = azurerm_user_assigned_identity.dapr_kv_reader.principal_id 
@@ -317,6 +329,26 @@ resource "azurerm_key_vault" "traduire_app" {
     ]
   }
 }
+
+resource "azurerm_private_endpoint" "key_vault" {
+  name                      = "${var.keyvault_name}-ep"
+  resource_group_name       = azurerm_resource_group.traduire_app.name
+  location                  = azurerm_resource_group.traduire_app.location
+  subnet_id                 = azurerm_subnet.private-endpoints.id
+
+  private_service_connection {
+    name                           = "${var.keyvault_name}-ep"
+    private_connection_resource_id = azurerm_key_vault.traduire_app.id
+    subresource_names              = [ "vault" ]
+    is_manual_connection           = false
+  }
+
+  private_dns_zone_group {
+    name                          = azurerm_private_dns_zone.privatelink_vaultcore_azure_net.name
+    private_dns_zone_ids          = [ azurerm_private_dns_zone.privatelink_vaultcore_azure_net.id ]
+  }
+}
+
 
 resource "azurerm_key_vault_secret" "service_bus_connection_string" {
   name         = var.service_bus_secret_name
