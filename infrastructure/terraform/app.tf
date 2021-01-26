@@ -106,10 +106,6 @@ resource "azurerm_storage_account" "traduire_app" {
   account_kind              = "StorageV2"
   enable_https_traffic_only = true
   min_tls_version           = "TLS1_2"
-  network_rules {
-    default_action          = "Deny"
-    ip_rules                = [ split("/", var.api_server_authorized_ip_ranges)[0] ]
-  }
 }
 
 resource "azurerm_storage_container" "mp3" {
@@ -348,8 +344,7 @@ resource "azurerm_private_endpoint" "key_vault" {
     private_dns_zone_ids          = [ azurerm_private_dns_zone.privatelink_vaultcore_azure_net.id ]
   }
 }
-
-
+ 
 resource "azurerm_key_vault_secret" "service_bus_connection_string" {
   name         = var.service_bus_secret_name
   value        = azurerm_servicebus_namespace.traduire_app.default_primary_connection_string
@@ -365,5 +360,11 @@ resource "azurerm_key_vault_secret" "storage_secret_name" {
 resource "azurerm_key_vault_secret" "postgresql_connection_string" {
   name         = var.postgresql_secret_name
   value        = "postgres://${azurerm_postgresql_server.traduire_app.administrator_login}@${azurerm_postgresql_server.traduire_app.name}:${azurerm_postgresql_server.traduire_app.administrator_login_password}@${azurerm_postgresql_server.traduire_app.name}.postgres.database.azure.com:5432/${var.postgresql_database_name}?sslmode=verify-ca"
+  key_vault_id = azurerm_key_vault.traduire_app.id
+}
+
+resource "azurerm_key_vault_secret" "azurerm_cognitive_account_key" {
+  name         = var.cognitive_services_secret_name
+  value        = azurerm_cognitive_account.traduire_app.primary_access_key
   key_vault_id = azurerm_key_vault.traduire_app.id
 }
