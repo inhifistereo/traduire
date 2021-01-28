@@ -29,5 +29,9 @@
 - New feature == new branch
 - Merge back to master when done
 
-**Concept architecture**
-![Architecture](./initial_concept.png)
+# Architecture
+## Concept 
+![Architecture](./assets/high_level_overview.png)
+
+## Workflow
+![Flow](./assets/flow_diagram.png)
