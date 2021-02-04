@@ -85,8 +85,9 @@ helm upgrade -i `
    traduire . 
 
 #Testing from within utils containers
-#Invoke-RestMethod -Method Post -Uri "http://localhost:3500/v1.0/bindings/vxzjl-servicebus" -Body '{ "data": { "message": "bye" }, "operation": "create" }'
-#Invoke-RestMethod -Uri "http://localhost:3500/v1.0/secrets/vxzjl-vault"
-#Invoke-RestMethod -Uri "http://localhost:3500/v1.0/bindings/vxzjl-storage" -Body '{ "operation": "create", "data": { "field1": "value1" }}' 
+#Invoke-RestMethod -Uri 'http://localhost:3500/v1.0/publish/tra7db0a-pubsub/transcriptioncompleted' -Method Post -ContentType 'application/json' -Body '{"status": "completed"}' 
+#Invoke-RestMethod -Uri "http://localhost:3500/v1.0/secrets/tra7db0a--vault"
+#Invoke-RestMethod -Uri "http://localhost:3500/v1.0/bindings/tra7db0a--storage" -Body '{ "operation": "create", "data": { "field1": "value1" }}' 
+
 
 Set-location -Path $cwd

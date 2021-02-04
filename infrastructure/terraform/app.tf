@@ -71,13 +71,6 @@ resource "azurerm_servicebus_namespace" "traduire_app" {
   capacity                  = 2
 }
 
-resource "azurerm_servicebus_queue" "traduire_app" {
-  name                  = "events"
-  namespace_name        = azurerm_servicebus_namespace.traduire_app.name
-  resource_group_name   = azurerm_resource_group.traduire_app.name
-  enable_partitioning   = true
-}
-
 resource "azurerm_private_endpoint" "servicebus_namespace" {
   name                      = "${var.service_bus_namespace_name}-ep"
   resource_group_name       = azurerm_resource_group.traduire_app.name
