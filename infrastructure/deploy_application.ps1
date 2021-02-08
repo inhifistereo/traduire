@@ -26,7 +26,7 @@ function Connect-Azure
     az account set -s $SubscriptionName -o none
 }
 
-Set-Variable -Name DAPR_VERSION -Value "1.0.0-rc.2"                     -Option Constant
+Set-Variable -Name DAPR_VERSION -Value "1.0.0-rc.3"                     -Option Constant
 Set-Variable -Name KEDA_VERSION -Value "1.5.0"                          -Option Constant
 Set-Variable -Name APP_RG_NAME  -Value ("{0}_app_rg" -f $AppName)       -Option Constant
 Set-Variable -Name APP_K8S_NAME -Value ("{0}-aks01" -f $AppName)        -Option Constant
@@ -88,6 +88,5 @@ helm upgrade -i `
 #Invoke-RestMethod -Uri 'http://localhost:3500/v1.0/publish/tra7db0a-pubsub/transcriptioncompleted' -Method Post -ContentType 'application/json' -Body '{"status": "completed"}' 
 #Invoke-RestMethod -Uri "http://localhost:3500/v1.0/secrets/tra7db0a--vault"
 #Invoke-RestMethod -Uri "http://localhost:3500/v1.0/bindings/tra7db0a--storage" -Body '{ "operation": "create", "data": { "field1": "value1" }}' 
-
 
 Set-location -Path $cwd
