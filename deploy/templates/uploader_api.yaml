@@ -18,9 +18,49 @@ spec:
         aadpodidbinding: {{.Values.msi_selector}}
     spec:
       containers:
-      - name: fileuploader
+      - name: api
         image: {{.Values.acr_name}}.azurecr.io/traduire/api:{{.Values.commit_version}} 
         imagePullPolicy: Always
         env:
         - name: DAPR_BLOB_STORE_NAME
           value: {{.Values.app_name}}-storage
+        resources:
+          limits:
+            cpu: "1"
+            memory: 256Mi
+          requests:
+            cpu: "0.5"
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          runAsUser: 1000
+          runAsGroup: 1000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{.Values.app_name}}-svc
+  labels:
+    version: {{.Values.commit_version}}
+spec:
+  selector:
+    app: {{.Values.app_name}}
+    component: api
+  ports:
+  - port: 8081
+    targetPort: 80
+  type: NodePort
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{.Values.app_name}}-ingress
+spec:
+  rules:
+  - http: 
+      paths: 
+      - backend:
+          serviceName: {{.Values.app_name}}-svc
+          servicePort: 8081
+        path: /
