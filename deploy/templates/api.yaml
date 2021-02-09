@@ -24,6 +24,8 @@ spec:
         env:
         - name: DAPR_BLOB_STORE_NAME
           value: {{.Values.app_name}}-storage
+        - name: DAPR_PUBSUB_NAME
+          value: {{.Values.app_name}}-pubsub
         resources:
           limits:
             cpu: "1"
@@ -33,9 +35,9 @@ spec:
             memory: 128Mi
         securityContext:
           allowPrivilegeEscalation: false
-          readOnlyRootFilesystem: true
-          runAsUser: 1000
-          runAsGroup: 1000
+          #readOnlyRootFilesystem: true
+          #runAsUser: 1000
+          #runAsGroup: 1000
 ---
 apiVersion: v1
 kind: Service
