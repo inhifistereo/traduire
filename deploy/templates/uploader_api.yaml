@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.app_name}}-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Values.app_name}}-api
+  template:
+    metadata:
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "{{.Values.app_name}}-api"
+        dapr.io/log-level: "debug"
+      labels:
+        app: {{.Values.app_name}}-api
+        aadpodidbinding: {{.Values.msi_selector}}
+    spec:
+      containers:
+      - name: fileuploader
+        image: {{.Values.acr_name}}.azurecr.io/traduire/api:{{.Values.commit_version}} 
+        imagePullPolicy: Always
+        env:
+        - name: DAPR_BLOB_STORE_NAME
+          value: {{.Values.app_name}}-storage

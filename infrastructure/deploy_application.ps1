@@ -36,10 +36,12 @@ Set-Variable -Name APP_SA_NAME  -Value ("{0}files01" -f $AppName)       -Option 
 Set-Variable -Name APP_MSI_NAME -Value ("{0}-dapr-reader" -f $AppName)  -Option Constant
 
 $cwd = $PWD.Path
-Set-location -Path ..\deploy
 
 #Start-Docker
 Connect-Azure
+
+#Commit Version 
+$commit_version = (git rev-parse HEAD).SubString(0,8)
 
 #Set Subscription and login into ACR
 az acr login -n $APP_ACR_NAME
@@ -50,6 +52,15 @@ az aks get-credentials -n $APP_K8S_NAME -g $APP_RG_NAME
 #Get MSI Account
 $ms_resource_id = az identity show -n $APP_MSI_NAME -g $APP_RG_NAME --query id -o tsv
 $ms_client_id = az identity show -n $APP_MSI_NAME -g $APP_RG_NAME --query clientId -o tsv
+
+#Build API
+Set-Location -Path ..\source\api
+docker build -t ("{0}.azurecr.io/traduire/api:{1}" -f $APP_ACR_NAME, $commit_version) .
+docker push ("{0}.azurecr.io/traduire/api:{1}" -f $APP_ACR_NAME,$commit_version)
+Set-Location -Path $cwd
+
+#Deploy Helm Charts
+Set-Location -Path ..\deploy
 
 # Install Traefik Ingress 
 helm repo add traefik https://helm.traefik.io/traefik    
@@ -82,11 +93,13 @@ helm upgrade -i `
    --set msi_resource_id=$ms_resource_id `
    --set keyvault_name=$APP_KV_NAME `
    --set storage_name=$APP_SA_NAME `
+   --set acr_name=$APP_ACR_NAME `
+   --set commit_version=$commit_version `
    traduire . 
 
 #Testing from within utils containers
 #Invoke-RestMethod -Uri 'http://localhost:3500/v1.0/publish/tra7db0a-pubsub/transcriptioncompleted' -Method Post -ContentType 'application/json' -Body '{"status": "completed"}' 
-#Invoke-RestMethod -Uri "http://localhost:3500/v1.0/secrets/tra7db0a--vault"
-#Invoke-RestMethod -Uri "http://localhost:3500/v1.0/bindings/tra7db0a--storage" -Body '{ "operation": "create", "data": { "field1": "value1" }}' 
+#Invoke-RestMethod -Uri "http://localhost:3500/v1.0/secrets/tra7db0a-vault"
+#Invoke-RestMethod -Uri "http://localhost:3500/v1.0/bindings/tra7db0a-storage" -Body '{ "operation": "create", "data": { "field1": "value1" }}' 
 
 Set-location -Path $cwd

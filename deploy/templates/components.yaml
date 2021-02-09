@@ -42,6 +42,8 @@ spec:
       key: {{.Values.storage_connection_string_secret}}
   - name: container
     value: {{.Values.storage_container}}
+  - name: decodeBase64 
+    value: "true"
 auth:
   secretStore: {{.Values.app_name}}-vault
 
