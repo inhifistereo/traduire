@@ -35,26 +35,29 @@ namespace TraduireAPi.Controllers
         public async Task<ActionResult> Post(IFormFile file, CancellationToken cancellationToken, [FromServices] DaprClient daprClient)
         {
             try{
-                var id = Guid.NewGuid().ToString();
+                var transactionId = Guid.NewGuid().ToString();
+                var correlationId = Guid.NewGuid().ToString();
                 var safeFileName = WebUtility.HtmlEncode(file.FileName); 
 
                 var metadata = new Dictionary<string, string>();
                 metadata.Add("blobName", safeFileName);
-                metadata.Add("transactionId", id);
+                metadata.Add("transactionId", transactionId);
+                metadata.Add("correlationId", correlationId);
 
                 var response = await daprClient.InvokeBindingAsync<string,BlobBindingResponse>(BlobStoreName, "create",  await ConvertFileToBase64Encoding(file), metadata, cancellationToken);                      
-                _logger.LogInformation($"{id} was successfullly saved as {safeFileName}");
+                _logger.LogInformation($"{transactionId}. File was successfullly saved as {safeFileName} to {BlobStoreName} blob storage");
 
                 var eventdata = new {
                     timeStamp = DateTime.UtcNow.ToString("s"),
-                    transactionId = id,
+                    transactionId = transactionId,
+                    correlationId = correlationId,
                     fileName = safeFileName,
                     fileUri = response.blobURL
                 };
 
                 await daprClient.PublishEventAsync(PubSubName, "registertanscription", eventdata, cancellationToken );
-                _logger.LogInformation($"{id} was was published to {PubSubName} pub sub store");
-                return Ok(id); 
+                _logger.LogInformation($"{transactionId}. Event was successfullly published to {PubSubName} pubsub store");
+                return Ok(transactionId); 
             }
             catch( Exception ex ) {
                 //Add Compensating tranasaction to undo error
