@@ -349,10 +349,10 @@ resource "azurerm_key_vault_secret" "storage_secret_name" {
   value        = azurerm_storage_account.traduire_app.primary_access_key 
   key_vault_id = azurerm_key_vault.traduire_app.id
 }
-
+ 
 resource "azurerm_key_vault_secret" "postgresql_connection_string" {
   name         = var.postgresql_secret_name
-  value        = "postgres://${azurerm_postgresql_server.traduire_app.administrator_login}@${azurerm_postgresql_server.traduire_app.name}:${azurerm_postgresql_server.traduire_app.administrator_login_password}@${azurerm_postgresql_server.traduire_app.name}.postgres.database.azure.com:5432/${var.postgresql_database_name}?sslmode=verify-ca"
+  value        = "host=${azurerm_postgresql_server.traduire_app.name}.postgres.database.azure.com user=${azurerm_postgresql_server.traduire_app.administrator_login}@${azurerm_postgresql_server.traduire_app.name} password=${azurerm_postgresql_server.traduire_app.administrator_login_password} port=5432 dbname=${var.postgresql_database_name} sslmode=require"
   key_vault_id = azurerm_key_vault.traduire_app.id
 }
 

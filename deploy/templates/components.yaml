@@ -51,12 +51,14 @@ kind: Component
 metadata:
   name: {{.Values.app_name}}-sql
 spec:
-  type: bindings.postgres
+  type: state.postgresql
   version: v1
   metadata:
-  - name: url 
+  - name: connectionString 
     secretKeyRef:
       name: {{.Values.postgresql_connection_string_secret}}
       key: {{.Values.postgresql_connection_string_secret}}
+  - name: actorStateStore
+    value: "true"
 auth:
   secretStore: {{.Values.app_name}}-vault
