@@ -1,33 +1,32 @@
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
-  name: {{.Values.app_name}}-transcriptionstarted
+  name: ontranscription-submitted
 spec:
-  topic: transcriptionStarted
-  route: /{{.Values.app_name}}trigger
+  topic: ontranscription_submitted
+  route: /transcribe
   pubsubname: {{.Values.app_name}}-pubsub
 scopes:
-- {{.Values.app_name}}
+- {{.Values.app_name}}-onstarted
 ---
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
-  name: {{.Values.app_name}}-transcriptionstatus
+  name: ontranscription-status
 spec:
-  topic: transcriptionStatus
-  route: /{{.Values.app_name}}status
+  topic: ontranscription_status
+  route: /status
   pubsubname: {{.Values.app_name}}-pubsub
 scopes:
-- {{.Values.app_name}}
+- {{.Values.app_name}}-onstatus
 ---
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
-  name: {{.Values.app_name}}-transcriptioncompleted
+  name: ontranscription-completed
 spec:
-  topic: transcriptionCompleted
-  route: /{{.Values.app_name}}completed
+  topic:  ontranscription_completed
+  route: /completed
   pubsubname: {{.Values.app_name}}-pubsub
 scopes:
-- {{.Values.app_name}}
----
+- {{.Values.app_name}}-oncompleted
