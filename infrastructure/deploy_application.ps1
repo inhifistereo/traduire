@@ -53,10 +53,16 @@ az aks get-credentials -n $APP_K8S_NAME -g $APP_RG_NAME
 $ms_resource_id = az identity show -n $APP_MSI_NAME -g $APP_RG_NAME --query id -o tsv
 $ms_client_id = az identity show -n $APP_MSI_NAME -g $APP_RG_NAME --query clientId -o tsv
 
-#Build API
-Set-Location -Path ..\source\api
-docker build -t ("{0}.azurecr.io/traduire/api:{1}" -f $APP_ACR_NAME, $commit_version) .
+#Build Source
+Set-Location -Path ..\source
+docker build -t ("{0}.azurecr.io/traduire/api:{1}" -f $APP_ACR_NAME, $commit_version) -f dockerfile.api .
 docker push ("{0}.azurecr.io/traduire/api:{1}" -f $APP_ACR_NAME,$commit_version)
+
+docker build -t ("{0}.azurecr.io/traduire/onstarted.handler:{1}" -f $APP_ACR_NAME, $commit_version) -f dockerfile.onstarted .
+docker push ("{0}.azurecr.io/traduire/onstarted.handler:{1}" -f $APP_ACR_NAME,$commit_version)
+
+#OnCompletion and OnPending TBD
+
 Set-Location -Path $cwd
 
 #Deploy Helm Charts

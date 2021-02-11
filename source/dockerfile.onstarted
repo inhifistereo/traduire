@@ -1,0 +1,23 @@
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-env
+
+WORKDIR /app/transcription.common
+COPY ./transcription.common/*.csproj .
+COPY ./transcription.common/. .
+RUN dotnet restore 
+
+WORKDIR /app/transcription.models
+COPY ./transcription.models/*.csproj .
+RUN dotnet restore 
+COPY ./transcription.models/. .
+
+WORKDIR /app/onstarted
+COPY ./transcription.OnStarted/*.csproj .
+RUN dotnet restore 
+COPY ./transcription.OnStarted/. .
+RUN dotnet publish -c Release -o out
+
+#Build runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:5.0
+WORKDIR /app
+COPY --from=build-env /app/onstarted/out .
+ENTRYPOINT ["dotnet", "transcription.onstarted.dll"]
