@@ -14,7 +14,7 @@ spec:
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: {{.Values.app_name}}-pubsub
+  name: pubsub
 spec:
   type: pubsub.azure.servicebus
   version: v1
@@ -29,7 +29,7 @@ auth:
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: {{.Values.app_name}}-storage
+  name: storage
 spec:
   type: bindings.azure.blobstorage
   version: v1
@@ -46,12 +46,11 @@ spec:
     value: "true"
 auth:
   secretStore: {{.Values.app_name}}-vault
-
 ---
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: {{.Values.app_name}}-sql
+  name: sql
 spec:
   type: state.postgresql
   version: v1
