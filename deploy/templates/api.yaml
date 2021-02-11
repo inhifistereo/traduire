@@ -26,6 +26,8 @@ spec:
           value: {{.Values.app_name}}-storage
         - name: DAPR_PUBSUB_NAME
           value: {{.Values.app_name}}-pubsub
+        - name: DAPR_STATESTORE_NAME
+          value: {{.Values.app_name}}-sql
         resources:
           limits:
             cpu: "1"

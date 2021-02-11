@@ -32,7 +32,7 @@ namespace traduire.webapi
                 options.AddDefaultPolicy(
                     builder =>
                     {
-                        builder.WithOrigins("http://localhost:5002");
+                        builder.WithOrigins("*");
                     });
             });
 
