@@ -23,7 +23,6 @@ namespace TraduireAPi.Controllers
     public class UploadController : ControllerBase
     {
         private readonly ILogger _logger;
-        private readonly Components _components = new Components();
 
         public UploadController(ILogger<UploadController> logger)
         {
@@ -58,15 +57,15 @@ namespace TraduireAPi.Controllers
                 var encodedFile = await ConvertFileToBase64Encoding(file);
 
                 var response = await daprClient.InvokeBindingAsync<string,BlobBindingResponse>(
-                        _components.BlobStoreName, 
-                        _components.CreateOperation, 
+                        Components.BlobStoreName, 
+                        Components.CreateOperation, 
                         encodedFile, 
                         metadata,
                         cancellationToken
                 );                      
-                _logger.LogInformation($"{TranscriptionId}. File was successfullly saved as {safeFileName} to {_components.BlobStoreName} blob storage");
+                _logger.LogInformation($"{TranscriptionId}. File was successfullly saved as {safeFileName} to {Components.BlobStoreName} blob storage");
 
-                var state = await daprClient.GetStateEntryAsync<Transcription>(_components.StateStoreName, TranscriptionId.ToString());
+                var state = await daprClient.GetStateEntryAsync<Transcription>(Components.StateStoreName, TranscriptionId.ToString());
                 state.Value ??= new Transcription() { 
                     TranscriptionId     = TranscriptionId,
                     CreateTime          = DateTime.UtcNow,
@@ -76,21 +75,21 @@ namespace TraduireAPi.Controllers
                     BlobUri             = response.blobURL
                 };
                 await state.SaveAsync();
-                _logger.LogInformation($"{TranscriptionId}. Record was successfullly saved as to {_components.StateStoreName} State Store");
+                _logger.LogInformation($"{TranscriptionId}. Record was successfullly saved as to {Components.StateStoreName} State Store");
 
                 var eventdata = new TranscriptionRequest() { 
                     TranscriptionId = TranscriptionId, 
                     BlobUri = response.blobURL
                 };
-                await daprClient.PublishEventAsync(_components.PubSubName, Topics.TranscriptionSubmittedTopicName, eventdata, cancellationToken );
+                await daprClient.PublishEventAsync(Components.PubSubName, Topics.TranscriptionSubmittedTopicName, eventdata, cancellationToken );
 
-                _logger.LogInformation($"{TranscriptionId}. Event was successfullly published to {_components.PubSubName} pubsub store");
+                _logger.LogInformation($"{TranscriptionId}. Event was successfullly published to {Components.PubSubName} pubsub store");
 
                 return Ok(TranscriptionId); 
             }
-            catch( Exception ex ) {
+            catch( Exception ex ) 
+            {
                 //Add Compensating tranasaction to undo error
-
                 _logger.LogWarning($"Failed to create {file.FileName} - {ex.Message}");    
             }
 
