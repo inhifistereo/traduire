@@ -5,7 +5,7 @@ metadata:
 spec:
   topic: ontranscription_submitted
   route: /transcribe
-  pubsubname: {{.Values.app_name}}-pubsub
+  pubsubname: pubsub
 scopes:
 - {{.Values.app_name}}-onstarted
 ---
@@ -16,7 +16,7 @@ metadata:
 spec:
   topic: ontranscription_status
   route: /status
-  pubsubname: {{.Values.app_name}}-pubsub
+  pubsubname: pubsub
 scopes:
 - {{.Values.app_name}}-onstatus
 ---
@@ -27,6 +27,6 @@ metadata:
 spec:
   topic:  ontranscription_completed
   route: /completed
-  pubsubname: {{.Values.app_name}}-pubsub
+  pubsubname: pubsub
 scopes:
 - {{.Values.app_name}}-oncompleted

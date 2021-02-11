@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.app_name}}-onstarted
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{.Values.app_name}}-onstarted
+  template:
+    metadata:
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/app-id: "{{.Values.app_name}}-onstarted"
+        dapr.io/app-port: "80"
+        dapr.io/log-level: "debug"
+      labels:
+        app: {{.Values.app_name}}-onstarted
+        aadpodidbinding: {{.Values.msi_selector}}
+    spec:
+      containers:
+      - name: eventhandler
+        image: {{.Values.acr_name}.azurecr.io/traduire/onstarted.handler:{{.Values.commit_version}}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+            cpu: "1"
+            memory: 256Mi
+          requests:
+            cpu: "0.5"
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
