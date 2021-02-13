@@ -20,8 +20,6 @@ namespace transcription.common.cognitiveservices
         private HttpClient client;
         private string AzCognitiveServicesUri; 
 
-        private string RecordingsBlobUri; 
-
         public AzureCognitiveServicesClient()
         {
             AzCognitiveServicesUri = $"{region}.api.cognitive.microsoft.com";
@@ -73,17 +71,33 @@ namespace transcription.common.cognitiveservices
         }
 
         public async Task<(TranscriptionResults,HttpStatusCode)> DownloadTranscriptionResultAsync( Uri location )
-        {            
+        {           
+            TranscriptionFiles files; 
+            TranscriptionResults results;
+
             using (var response = await client.GetAsync(location))
             {
-                if (response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
-                    var json = await response.Content.ReadAsStringAsync();
-                    JsonSerializer.Deserialize<TranscriptionResults>(json), response.StatusCode);
+                    return (null, HttpStatusCode.BadRequest);
                 }
-
-                return (null, response.StatusCode);
+                var json = await response.Content.ReadAsStringAsync();
+                files = JsonSerializer.Deserialize<TranscriptionFiles>(json);
             }
+                    
+            using (var response = await client.GetAsync(files.Values[0].Links.ContentUrl))
+            {
+                if (!response.IsSuccessStatusCode)
+                {
+                    return (null, HttpStatusCode.BadRequest);
+                }
+                var json = await response.Content.ReadAsStringAsync();
+                results = JsonSerializer.Deserialize<TranscriptionResults>(json);  
+
+                return (results, HttpStatusCode.OK);
+            }
+
+            //return (null, HttpStatusCode.BadRequest);
         }
     }
 }

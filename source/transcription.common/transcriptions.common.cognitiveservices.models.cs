@@ -87,7 +87,7 @@ namespace transcription.common.cognitiveservices
 
     //Reference - https://westus.dev.cognitive.microsoft.com/docs/services/speech-to-text-api-v3-0/operations/GetTranscriptionFiles
     public class TranscriptionFiles {
-        IEnumerable<TranscriptionFilesValues> Values { get; set; }
+        public IList<TranscriptionFilesValues> Values { get; set; }
     }
 
     public class TranscriptionFilesValues 
@@ -121,7 +121,7 @@ namespace transcription.common.cognitiveservices
     { 
         public long Size; 
     }
-    
+
     //Reference - https://azure.microsoft.com/en-us/services/cognitive-services/
     public class TranscriptionResults
     {
