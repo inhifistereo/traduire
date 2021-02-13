@@ -1,61 +1,89 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
-namespace transcription.common 
+namespace transcription.common.cognitiveservices
 {  
     public class AzureCognitiveServicesClient 
     {
-/*
-        const string SubscriptionKey = "*****************************************";
-        const string Region = "centralus";
-        const int Port = 443;
-        const string Locale = "en-US";
-        const string RecordingsBlobUri = "https://vxzjlfiles01.blob.core.windows.net/mp3files/01-_In_the_Beginning.mp3";
+        private string SubscriptionKey = Environment.GetEnvironmentVariable("AZURE_COGS_KEY", EnvironmentVariableTarget.Process);
+        private string region          = Environment.GetEnvironmentVariable("AZURE_COGS_REGION", EnvironmentVariableTarget.Process);
+        private const int Port = 443;
 
-        const string Name = "Simple transcription";
-        const string SpeechToTextBasePath = "speechtotext/v3.0/";
+        private const string SpeechToTextBasePath = "speechtotext/v3.0/";
+        private HttpClient client;
+        private string AzCognitiveServicesUri; 
 
-        static async Task Main()
+        private string RecordingsBlobUri; 
+
+        public AzureCognitiveServicesClient()
         {
-            await TranscribeAsync();
-        }
-
-        static async Task TranscribeAsync()
-        {
-            Console.WriteLine("Starting transcriptions client...");
-
-            var client = new HttpClient
+            AzCognitiveServicesUri = $"{region}.api.cognitive.microsoft.com";
+            client = new HttpClient
             {
                 Timeout = TimeSpan.FromMinutes(25),
-                BaseAddress = new UriBuilder(Uri.UriSchemeHttps, $"{Region}.api.cognitive.microsoft.com", Port).Uri,
+                BaseAddress = new UriBuilder(Uri.UriSchemeHttps, AzCognitiveServicesUri, Port).Uri,
                 DefaultRequestHeaders =
                 {
                     { "Ocp-Apim-Subscription-Key", SubscriptionKey }
                 }
             };
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        }
 
+        public async Task<(Transcription,HttpStatusCode)> SubmitTranscriptionRequestAsync( Uri blob )
+        {
             var request = new AzureCognitiveServicesTextToSpeechRequest();
-            request.ContentUrls.Add(RecordingsBlobUri);
-            request.DisplayName = Name;
-            request.Locale = Locale;
-            var res = JsonConvert.SerializeObject(request);
+            request.ContentUrls.Add(blob.AbsoluteUri);
 
-            var sc = new StringContent(res);
-            sc.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            
-            Uri transcriptionLocation = null;
-            using (var response = await client.PostAsync($"{SpeechToTextBasePath}Transcriptions/", sc))
+            var content = new StringContent(JsonSerializer.Serialize(request));                
+            using (var response = await client.PostAsync($"{SpeechToTextBasePath}Transcriptions/", content))
             {
-                if (!response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine("Error {0} starting transcription.", response.StatusCode);
-                    return;
+                    var json = await response.Content.ReadAsStringAsync();
+                    return (JsonSerializer.Deserialize<Transcription>(json), response.StatusCode);
                 }
 
-                transcriptionLocation = response.Headers.Location;
+                return (null, response.StatusCode);
+            }
+        }
+        public async Task<(Transcription,HttpStatusCode)> CheckTranscriptionRequestAsync( Uri location )
+        {
+            if (location == null)
+            {
+                throw new ArgumentNullException(nameof(location));
             }
 
-            Console.WriteLine($"Created transcription at location {transcriptionLocation}.");
-        }*/
+            var response = await client.GetAsync(location);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                return (JsonSerializer.Deserialize<Transcription>(json), response.StatusCode);
+            }
+
+            return (null, response.StatusCode);
+        }
+
+        public async Task<(TranscriptionResults,HttpStatusCode)> DownloadTranscriptionResultAsync( Uri location )
+        {            
+            using (var response = await client.GetAsync(location))
+            {
+                if (response.IsSuccessStatusCode)
+                {
+                    var json = await response.Content.ReadAsStringAsync();
+                    JsonSerializer.Deserialize<TranscriptionResults>(json), response.StatusCode);
+                }
+
+                return (null, response.StatusCode);
+            }
+        }
     }
 }
