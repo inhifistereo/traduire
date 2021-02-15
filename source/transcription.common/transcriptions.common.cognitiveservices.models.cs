@@ -53,7 +53,6 @@ namespace transcription.common.cognitiveservices
     public class Transcription
     {
         public string Self { get; set; }
-        public List<string> ContentUrls { get; set; }
         public TranscriptionModel Model { get; set; }
         public TranscriptionLinks Links { get; set; }
         public TranscriptionProperties Properties { get; set; }   
@@ -62,12 +61,11 @@ namespace transcription.common.cognitiveservices
         public DateTime CreatedDateTime { get; set; }
         public string Locale { get; set; }
         public string DisplayName { get; }
-        public IDictionary<string,string> CustomProperties { get; set;}
     }
 
     public class TranscriptionLinks 
     {
-        public string files { get; set; }
+        public string Files { get; set; }
     }
 
     public class TranscriptionModel 
@@ -78,11 +76,9 @@ namespace transcription.common.cognitiveservices
     {
         public bool DiarizationEnabled { get; set; }
         public bool WordLevelTimestampsEnabled { get; set; }
-        public IEnumerable<int> Channels { get; set; }
+        public IList<int> Channels { get; set; }
         public PunctuationMode PunctuationMode { get; set; }
         public ProfanityFilterMode ProfanityFilterMode { get; set; }
-        [JsonConverter(typeof(TimeSpanConverter))]
-        public TimeSpan Duration { get; set; }
     }
 
     //Reference - https://westus.dev.cognitive.microsoft.com/docs/services/speech-to-text-api-v3-0/operations/GetTranscriptionFiles
@@ -92,7 +88,8 @@ namespace transcription.common.cognitiveservices
 
     public class TranscriptionFilesValues 
     {
-        public string Self;
+        public string Self { get; set; }
+        public string Name { get; set; }
         public DateTime CreatedDateTime { get; set; }
         public TranscriptionFilesLink Links { get; set; }
         public TranscriptionFilesProperties Properties { get; set; }
@@ -114,12 +111,12 @@ namespace transcription.common.cognitiveservices
 
     public class TranscriptionFilesLink 
     {
-        public string ContentUrl; 
+        public string ContentUrl { get; set; } 
     }
 
     public class TranscriptionFilesProperties 
     { 
-        public long Size; 
+        public long Size { get; set; }
     }
 
     //Reference - https://azure.microsoft.com/en-us/services/cognitive-services/
@@ -128,10 +125,9 @@ namespace transcription.common.cognitiveservices
         public string Source { get; set; }
         public DateTime Timestamp { get; set; }
         public long DurationInTicks { get; set; }
-        [JsonConverter(typeof(TimeSpanConverter))]
-        public TimeSpan Duration { get; set; }
+        public string Duration { get; set; }
         public IEnumerable<CombinedResults> CombinedRecognizedPhrases { get; set; }
-        public IEnumerable<RecognitionResult> RecognizedPhrases { get; set; }
+
     }
 
     public class CombinedResults
@@ -143,39 +139,4 @@ namespace transcription.common.cognitiveservices
         public string Display { get; set; }
     }
 
-    public class RecognitionResult
-    {
-        public string RecognitionStatus { get; set; }
-        public int Channel { get; set; }
-        public int? Speaker { get; set; }
-        [JsonConverter(typeof(TimeSpanConverter))]
-        public TimeSpan Offset { get; set; }
-        [JsonConverter(typeof(TimeSpanConverter))]
-        public TimeSpan Duration { get; set; }
-        public long OffsetInTicks { get; set; }
-        public long DurationInTicks { get; set; }
-        public IEnumerable<NBest> NBest { get; set; }
-    }
-
-    public class NBest
-    {
-        public float Confidence { get; set; }
-        public string Lexical { get; set; }
-        public string ITN { get; set; }
-        public string MaskedITN { get; set; }
-        public string Display { get; set; }
-        public IEnumerable<WordDetails> Words { get; set; }
-    }
-
-    public class WordDetails
-    {
-        public string Word { get; set; }
-        [JsonConverter(typeof(TimeSpanConverter))]
-        public TimeSpan Offset { get; set; }
-        [JsonConverter(typeof(TimeSpanConverter))]
-        public TimeSpan Duration { get; set; }
-        public double OffsetInTicks { get; set; }
-        public double DurationInTicks { get; set; }
-        public float Confidence { get; set; }
-    }
 }

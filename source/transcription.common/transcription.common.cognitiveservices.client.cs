@@ -1,12 +1,10 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Collections.Generic;
 
 namespace transcription.common.cognitiveservices
 {  
@@ -20,6 +18,13 @@ namespace transcription.common.cognitiveservices
         private HttpClient client;
         private string AzCognitiveServicesUri; 
 
+        JsonSerializerOptions options = new JsonSerializerOptions{
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            Converters ={
+                new JsonStringEnumConverter( JsonNamingPolicy.CamelCase)
+            },
+        };
+
         public AzureCognitiveServicesClient()
         {
             AzCognitiveServicesUri = $"{region}.api.cognitive.microsoft.com";
@@ -32,7 +37,6 @@ namespace transcription.common.cognitiveservices
                     { "Ocp-Apim-Subscription-Key", SubscriptionKey }
                 }
             };
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         public async Task<(Transcription,HttpStatusCode)> SubmitTranscriptionRequestAsync( Uri blob )
@@ -40,13 +44,16 @@ namespace transcription.common.cognitiveservices
             var request = new AzureCognitiveServicesTextToSpeechRequest();
             request.ContentUrls.Add(blob.AbsoluteUri);
 
-            var content = new StringContent(JsonSerializer.Serialize(request));                
-            using (var response = await client.PostAsync($"{SpeechToTextBasePath}Transcriptions/", content))
+            var res = JsonSerializer.Serialize(request, options);
+            var content = new StringContent(res);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            using (var response = await client.PostAsync($"{SpeechToTextBasePath}transcriptions", content))
             {
                 if (response.IsSuccessStatusCode)
                 {
                     var json = await response.Content.ReadAsStringAsync();
-                    return (JsonSerializer.Deserialize<Transcription>(json), response.StatusCode);
+                    return (JsonSerializer.Deserialize<Transcription>(json, options), response.StatusCode);
                 }
 
                 return (null, response.StatusCode);
@@ -64,7 +71,7 @@ namespace transcription.common.cognitiveservices
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
-                return (JsonSerializer.Deserialize<Transcription>(json), response.StatusCode);
+                return (JsonSerializer.Deserialize<Transcription>(json, options), response.StatusCode);
             }
 
             return (null, response.StatusCode);
@@ -82,7 +89,7 @@ namespace transcription.common.cognitiveservices
                     return (null, HttpStatusCode.BadRequest);
                 }
                 var json = await response.Content.ReadAsStringAsync();
-                files = JsonSerializer.Deserialize<TranscriptionFiles>(json);
+                files = JsonSerializer.Deserialize<TranscriptionFiles>(json, options);
             }
                     
             using (var response = await client.GetAsync(files.Values[0].Links.ContentUrl))
@@ -92,7 +99,7 @@ namespace transcription.common.cognitiveservices
                     return (null, HttpStatusCode.BadRequest);
                 }
                 var json = await response.Content.ReadAsStringAsync();
-                results = JsonSerializer.Deserialize<TranscriptionResults>(json);  
+                results = JsonSerializer.Deserialize<TranscriptionResults>(json, options);  
 
                 return (results, HttpStatusCode.OK);
             }
