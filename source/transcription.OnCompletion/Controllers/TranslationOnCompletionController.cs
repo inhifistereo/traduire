@@ -24,8 +24,8 @@ namespace transcription.onstarted.Controllers
             _logger = logger;
         }
 
-        [Topic(Components.PubSubName, Topics.TranscriptionSubmittedTopicName)]
-        [HttpPost("transcribe")]
+        [Topic(Components.PubSubName, Topics.TranscriptionCompletedTopicName)]
+        [HttpPost("completed")]
         public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request,  CancellationToken cancellationToken, [FromServices] DaprClient daprClient)
         {
             try
