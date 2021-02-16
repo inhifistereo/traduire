@@ -65,19 +65,19 @@ namespace TraduireAPi.Controllers
                 );                      
                 _logger.LogInformation($"{TranscriptionId}. File was successfullly saved as {safeFileName} to {Components.BlobStoreName} blob storage");
 
-                var state = await daprClient.GetStateEntryAsync<Transcription>(Components.StateStoreName, TranscriptionId.ToString());
-                state.Value ??= new Transcription() { 
+                var state = await daprClient.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, TranscriptionId.ToString());
+                state.Value ??= new TraduireTranscription() { 
                     TranscriptionId     = TranscriptionId,
                     CreateTime          = DateTime.UtcNow,
                     LastUpdateTime      = DateTime.UtcNow,
-                    Status              = TranscriptionStatus.Started,
+                    Status              = TraduireTranscriptionStatus.Started,
                     FileName            = safeFileName,
                     BlobUri             = response.blobURL
                 };
                 await state.SaveAsync();
                 _logger.LogInformation($"{TranscriptionId}. Record was successfullly saved as to {Components.StateStoreName} State Store");
 
-                var eventdata = new TranscriptionRequest() { 
+                var eventdata = new TradiureTranscriptionRequest() { 
                     TranscriptionId = TranscriptionId, 
                     BlobUri = response.blobURL
                 };

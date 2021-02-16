@@ -17,6 +17,7 @@ using System.Text.Json.Serialization;
 
 using transcription.models;
 using transcription.common;
+using transcription.common.cognitiveservices;
 
 namespace transcription.onstarted.Controllers
 { 
@@ -32,19 +33,46 @@ namespace transcription.onstarted.Controllers
 
         [Topic(Components.PubSubName, Topics.TranscriptionSubmittedTopicName)]
         [HttpPost("transcribe")]
-        public async Task<ActionResult> Transcribe(TranscriptionRequest request, [FromServices] DaprClient daprClient)
+        public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request,  CancellationToken cancellationToken, [FromServices] DaprClient daprClient)
         {
             try
             {
                 _logger.LogInformation($"{request.TranscriptionId}. {request.BlobUri} was successfullly received by Dapr PubSub");
-                var state = await daprClient.GetStateEntryAsync<Transcription>(Components.StateStoreName, request.TranscriptionId.ToString());
-            
-                _logger.LogInformation($"{request.TranscriptionId}. Event was successfullly publish to Azure Cognitive Services");
-                return Ok(request.TranscriptionId); 
+                var state = await daprClient.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, request.TranscriptionId.ToString());
+
+                AzureCognitiveServicesClient client = new AzureCognitiveServicesClient();
+                (Transcription response, HttpStatusCode code)  = await client.SubmitTranscriptionRequestAsync(new Uri(request.BlobUri));
+
+                var eventdata = new TradiureTranscriptionRequest() { 
+                    TranscriptionId = state.Value.TranscriptionId, 
+                    BlobUri = response.Self
+                };
+
+                if( code == HttpStatusCode.Created ) {
+                    state.Value.LastUpdateTime          = DateTime.UtcNow;
+                    state.Value.Status                  = TraduireTranscriptionStatus.SentToCognitiveServices;
+                    state.Value.TranscriptionStatusUri  = response.Self;
+                    
+                    await state.SaveAsync();
+                    await daprClient.PublishEventAsync(Components.PubSubName, Topics.TranscriptionPendingTopicName, eventdata, cancellationToken );
+
+                    _logger.LogInformation($"{request.TranscriptionId}. Event was successfullly publish to Azure Cognitive Services");
+                    return Ok(request.TranscriptionId); 
+                }
+                else {
+                    state.Value.LastUpdateTime          = DateTime.UtcNow;
+                    state.Value.Status                  = TraduireTranscriptionStatus.Failed;
+                    state.Value.StatusDetails           = code.ToString();
+                    
+                    await state.SaveAsync();
+                    await daprClient.PublishEventAsync(Components.PubSubName, Topics.TranscriptionFailedTopicName, eventdata, cancellationToken );
+
+                    _logger.LogInformation($"{request.TranscriptionId}. Event Failed. Added to deadletter queue");
+                    return BadRequest(request.TranscriptionId);  
+                }
             }
             catch( Exception ex )  
             {
-                //Add Compensating tranasaction to undo error
                 _logger.LogWarning($"Failed to process {request.BlobUri} - {ex.Message}"); 
             }
 
