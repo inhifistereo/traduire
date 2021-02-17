@@ -29,6 +29,42 @@ function Connect-ToAzureContainerRepo
     az acr login -n $ACRName
 }
 
+function Get-AKSCredentials 
+{
+    param(
+        [string] $AKSNAME,
+        [string] $AKSResourceGroup
+    )
+
+    az aks get-credentials -n $AKSNAME -g $AKSResourceGroup
+}
+
+function New-MSIAccount 
+{
+    param(
+        [string] $MSIName,
+        [string] $MSMSIResourceGroup
+    )
+
+    return (New-Object psobject -Property @{
+        client_id = (az identity show -n $MSIName -g $MSMSIResourceGroup --query clientId -o tsv)
+        resource_id = (az identity show -n $MSIName -g $MSMSIResourceGroup --query id -o tsv)
+    })
+}
+
+function New-CognitiveServicesAccount 
+{
+    param(
+        [string] $CogsAccountName,
+        [string] $CogsResourceGroup
+    )
+
+    return (New-Object psobject -Property @{
+        region = (az cognitiveservices account show -n $CogsAccountName -g $CogsResourceGroup -o tsv --query location)
+        key = (ConvertTo-Base64EncodedString (az cognitiveservices account keys list -n $CogsAccountName -g $CogsResourceGroup -o tsv --query key1))
+    })
+}
+
 function Get-GitCommitVersion
 {
     return (git rev-parse HEAD).SubString(0,8)
@@ -46,18 +82,19 @@ function Build-DockerContainers
     docker push $ContainerName
 }
 
-Set-Variable -Name DAPR_VERSION -Value "1.0.0-rc.3"                     -Option Constant
-Set-Variable -Name KEDA_VERSION -Value "1.5.0"                          -Option Constant
-Set-Variable -Name APP_RG_NAME  -Value ("{0}_app_rg" -f $AppName)       -Option Constant
-Set-Variable -Name APP_K8S_NAME -Value ("{0}-aks01" -f $AppName)        -Option Constant
-Set-Variable -Name APP_ACR_NAME -Value ("{0}acr01" -f $AppName)         -Option Constant
-Set-Variable -Name APP_KV_NAME  -Value ("{0}-kv01" -f $AppName)         -Option Constant
-Set-Variable -Name APP_SA_NAME  -Value ("{0}files01" -f $AppName)       -Option Constant
-Set-Variable -Name APP_MSI_NAME -Value ("{0}-dapr-reader" -f $AppName)  -Option Constant
+Set-Variable -Name DAPR_VERSION     -Value "1.0.0-rc.3"                     -Option Constant
+Set-Variable -Name KEDA_VERSION     -Value "1.5.0"                          -Option Constant
+Set-Variable -Name APP_RG_NAME      -Value ("{0}_app_rg" -f $AppName)       -Option Constant
+Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks01" -f $AppName)        -Option Constant
+Set-Variable -Name APP_ACR_NAME     -Value ("{0}acr01" -f $AppName)         -Option Constant
+Set-Variable -Name APP_KV_NAME      -Value ("{0}-kv01" -f $AppName)         -Option Constant
+Set-Variable -Name APP_SA_NAME      -Value ("{0}files01" -f $AppName)       -Option Constant
+Set-Variable -Name APP_MSI_NAME     -Value ("{0}-dapr-reader" -f $AppName)  -Option Constant
+Set-Variable -Name APP_COGS_NAME    -Value ("{0}-cogs01" -f $AppName)       -Option Constant
 
 Import-Module bjd.Common.Functions
 
-$root =  (Get-Item $PWD.Path).Parent.FullName
+$root   = (Get-Item $PWD.Path).Parent.FullName
 $source = Join-Path -Path $root -ChildPath "source"
 
 #Start-Docker
@@ -67,11 +104,13 @@ Start-Docker
 Connect-ToAzureContainerRepo -ACRName $APP_ACR_NAME -SubscriptionName $SubscriptionName
 
 #Get AKS Credential file
-az aks get-credentials -n $APP_K8S_NAME -g $APP_RG_NAME
+Get-AKSCredentials -AKSName $APP_K8S_NAME -AKSResourceGroup $APP_RG_NAME
 
-#Get MSI Account
-$ms_resource_id = az identity show -n $APP_MSI_NAME -g $APP_RG_NAME --query id -o tsv
-$ms_client_id = az identity show -n $APP_MSI_NAME -g $APP_RG_NAME --query clientId -o tsv
+#Get MSI Account Info
+$msi = New-MSIAccount -MSIName $APP_MSI_NAME -MSIResourceGroup $APP_RG_NAME
+
+#Get Cognitive Services Info
+$cogs = New-CognitiveServicesAccount -CogsAccountName $APP_COGS_NAME -CogsResourceGroup $APP_RG_NAME
 
 #Build Source
 $commit_version = Get-GitCommitVersion
@@ -82,7 +121,7 @@ Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/oncom
 
 # Install Traefik Ingress 
 helm repo add traefik https://helm.traefik.io/traefik    
-helm upgrade -i traefik traefik/traefik -f  ../Infrastructure/traefik/values.yaml --wait
+helm upgrade -i traefik traefik/traefik -f ./traefik/values.yaml --wait
          
 # Install Keda
 helm repo add kedacore https://kedacore.github.io/charts
@@ -107,10 +146,12 @@ helm upgrade -i aad-pod-identity aad-pod-identity/aad-pod-identity
 # Install App
 helm upgrade -i `
    --set app_name=$AppName `
-   --set msi_client_id=$ms_client_id `
-   --set msi_resource_id=$ms_resource_id `
+   --set msi_client_id=$msi.client_id `
+   --set msi_resource_id=$msi.resource_id `
    --set keyvault_name=$APP_KV_NAME `
    --set storage_name=$APP_SA_NAME `
    --set acr_name=$APP_ACR_NAME `
    --set commit_version=$commit_version `
-   traduire . 
+   --set cogs_region=$cogs.region `
+   --set cogs_key=$cogs.key `
+   traduire helm/. 

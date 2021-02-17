@@ -1,26 +1,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Values.app_name}}-onpending
+  name: {{.Values.app_name}}-onstarted
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{.Values.app_name}}-onpending
+      app: {{.Values.app_name}}-onstarted
   template:
     metadata:
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/app-id: "{{.Values.app_name}}-onpending"
+        dapr.io/app-id: "{{.Values.app_name}}-onstarted"
         dapr.io/app-port: "80"
         dapr.io/log-level: "debug"
       labels:
-        app: {{.Values.app_name}}-onpending
+        app: {{.Values.app_name}}-onstarted
         aadpodidbinding: {{.Values.msi_selector}}
     spec:
       containers:
       - name: eventhandler
-        image: {{.Values.acr_name}.azurecr.io/traduire/onpending.handler:{{.Values.commit_version}}
+        image: {{.Values.acr_name}.azurecr.io/traduire/onstarted.handler:{{.Values.commit_version}}
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -33,3 +33,9 @@ spec:
             memory: 128Mi
         securityContext:
           allowPrivilegeEscalation: false
+        envFrom:
+        - secretRef:
+            name: traduiresecrets
+        env:
+        - name: AZURE_COGS_REGION
+          value: {{.Values.cogs_region}}
