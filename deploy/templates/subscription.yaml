@@ -12,13 +12,13 @@ scopes:
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
-  name: ontranscription-status
+  name: ontranscription-pending
 spec:
-  topic: ontranscription_status
+  topic: ontranscription_pending
   route: /status
   pubsubname: pubsub
 scopes:
-- {{.Values.app_name}}-onstatus
+- {{.Values.app_name}}-onpending
 ---
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
