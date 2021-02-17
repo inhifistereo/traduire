@@ -5,8 +5,6 @@ param(
     [Parameter(Mandatory=$true)]
     [string] $SubscriptionName
 )
-Import-Module bjd.Common.Functions
-
 function Start-Docker
 {
     if(Get-OSType -eq "Unix") {
@@ -17,13 +15,35 @@ function Start-Docker
     }
 }
 
-function Connect-Azure
+function Connect-ToAzureContainerRepo
 {
+    param(
+        [string] $ACRName,
+        [string] $SubscriptionName
+    )
     az account show 
     if(!$?) {
         az login
     }
     az account set -s $SubscriptionName -o none
+    az acr login -n $ACRName
+}
+
+function Get-GitCommitVersion
+{
+    return (git rev-parse HEAD).SubString(0,8)
+}
+
+function Build-DockerContainers
+{
+    param(
+        [string] $ContainerName,
+        [string] $DockerFile,
+        [string] $SourcePath
+    )
+
+    docker build -t $ContainerName -f $DockerFile $SourcePath
+    docker push $ContainerName
 }
 
 Set-Variable -Name DAPR_VERSION -Value "1.0.0-rc.3"                     -Option Constant
@@ -35,16 +55,16 @@ Set-Variable -Name APP_KV_NAME  -Value ("{0}-kv01" -f $AppName)         -Option 
 Set-Variable -Name APP_SA_NAME  -Value ("{0}files01" -f $AppName)       -Option Constant
 Set-Variable -Name APP_MSI_NAME -Value ("{0}-dapr-reader" -f $AppName)  -Option Constant
 
-$cwd = $PWD.Path
+Import-Module bjd.Common.Functions
+
+$root =  (Get-Item $PWD.Path).Parent.FullName
+$source = Join-Path -Path $root -ChildPath "source"
 
 #Start-Docker
-Connect-Azure
+Start-Docker
 
-#Commit Version 
-$commit_version = (git rev-parse HEAD).SubString(0,8)
-
-#Set Subscription and login into ACR
-az acr login -n $APP_ACR_NAME
+#Connect to Azure and Log into ACR
+Connect-ToAzureContainerRepo -ACRName $APP_ACR_NAME -SubscriptionName $SubscriptionName
 
 #Get AKS Credential file
 az aks get-credentials -n $APP_K8S_NAME -g $APP_RG_NAME
@@ -54,19 +74,11 @@ $ms_resource_id = az identity show -n $APP_MSI_NAME -g $APP_RG_NAME --query id -
 $ms_client_id = az identity show -n $APP_MSI_NAME -g $APP_RG_NAME --query clientId -o tsv
 
 #Build Source
-Set-Location -Path ..\source
-docker build -t ("{0}.azurecr.io/traduire/api:{1}" -f $APP_ACR_NAME, $commit_version) -f dockerfile.api .
-docker push ("{0}.azurecr.io/traduire/api:{1}" -f $APP_ACR_NAME,$commit_version)
-
-docker build -t ("{0}.azurecr.io/traduire/onstarted.handler:{1}" -f $APP_ACR_NAME, $commit_version) -f dockerfile.onstarted .
-docker push ("{0}.azurecr.io/traduire/onstarted.handler:{1}" -f $APP_ACR_NAME,$commit_version)
-
-#OnCompletion and OnPending TBD
-
-Set-Location -Path $cwd
-
-#Deploy Helm Charts
-Set-Location -Path ..\deploy
+$commit_version = Get-GitCommitVersion
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/api:${commit_version}" -DockerFile "$source/dockerfile.api" -SourcePath $source
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onstarted.handler:${commit_version}" -DockerFile "$source/dockerfile.onstarted" -SourcePath $source
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onpending.handler:${commit_version}" -DockerFile "$source/dockerfile.onpending" -SourcePath $source
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/oncompletion.handler:${commit_version}" -DockerFile "$source/dockerfile.oncompletion" -SourcePath $source
 
 # Install Traefik Ingress 
 helm repo add traefik https://helm.traefik.io/traefik    
@@ -102,10 +114,3 @@ helm upgrade -i `
    --set acr_name=$APP_ACR_NAME `
    --set commit_version=$commit_version `
    traduire . 
-
-#Testing from within utils containers
-#Invoke-RestMethod -Uri 'http://localhost:3500/v1.0/publish/tra7db0a-pubsub/transcriptioncompleted' -Method Post -ContentType 'application/json' -Body '{"status": "completed"}' 
-#Invoke-RestMethod -Uri "http://localhost:3500/v1.0/secrets/tra7db0a-vault"
-#Invoke-RestMethod -Uri "http://localhost:3500/v1.0/bindings/tra7db0a-storage" -Body '{ "operation": "create", "data": { "field1": "value1" }}' 
-
-Set-location -Path $cwd
