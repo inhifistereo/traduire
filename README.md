@@ -37,7 +37,11 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 # Validate 
 * TBD
 
-# Architecture
-## Concept 
-![Architecture](./assets/high_level_overview.png)
-
+# Backlog 
+- [ ] UX written in React 
+- [ ] Github Deployment via Actions 
+- [ ] Azure AD Authentication 
+- [ ] Tracing with Dapr / OpenTelemetry 
+- [ ] Offload file upload to UX directly to Azure Storage. (Today file is write through API into Blob Storage)
+    - [ ] API for Storage account to generate SAS tokens for Cognitive Servies access
+    - [ ] Storage Account Trigger with Event Grid / Dapr
