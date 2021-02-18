@@ -38,6 +38,7 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 * TBD
 
 ## Backlog 
+- [ ] Secrets management with Dapr for Cognitive Services
 - [ ] UX written in React 
 - [ ] Github Deployment via Actions 
 - [ ] Azure AD Authentication 
