@@ -82,8 +82,8 @@ function Build-DockerContainers
     docker push $ContainerName
 }
 
-Set-Variable -Name DAPR_VERSION     -Value "1.0.0-rc.3"                     -Option Constant
-Set-Variable -Name KEDA_VERSION     -Value "1.5.0"                          -Option Constant
+Set-Variable -Name DAPR_VERSION     -Value "1.0.0"                          -Option Constant
+Set-Variable -Name KEDA_VERSION     -Value "2.1.1"                          -Option Constant
 Set-Variable -Name APP_RG_NAME      -Value ("{0}_app_rg" -f $AppName)       -Option Constant
 Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks01" -f $AppName)        -Option Constant
 Set-Variable -Name APP_ACR_NAME     -Value ("{0}acr01" -f $AppName)         -Option Constant
