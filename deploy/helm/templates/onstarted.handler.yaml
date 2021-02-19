@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
       - name: eventhandler
-        image: {{.Values.acr_name}.azurecr.io/traduire/onstarted.handler:{{.Values.commit_version}}
+        image: {{.Values.acr_name}}.azurecr.io/traduire/onstarted.handler:{{.Values.commit_version}}
         imagePullPolicy: Always
         ports:
         - containerPort: 80
