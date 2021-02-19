@@ -134,44 +134,40 @@ $cogs = New-CognitiveServicesAccount -CogsAccountName $APP_COGS_NAME -CogsResour
 
 #Build Source
 $commit_version = Get-GitCommitVersion
-#Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/api:${commit_version}" -DockerFile "$source/dockerfile.api" -SourcePath $source
-#Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onstarted.handler:${commit_version}" -DockerFile "$source/dockerfile.onstarted" -SourcePath $source
-#Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onpending.handler:${commit_version}" -DockerFile "$source/dockerfile.onpending" -SourcePath $source
-#Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/oncompletion.handler:${commit_version}" -DockerFile "$source/dockerfile.oncompletion" -SourcePath $source
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/api:${commit_version}" -DockerFile "$source/dockerfile.api" -SourcePath $source
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onstarted.handler:${commit_version}" -DockerFile "$source/dockerfile.onstarted" -SourcePath $source
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onpending.handler:${commit_version}" -DockerFile "$source/dockerfile.onpending" -SourcePath $source
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/oncompletion.handler:${commit_version}" -DockerFile "$source/dockerfile.oncompletion" -SourcePath $source
 
 # Install Traefik Ingress 
 Write-Log -Message "Deploying Traefik"
-#helm repo add traefik https://helm.traefik.io/traefik    
-#helm upgrade -i traefik traefik/traefik -f ./traefik/values.yaml --wait
+helm repo add traefik https://helm.traefik.io/traefik    
+helm upgrade -i traefik traefik/traefik -f ./traefik/values.yaml --wait
          
 # Install Keda
 Write-Log -Message "Deploying Keda"
-#helm repo add kedacore https://kedacore.github.io/charts
-#helm repo update
-#kubectl create namespace keda
-#helm upgrade -i keda kedacore/keda --namespace keda --version $KEDA_VERSION
+helm repo add kedacore https://kedacore.github.io/charts
+helm repo update
+kubectl create namespace keda
+helm upgrade -i keda kedacore/keda --namespace keda --version $KEDA_VERSION
 
 # Install Dapr
 Write-Log -Message "Deploying Dapr"
-#helm repo add dapr https://dapr.github.io/helm-charts
-#helm repo update
-#kubectl create namespace dapr-system
-#helm upgrade -i dapr dapr/dapr --namespace dapr-system --version $DAPR_VERSION --set global.logAsJson=true --set global.ha.enabled=true --wait
+helm repo add dapr https://dapr.github.io/helm-charts
+helm repo update
+kubectl create namespace dapr-system
+helm upgrade -i dapr dapr/dapr --namespace dapr-system --version $DAPR_VERSION --set global.logAsJson=true --set global.ha.enabled=true --wait
 
 #Due to https://github.com/dapr/dapr/issues/1621#
 #kubectl -n dapr-system rollout restart deployment dapr-sidecar-injector
 
 # Install Pod Identity 
 Write-Log -Message "Deploying Pod Identity"
-#helm repo add aad-pod-identity https://raw.githubusercontent.com/Azure/aad-pod-identity/master/charts
-#helm repo update
-#helm upgrade -i aad-pod-identity aad-pod-identity/aad-pod-identity
+helm repo add aad-pod-identity https://raw.githubusercontent.com/Azure/aad-pod-identity/master/charts
+helm repo update
+helm upgrade -i aad-pod-identity aad-pod-identity/aad-pod-identity
 
 # Install App
-$cogs.region
-$cogs.key
-$msi.resource_id
-$msi.client_id 
 Write-Log -Message "Deploying Traduire"
 helm upgrade -i `
    --set app_name=$AppName `
