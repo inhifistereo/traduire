@@ -62,8 +62,8 @@ function New-MSIAccount
 
     Write-Log -Message "Get ${MSIName} Manage Identity properties"
     return (New-Object psobject -Property @{
-        client_id = (az identity show -n $MSIName -g $MSMSIResourceGroup --query clientId -o tsv)
-        resource_id = (az identity show -n $MSIName -g $MSMSIResourceGroup --query id -o tsv)
+        client_id = (az identity show -n $MSIName -g $MSIResourceGroup --query clientId -o tsv)
+        resource_id = (az identity show -n $MSIName -g $MSIResourceGroup --query id -o tsv)
     })
 }
 
