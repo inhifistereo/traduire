@@ -1,3 +1,4 @@
+[CmdletBinding()]
 param(
     [Parameter(Mandatory=$true)]
     [string] $AppName,
@@ -5,8 +6,16 @@ param(
     [Parameter(Mandatory=$true)]
     [string] $SubscriptionName
 )
+
+function Write-Log 
+{
+    param( [string] $Message )
+    Write-Verbose -Message ("[{0}] - {1} ..." -f $(Get-Date), $Message)
+}
+
 function Start-Docker
 {
+    Write-Log -Message "Starting Docker"
     if(Get-OSType -eq "Unix") {
         sudo /etc/init.d/docker start
     }
@@ -21,11 +30,15 @@ function Connect-ToAzureContainerRepo
         [string] $ACRName,
         [string] $SubscriptionName
     )
+
+    Write-Log -Message "Logging into Azure"
     az account show 
     if(!$?) {
         az login
     }
     az account set -s $SubscriptionName -o none
+
+    Write-Log -Message "Logging into ${ACRName} Azure Container Repo"
     az acr login -n $ACRName
 }
 
@@ -36,6 +49,7 @@ function Get-AKSCredentials
         [string] $AKSResourceGroup
     )
 
+    Write-Log -Message "Get ${AKSNAME} AKS Credentials"
     az aks get-credentials -n $AKSNAME -g $AKSResourceGroup
 }
 
@@ -43,9 +57,10 @@ function New-MSIAccount
 {
     param(
         [string] $MSIName,
-        [string] $MSMSIResourceGroup
+        [string] $MSIResourceGroup
     )
 
+    Write-Log -Message "Get ${MSIName} Manage Identity properties"
     return (New-Object psobject -Property @{
         client_id = (az identity show -n $MSIName -g $MSMSIResourceGroup --query clientId -o tsv)
         resource_id = (az identity show -n $MSIName -g $MSMSIResourceGroup --query id -o tsv)
@@ -59,6 +74,7 @@ function New-CognitiveServicesAccount
         [string] $CogsResourceGroup
     )
 
+    Write-Log -Message "Get ${CogsAccountName} Cognitive Services Account properties"
     return (New-Object psobject -Property @{
         region = (az cognitiveservices account show -n $CogsAccountName -g $CogsResourceGroup -o tsv --query location)
         key = (ConvertTo-Base64EncodedString (az cognitiveservices account keys list -n $CogsAccountName -g $CogsResourceGroup -o tsv --query key1))
@@ -67,6 +83,7 @@ function New-CognitiveServicesAccount
 
 function Get-GitCommitVersion
 {
+    Write-Log -Message "Get Latest Git commit version id"
     return (git rev-parse HEAD).SubString(0,8)
 }
 
@@ -78,7 +95,10 @@ function Build-DockerContainers
         [string] $SourcePath
     )
 
+    Write-Log -Message "Building ${ContainerName}"
     docker build -t $ContainerName -f $DockerFile $SourcePath
+
+    Write-Log -Message "Pushing ${ContainerName}"
     docker push $ContainerName
 }
 
@@ -120,16 +140,19 @@ Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onpen
 Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/oncompletion.handler:${commit_version}" -DockerFile "$source/dockerfile.oncompletion" -SourcePath $source
 
 # Install Traefik Ingress 
+Write-Log -Message "Deploying Traefik"
 helm repo add traefik https://helm.traefik.io/traefik    
 helm upgrade -i traefik traefik/traefik -f ./traefik/values.yaml --wait
          
 # Install Keda
+Write-Log -Message "Deploying Keda"
 helm repo add kedacore https://kedacore.github.io/charts
 helm repo update
 kubectl create namespace keda
 helm upgrade -i keda kedacore/keda --namespace keda --version $KEDA_VERSION
 
 # Install Dapr
+Write-Log -Message "Deploying Dapr"
 helm repo add dapr https://dapr.github.io/helm-charts
 helm repo update
 kubectl create namespace dapr-system
@@ -139,11 +162,13 @@ helm upgrade -i dapr dapr/dapr --namespace dapr-system --version $DAPR_VERSION -
 #kubectl -n dapr-system rollout restart deployment dapr-sidecar-injector
 
 # Install Pod Identity 
+Write-Log -Message "Deploying Pod Identity"
 helm repo add aad-pod-identity https://raw.githubusercontent.com/Azure/aad-pod-identity/master/charts
 helm repo update
 helm upgrade -i aad-pod-identity aad-pod-identity/aad-pod-identity
 
 # Install App
+Write-Log -Message "Deploying Traduire"
 helm upgrade -i `
    --set app_name=$AppName `
    --set msi_client_id=$msi.client_id `
