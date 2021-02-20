@@ -29,7 +29,7 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 ### Application Deployment 
 * pwsh
 * cd ./Deploy
-* ./deploy_application.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01
+* ./deploy_application.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -verbose
 
 ### UI Deployment 
 * TBD
@@ -39,10 +39,8 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 
 ## Backlog 
 - [ ] Secrets management with Dapr for Cognitive Services
-- [ ] UX written in React 
-- [ ] Github Deployment via Actions 
-- [ ] Azure AD Authentication 
-- [ ] Tracing with Dapr / OpenTelemetry 
-- [ ] Offload file upload to UX directly to Azure Storage. (Today file is write through API into Blob Storage)
-    - [ ] API for Storage account to generate SAS tokens for Cognitive Servies access
-    - [ ] Storage Account Trigger with Event Grid / Dapr
+- [ ] API exposed via Kong or Ocelot
+- [ ] UX re-written in React 
+- [ ] Azure AD Authentication
+- [ ] Github Deployment via Actions  
+- [ ] Tracing with Dapr / OpenTelemetry / Zipkin 
