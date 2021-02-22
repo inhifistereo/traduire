@@ -39,7 +39,7 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 
 ## Backlog 
 - [ ] Migrate Cognitive Services to Dapr HTTP Component
-- [ ] API exposed via Kong or Ocelot
+- [ ] API exposed via Kong
 - [ ] UX re-written in React 
 - [ ] Azure AD Authentication
 - [ ] Github Deployment via Actions  
