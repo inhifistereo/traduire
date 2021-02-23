@@ -139,11 +139,12 @@ Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onsta
 Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onpending.handler:${commit_version}" -DockerFile "$source/dockerfile.onpending" -SourcePath $source
 Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/oncompletion.handler:${commit_version}" -DockerFile "$source/dockerfile.oncompletion" -SourcePath $source
 
-# Install Traefik Ingress 
-Write-Log -Message "Deploying Traefik"
-helm repo add traefik https://helm.traefik.io/traefik    
-helm upgrade -i traefik traefik/traefik -f ./traefik/values.yaml --wait
-         
+# Install Kong API Gateway 
+Write-Log -Message "Deploying Kong API Gateway"
+helm repo add kong https://charts.konghq.com
+helm repo update        
+helm install kong/kong --generate-name --set ingressController.installCRDs=false
+ 
 # Install Keda
 Write-Log -Message "Deploying Keda"
 helm repo add kedacore https://kedacore.github.io/charts
