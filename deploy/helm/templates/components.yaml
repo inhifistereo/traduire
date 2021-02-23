@@ -61,5 +61,7 @@ spec:
       key: {{.Values.postgresql_connection_string_secret}}
   - name: actorStateStore
     value: "false"
+  - name: keyPrefix
+    value: none
 auth:
   secretStore: {{.Values.app_name}}-vault
