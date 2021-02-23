@@ -52,9 +52,9 @@ _Temporary steps_
 * Select assets\recording.m4a
 
 ## Backlog 
-- [ ] API exposed via Kong
-- [ ] Migrate Cognitive Services to Dapr HTTP Component
+- [X] API exposed via Kong
 - [ ] UX re-written in React 
+- [ ] Tracing with Dapr / OpenTelemetry / Zipkin 
+- [ ] Migrate Cognitive Services to Dapr HTTP Component
 - [ ] Azure AD Authentication
 - [ ] Github Deployment via Actions  
-- [ ] Tracing with Dapr / OpenTelemetry / Zipkin 
