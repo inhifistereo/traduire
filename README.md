@@ -37,7 +37,10 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 ## Validate 
 _Temporary steps_
 ### Run UI
+* Get Kong Service IP - kubectl get service kong-kong-proxy -o jsonpath={.status.loadBalancer.ingress[].ip}
+* Get API Key  - kubectl get secret ${AppName}-apikey -o json | jq ".data.key" | tr -d "\"" | base64 -d
 * cd source\ui\
+* Update pages\Index.cshtml. Replace {{replaceme}} with Kong IP and API Key
 * dotnet run --urls=http://localhost:5002/
 
 ### Port Forward API to localhost

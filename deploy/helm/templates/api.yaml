@@ -45,22 +45,8 @@ metadata:
     version: {{.Values.commit_version}}
 spec:
   selector:
-    app: {{.Values.app_name}}
-    component: api
+    app: {{.Values.app_name}}-api
   ports:
   - port: 8081
     targetPort: 80
   type: NodePort
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: {{.Values.app_name}}-ingress
-spec:
-  rules:
-  - http: 
-      paths: 
-      - backend:
-          serviceName: {{.Values.app_name}}-svc
-          servicePort: 8081
-        path: /

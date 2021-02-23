@@ -126,6 +126,9 @@ Connect-ToAzureContainerRepo -ACRName $APP_ACR_NAME -SubscriptionName $Subscript
 #Get AKS Credential file
 Get-AKSCredentials -AKSName $APP_K8S_NAME -AKSResourceGroup $APP_RG_NAME
 
+#Generate Kong API secret
+$kong_api_secret = ConvertTo-Base64EncodedString (New-Password -Length 25 -ExcludedSpecialCharacters) 
+
 #Get MSI Account Info
 $msi = New-MSIAccount -MSIName $APP_MSI_NAME -MSIResourceGroup $APP_RG_NAME
 
@@ -180,4 +183,5 @@ helm upgrade -i `
    --set commit_version=$commit_version `
    --set cogs_region=$($cogs.region) `
    --set cogs_key=$($cogs.key) `
+   --set kong_api_secret=$kong_api_secret `
    traduire helm/. 

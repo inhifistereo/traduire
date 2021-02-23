@@ -4,7 +4,7 @@
     ViewData["Title"] = "Home page";
 }
 
-<form id="uploadForm" action="http://localhost:5000/api/upload" method="post"  enctype="multipart/form-data" onsubmit="AJAXSubmit(this);return false;">
+<form id="uploadForm" action="http://{{replaceme}}/api/upload?apikey={{replaceme}}" method="post"  enctype="multipart/form-data" onsubmit="AJAXSubmit(this);return false;"> 
     <input id="file" type="file" name="file" />
     <input class="btn" type="submit" value="Upload" />
 
