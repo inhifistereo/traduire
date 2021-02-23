@@ -35,7 +35,18 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 * TBD
 
 ## Validate 
-* TBD
+_Temporary steps_
+### Run UI
+* cd source\ui\
+* dotnet run --urls=http://localhost:5002/
+
+### Port Forward API to localhost
+* APIPOD=`kubectl get pods | grep -i api`
+* kubectl port-forward ${APIPOD} 5000:80
+
+### Browser 
+* Launch UI
+* Select assets\recording.m4a
 
 ## Backlog 
 - [ ] API exposed via Kong
