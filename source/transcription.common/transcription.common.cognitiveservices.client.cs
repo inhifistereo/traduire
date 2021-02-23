@@ -93,9 +93,9 @@ namespace transcription.common.cognitiveservices
                 files = JsonSerializer.Deserialize<TranscriptionFiles>(json, options);
             }
 
-            string contentUri = from Self in files.Values 
-                      where Kind == TranscriptionFileType.Transcription
-                      select Self;
+            string contentUri = (from TranscriptionFilesValues file in files.Values 
+                      where file.Kind == TranscriptionFileType.Transcription
+                      select file.Links.ContentUrl).FirstOrDefault();
                       
             using (var response = await client.GetAsync(contentUri))
             {

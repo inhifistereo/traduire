@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Linq;
 
 namespace transcription.common.cognitiveservices
 {  
@@ -91,8 +92,12 @@ namespace transcription.common.cognitiveservices
                 var json = await response.Content.ReadAsStringAsync();
                 files = JsonSerializer.Deserialize<TranscriptionFiles>(json, options);
             }
-                    
-            using (var response = await client.GetAsync(files.Values[0].Links.ContentUrl))
+
+            string contentUri = (from TranscriptionFilesValues file in files.Values 
+                      where file.Kind == TranscriptionFileType.Transcription
+                      select file.Links.ContentUrl).FirstOrDefault();
+
+            using (var response = await client.GetAsync(contentUri))
             {
                 if (!response.IsSuccessStatusCode)
                 {
