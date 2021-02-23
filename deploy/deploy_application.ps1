@@ -143,7 +143,7 @@ Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/oncom
 Write-Log -Message "Deploying Kong API Gateway"
 helm repo add kong https://charts.konghq.com
 helm repo update        
-helm install kong/kong --generate-name --set ingressController.installCRDs=false
+helm upgrade -i kong kong/kong --set ingressController.installCRDs=false
  
 # Install Keda
 Write-Log -Message "Deploying Keda"
