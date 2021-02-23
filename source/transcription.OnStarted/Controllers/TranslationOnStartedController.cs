@@ -34,10 +34,7 @@ namespace transcription.onstarted.Controllers
         [Topic(Components.PubSubName, Topics.TranscriptionSubmittedTopicName)]
         [HttpPost("transcribe")]
         public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request,  CancellationToken cancellationToken, [FromServices] DaprClient daprClient)
-        {
-            _logger.LogInformation($"REGION: {Environment.GetEnvironmentVariable("REGION", EnvironmentVariableTarget.Process)}");
-            _logger.LogInformation($"KEY: {Environment.GetEnvironmentVariable("AZURE_COGS_KEY", EnvironmentVariableTarget.Process)}");
-    
+        {   
             try
             {
                 _logger.LogInformation($"{request.TranscriptionId}. {request.BlobUri} was successfullly received by Dapr PubSub");
