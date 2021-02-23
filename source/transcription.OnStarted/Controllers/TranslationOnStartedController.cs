@@ -35,16 +35,22 @@ namespace transcription.onstarted.Controllers
         [HttpPost("transcribe")]
         public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request,  CancellationToken cancellationToken, [FromServices] DaprClient daprClient)
         {
+            _logger.LogInformation($"REGION: {Environment.GetEnvironmentVariable("REGION", EnvironmentVariableTarget.Process)}");
+            _logger.LogInformation($"KEY: {Environment.GetEnvironmentVariable("AZURE_COGS_KEY", EnvironmentVariableTarget.Process)}");
+    
             try
             {
                 _logger.LogInformation($"{request.TranscriptionId}. {request.BlobUri} was successfullly received by Dapr PubSub");
                 var state = await daprClient.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, request.TranscriptionId.ToString());
+                state.Value ??= new TraduireTranscription();
 
                 AzureCognitiveServicesClient client = new AzureCognitiveServicesClient();
                 (Transcription response, HttpStatusCode code)  = await client.SubmitTranscriptionRequestAsync(new Uri(request.BlobUri));
 
+                _logger.LogInformation($"{request.TranscriptionId}. Call to COGS response code - {code.ToString()}");
+
                 var eventdata = new TradiureTranscriptionRequest() { 
-                    TranscriptionId = state.Value.TranscriptionId, 
+                    TranscriptionId = request.TranscriptionId, 
                     BlobUri = response.Self
                 };
 

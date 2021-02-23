@@ -32,6 +32,7 @@ namespace transcription.onstarted.Controllers
             {
                 _logger.LogInformation($"{request.TranscriptionId}. {request.BlobUri} was successfullly received by Dapr PubSub");
                 var state = await daprClient.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, request.TranscriptionId.ToString());
+                state.Value ??= new TraduireTranscription();
 
                 AzureCognitiveServicesClient client = new AzureCognitiveServicesClient();
                 (TranscriptionResults result, HttpStatusCode code)  = await client.DownloadTranscriptionResultAsync(new Uri(request.BlobUri)); 
