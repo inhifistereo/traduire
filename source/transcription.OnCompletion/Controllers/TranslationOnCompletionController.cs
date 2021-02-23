@@ -43,7 +43,7 @@ namespace transcription.onstarted.Controllers
                     state.Value.TranscriptionText   = firstChannel.Display;
                     await state.SaveAsync();
                 }
-                _logger.LogInformation($"{request.TranscriptionId}. {request.BlobUri} was ");
+                _logger.LogInformation($"{request.TranscriptionId}. {request.BlobUri} was saved to state store ");
             }
             catch( Exception ex )  
             {
