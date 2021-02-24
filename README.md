@@ -43,10 +43,6 @@ _Temporary steps_
 * Update pages\Index.cshtml. Replace {{replaceme}} with Kong IP and API Key
 * dotnet run --urls=http://localhost:5002/
 
-### Port Forward API to localhost
-* APIPOD=`kubectl get pods | grep -i api`
-* kubectl port-forward ${APIPOD} 5000:80
-
 ### Browser 
 * Launch UI
 * Select assets\recording.m4a
