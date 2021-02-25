@@ -105,12 +105,14 @@ function Build-DockerContainers
 Set-Variable -Name DAPR_VERSION     -Value "1.0.0"                          -Option Constant
 Set-Variable -Name KEDA_VERSION     -Value "2.1.1"                          -Option Constant
 Set-Variable -Name APP_RG_NAME      -Value ("{0}_app_rg" -f $AppName)       -Option Constant
+Set-Variable -Name CORE_RG_NAME     -Value ("{0}_core_rg" -f $AppName)      -Option Constant
 Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks01" -f $AppName)        -Option Constant
 Set-Variable -Name APP_ACR_NAME     -Value ("{0}acr01" -f $AppName)         -Option Constant
 Set-Variable -Name APP_KV_NAME      -Value ("{0}-kv01" -f $AppName)         -Option Constant
 Set-Variable -Name APP_SA_NAME      -Value ("{0}files01" -f $AppName)       -Option Constant
 Set-Variable -Name APP_MSI_NAME     -Value ("{0}-dapr-reader" -f $AppName)  -Option Constant
 Set-Variable -Name APP_COGS_NAME    -Value ("{0}-cogs01" -f $AppName)       -Option Constant
+Set-Variable -Name APP_AI_NAME      -Value ("{0}-ai01" -f $AppName)         -Option Constant
 
 Import-Module bjd.Common.Functions
 
@@ -128,6 +130,9 @@ Get-AKSCredentials -AKSName $APP_K8S_NAME -AKSResourceGroup $APP_RG_NAME
 
 #Generate Kong API secret
 $kong_api_secret = ConvertTo-Base64EncodedString (New-Password -Length 25 -ExcludedSpecialCharacters) 
+
+#Get App Insights Key
+$app_insights_key = (az monitor app-insights component show --app $APP_AI_NAME -g $CORE_RG_NAME --query instrumentationKey -o tsv)
 
 #Get MSI Account Info
 $msi = New-MSIAccount -MSIName $APP_MSI_NAME -MSIResourceGroup $APP_RG_NAME
@@ -183,5 +188,6 @@ helm upgrade -i `
    --set commit_version=$commit_version `
    --set cogs_region=$($cogs.region) `
    --set cogs_key=$($cogs.key) `
+   --set app_insights_key=$app_insights_key `
    --set kong_api_secret=$kong_api_secret `
    traduire helm/. 

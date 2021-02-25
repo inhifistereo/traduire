@@ -11,6 +11,7 @@ spec:
     metadata:
       annotations:
         dapr.io/enabled: "true"
+        dapr.io/config: "appinsights"
         dapr.io/app-id: "{{.Values.app_name}}-onpending"
         dapr.io/app-port: "80"
         dapr.io/log-level: "debug"

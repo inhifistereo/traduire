@@ -49,7 +49,7 @@ _Temporary steps_
 
 ## Backlog 
 - [X] API exposed via Kong
-- [ ] Tracing with Dapr / OpenTelemetry / Zipkin 
+- [X] Tracing with Dapr / OpenTelemetry / App Insights
 - [ ] Migrate Cognitive Services to Dapr HTTP Component
 - [ ] UX re-written in React 
 - [ ] Azure AD Authentication
