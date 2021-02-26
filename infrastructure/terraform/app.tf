@@ -98,6 +98,7 @@ resource "azurerm_storage_account" "traduire_app" {
   account_replication_type  = "LRS"
   account_kind              = "StorageV2"
   enable_https_traffic_only = true
+  allow_blob_public_access  = true
   min_tls_version           = "TLS1_2"
 }
 
