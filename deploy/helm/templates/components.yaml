@@ -1,7 +1,7 @@
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: {{.Values.app_name}}-vault
+  name: keyvault
 spec:
   type: secretstores.azure.keyvault
   version: v1
@@ -24,7 +24,7 @@ spec:
       name: {{.Values.service_bus_connection_string_secret}}
       key: {{.Values.service_bus_connection_string_secret}}
 auth:
-  secretStore: {{.Values.app_name}}-vault
+  secretStore: keyvault
 ---
 apiVersion: dapr.io/v1alpha1
 kind: Component
@@ -45,7 +45,7 @@ spec:
   - name: decodeBase64 
     value: "true"
 auth:
-  secretStore: {{.Values.app_name}}-vault
+  secretStore: keyvault
 ---
 apiVersion: dapr.io/v1alpha1
 kind: Component
@@ -64,7 +64,7 @@ spec:
   - name: keyPrefix
     value: none
 auth:
-  secretStore: {{.Values.app_name}}-vault
+  secretStore: keyvault
 ---
 apiVersion: dapr.io/v1alpha1
 kind: Configuration

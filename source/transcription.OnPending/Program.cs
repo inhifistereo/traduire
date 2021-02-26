@@ -5,7 +5,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+
+using Dapr.Client;
+using Dapr.Extensions.Configuration;
+
+using transcription.models;
+
 
 namespace transcription.status
 {
@@ -16,11 +23,23 @@ namespace transcription.status
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
+        public static IHostBuilder CreateHostBuilder(string[] args) 
+        {
+            var client = new DaprClientBuilder().Build();
+            
+            return Host.CreateDefaultBuilder(args)
+               .ConfigureServices((services) =>
+                {
+                    services.AddSingleton<DaprClient>(client);
+                })
+                .ConfigureAppConfiguration((configBuilder) =>
+                {
+                    configBuilder.AddDaprSecretStore(Components.SecureStore, client);
+                })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
                 });
+        }
     }
 }

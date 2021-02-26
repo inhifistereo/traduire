@@ -1,48 +1,47 @@
 using System; 
-using System.IO;
+using System.Collections.Generic;
 using System.Net;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using System.Text.Encodings.Web;
 using Dapr;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Microsoft.Extensions.Configuration;
 
 using transcription.models;
 using transcription.common;
 using transcription.common.cognitiveservices;
 
-namespace transcription.onstarted.Controllers
+namespace transcription.Controllers
 { 
     [ApiController]
     public class TranslationOnStarted : ControllerBase
     {
+        private readonly IConfiguration _configuration;
+        private readonly DaprClient _client;
+        private readonly AzureCognitiveServicesClient _cogsClient; 
         private readonly ILogger _logger;
                 
-        public TranslationOnStarted(ILogger<TranslationOnStarted> logger)
+        public TranslationOnStarted(ILogger<TranslationOnStarted> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient)
         {
+            _client = Client;
             _logger = logger;
+            _configuration = configuration;
+            _cogsClient = CogsClient;
         }
 
         [Topic(Components.PubSubName, Topics.TranscriptionSubmittedTopicName)]
         [HttpPost("transcribe")]
-        public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request,  CancellationToken cancellationToken, [FromServices] DaprClient daprClient)
-        {   
+        public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request,  CancellationToken cancellationToken)
+        {         
             try
             {
                 _logger.LogInformation($"{request.TranscriptionId}. {request.BlobUri} was successfullly received by Dapr PubSub");
-                var state = await daprClient.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, request.TranscriptionId.ToString());
+                var state = await _client.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, request.TranscriptionId.ToString());
                 state.Value ??= new TraduireTranscription();
 
-                AzureCognitiveServicesClient client = new AzureCognitiveServicesClient();
-                (Transcription response, HttpStatusCode code)  = await client.SubmitTranscriptionRequestAsync(new Uri(request.BlobUri));
+                (Transcription response, HttpStatusCode code)  = await _cogsClient.SubmitTranscriptionRequestAsync(new Uri(request.BlobUri));
 
                 _logger.LogInformation($"{request.TranscriptionId}. Call to COGS response code - {code.ToString()}");
 
@@ -57,7 +56,7 @@ namespace transcription.onstarted.Controllers
                     state.Value.TranscriptionStatusUri  = response.Self;
                     
                     await state.SaveAsync();
-                    await daprClient.PublishEventAsync(Components.PubSubName, Topics.TranscriptionPendingTopicName, eventdata, cancellationToken );
+                    await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionPendingTopicName, eventdata, cancellationToken );
 
                     _logger.LogInformation($"{request.TranscriptionId}. Event was successfullly publish to Azure Cognitive Services");
                     return Ok(request.TranscriptionId); 
@@ -68,7 +67,7 @@ namespace transcription.onstarted.Controllers
                     state.Value.StatusDetails           = code.ToString();
                     
                     await state.SaveAsync();
-                    await daprClient.PublishEventAsync(Components.PubSubName, Topics.TranscriptionFailedTopicName, eventdata, cancellationToken );
+                    await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionFailedTopicName, eventdata, cancellationToken );
 
                     _logger.LogInformation($"{request.TranscriptionId}. Event Failed. Added to deadletter queue");
                     return BadRequest(request.TranscriptionId);  

@@ -10,8 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
 using Dapr;
+
+using transcription.models;
+using transcription.common.cognitiveservices;
 
 namespace transcription.downloader
 {
@@ -36,11 +38,10 @@ namespace transcription.downloader
                     });
             });
 
-            services.AddControllers().AddDapr();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "transcription.downloader", Version = "v1" });
-            });
+            services.AddControllers();
+            
+            var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecureStore] ,Configuration[Components.SecretName]);
+            services.AddSingleton<AzureCognitiveServicesClient>(cogs);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -49,8 +50,6 @@ namespace transcription.downloader
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "transcription.downloader v1"));
             }
 
             app.UseCors();
