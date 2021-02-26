@@ -1,17 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Models;
-using Dapr;
+
+using transcription.models;
+using transcription.common.cognitiveservices;
 
 namespace transcription.TranslationOnStarted
 {
@@ -36,11 +30,10 @@ namespace transcription.TranslationOnStarted
                     });
             });
 
-            services.AddControllers().AddDapr();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "transcription.trigger", Version = "v1" });
-            });
+            services.AddControllers();
+
+            var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecureStore] ,Configuration[Components.SecretName]);
+            services.AddSingleton<AzureCognitiveServicesClient>(cogs);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -48,8 +41,6 @@ namespace transcription.TranslationOnStarted
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
-                app.UseSwagger();
-                app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "transcription.trigger v1"));
             }
             
             app.UseCors();

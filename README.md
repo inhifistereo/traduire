@@ -50,7 +50,8 @@ _Temporary steps_
 ## Backlog 
 - [X] API exposed via Kong
 - [X] Tracing with Dapr / OpenTelemetry / App Insights
-- [ ] Migrate Cognitive Services to Dapr HTTP Component
+- [X] Migrate Cognitive Services to Dapr Secure Store
+- [ ] API to display transcribed text
 - [ ] UX re-written in React 
 - [ ] Azure AD Authentication
 - [ ] Github Deployment via Actions  

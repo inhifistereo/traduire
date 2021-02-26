@@ -16,7 +16,7 @@ using Microsoft.Extensions.Logging;
 using transcription.models;
 using transcription.common;
 
-namespace TraduireAPi.Controllers
+namespace transcription.Controllers
 { 
     [Route("api/{controller}")]
     [ApiController]

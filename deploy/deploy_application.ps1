@@ -187,7 +187,6 @@ helm upgrade -i `
    --set acr_name=$APP_ACR_NAME `
    --set commit_version=$commit_version `
    --set cogs_region=$($cogs.region) `
-   --set cogs_key=$($cogs.key) `
    --set app_insights_key=$app_insights_key `
    --set kong_api_secret=$kong_api_secret `
    traduire helm/. 

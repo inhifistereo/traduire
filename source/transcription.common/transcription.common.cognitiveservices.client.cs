@@ -11,13 +11,11 @@ namespace transcription.common.cognitiveservices
 {  
     public class AzureCognitiveServicesClient 
     {
-        private string SubscriptionKey = Environment.GetEnvironmentVariable("AZURE_COGS_KEY", EnvironmentVariableTarget.Process);
-        private string region          = Environment.GetEnvironmentVariable("AZURE_COGS_REGION", EnvironmentVariableTarget.Process);
         private const int Port = 443;
 
         private const string SpeechToTextBasePath = "speechtotext/v3.0/";
         private HttpClient client;
-        private string AzCognitiveServicesUri; 
+        private string _azCognitiveServicesUri; 
 
         JsonSerializerOptions options = new JsonSerializerOptions{
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
@@ -26,16 +24,16 @@ namespace transcription.common.cognitiveservices
             },
         };
 
-        public AzureCognitiveServicesClient()
+        public AzureCognitiveServicesClient(string key, string region)
         {
-            AzCognitiveServicesUri = $"{region}.api.cognitive.microsoft.com";
+            _azCognitiveServicesUri = $"{region}.api.cognitive.microsoft.com";
             client = new HttpClient
             {
                 Timeout = TimeSpan.FromMinutes(25),
-                BaseAddress = new UriBuilder(Uri.UriSchemeHttps, AzCognitiveServicesUri, Port).Uri,
+                BaseAddress = new UriBuilder(Uri.UriSchemeHttps, _azCognitiveServicesUri, Port).Uri,
                 DefaultRequestHeaders =
                 {
-                    { "Ocp-Apim-Subscription-Key", SubscriptionKey }
+                    { "Ocp-Apim-Subscription-Key", key }
                 }
             };
         }
