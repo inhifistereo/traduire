@@ -24,7 +24,7 @@ namespace transcription.common.cognitiveservices
             },
         };
 
-        public AzureCognitiveServicesClient(string region, string key)
+        public AzureCognitiveServicesClient(string key, string region)
         {
             _azCognitiveServicesUri = $"{region}.api.cognitive.microsoft.com";
             client = new HttpClient
