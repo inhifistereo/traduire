@@ -40,7 +40,7 @@ kind: Service
 metadata:
   name: {{.Values.app_name}}-svc
   labels:
-    version: {{.Values.commit_version}}
+    version: "{{.Values.commit_version}}"
 spec:
   selector:
     app: {{.Values.app_name}}-api
