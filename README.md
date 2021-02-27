@@ -53,5 +53,5 @@ _Temporary steps_
 - [X] Migrate Cognitive Services to Dapr Secure Store
 - [ ] API to display transcribed text
 - [ ] UX re-written in React 
-- [ ] Azure AD Authentication
-- [ ] Github Deployment via Actions  
+- [ ] Port AKS, KeyVault, PostgreSQL, and Service Bus to GCP equivalents  
+
