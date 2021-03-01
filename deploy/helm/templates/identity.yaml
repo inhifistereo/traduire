@@ -1,16 +1,16 @@
 apiVersion: "aadpodidentity.k8s.io/v1"
 kind: AzureIdentity
 metadata:
-  name: {{.Values.app_name}}-identity
+  name: {{ cat .Values.app_name "-identity" | nospace }}
 spec:
   type: 0
-  resourceID: {{.Values.msi_resource_id}}
-  clientID: {{.Values.msi_client_id}}
+  resourceID: {{ .Values.msi_resource_id }}
+  clientID: {{ .Values.msi_client_id }}
 ---
 apiVersion: "aadpodidentity.k8s.io/v1"
 kind: AzureIdentityBinding
 metadata:
-  name: {{.Values.app_name}}-identity-binding
+  name: {{ cat .Values.app_name "-identity-binding" | nospace }}
 spec:
-  azureIdentity: {{.Values.app_name}}-identity
-  selector: {{.Values.msi_selector}}
+  azureIdentity: {{ cat .Values.app_name "-identity" | nospace }}
+  selector: {{ .Values.msi_selector }}

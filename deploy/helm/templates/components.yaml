@@ -7,9 +7,9 @@ spec:
   version: v1
   metadata:
   - name: vaultName
-    value: {{.Values.keyvault_name}}
+    value: {{ .Values.keyvault_name }} 
   - name: spnClientId
-    value: {{.Values.msi_client_id}}
+    value: {{ .Values.msi_client_id }} 
 ---
 apiVersion: dapr.io/v1alpha1
 kind: Component
@@ -21,8 +21,8 @@ spec:
   metadata:
   - name: connectionString
     secretKeyRef:
-      name: {{.Values.service_bus_connection_string_secret}}
-      key: {{.Values.service_bus_connection_string_secret}}
+      name: {{ .Values.service_bus_connection_string_secret }} 
+      key: {{ .Values.service_bus_connection_string_secret }} 
 auth:
   secretStore: keyvault
 ---
@@ -35,19 +35,19 @@ spec:
   version: v1
   metadata:
   - name: storageAccount
-    value: {{.Values.storage_name}}
+    value: {{ .Values.storage_name }} 
   - name: storageAccessKey
     secretKeyRef:
-      name: {{.Values.storage_connection_string_secret}}
-      key: {{.Values.storage_connection_string_secret}}
+      name: {{ .Values.storage_connection_string_secret }} 
+      key: {{ .Values.storage_connection_string_secret }} 
   - name: container
-    value: {{.Values.storage_container}}
+    value: {{ .Values.storage_container }} 
   - name: decodeBase64 
     value: "true"
 auth:
   secretStore: keyvault
 scope:
-  - {{.Values.app_name}}-api
+  - {{ cat .Values.app_name "-api" | nospace }}
 ---
 apiVersion: dapr.io/v1alpha1
 kind: Component
@@ -59,8 +59,8 @@ spec:
   metadata:
   - name: connectionString 
     secretKeyRef:
-      name: {{.Values.postgresql_connection_string_secret}}
-      key: {{.Values.postgresql_connection_string_secret}}
+      name: {{ .Values.postgresql_connection_string_secret }} 
+      key: {{ .Values.postgresql_connection_string_secret }} 
   - name: actorStateStore
     value: "false"
   - name: keyPrefix

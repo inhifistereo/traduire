@@ -12,6 +12,7 @@ spec:
       annotations:
         dapr.io/enabled: "true"
         dapr.io/config: "appinsights"
+        dapr.io/app-id: {{ cat .Values.app_name "-api" | nospace | quote }}
         dapr.io/app-id: "{{.Values.app_name}}-onpending"
         dapr.io/app-port: "80"
         dapr.io/log-level: "debug"
@@ -21,6 +22,7 @@ spec:
     spec:
       containers:
       - name: eventhandler
+        image: {{ cat .Values.acr_name ".azurecr.io/traduire/onstarted.handler:" .Values.commit_version | nospace }}
         image: {{.Values.acr_name}}.azurecr.io/traduire/onpending.handler:{{.Values.commit_version}}
         imagePullPolicy: Always
         ports:

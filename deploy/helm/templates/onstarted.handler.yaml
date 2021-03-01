@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Values.app_name}}-onstarted
+  name:  {{ cat .Values.app_name "-onstarted" | nospace }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{.Values.app_name}}-onstarted
+      app:  {{ cat .Values.app_name "-onstarted" | nospace }}
   template:
     metadata:
       annotations:
         dapr.io/enabled: "true"
         dapr.io/config: "appinsights"
-        dapr.io/app-id: "{{.Values.app_name}}-onstarted"
+        dapr.io/app-id: {{ cat .Values.app_name "-onstarted" | nospace | quote }}
         dapr.io/app-port: "80"
         dapr.io/log-level: "debug"
       labels:
-        app: {{.Values.app_name}}-onstarted
-        aadpodidbinding: {{.Values.msi_selector}}
+        app:  {{ cat .Values.app_name "-onstarted" | nospace }}
+        aadpodidbinding:  {{ .Values.msi_selector }}
     spec:
       containers:
       - name: eventhandler
-        image: {{.Values.acr_name}}.azurecr.io/traduire/onstarted.handler:{{.Values.commit_version}}
+        image: {{ cat .Values.acr_name ".azurecr.io/traduire/onstarted.handler:" .Values.commit_version | nospace }}
         imagePullPolicy: Always
         ports:
         - containerPort: 80
@@ -36,4 +36,4 @@ spec:
           allowPrivilegeEscalation: false
         env:
         - name: AZURE_COGS_REGION
-          value: {{.Values.cogs_region}}
+          value:  {{ .Values.cogs_region }}

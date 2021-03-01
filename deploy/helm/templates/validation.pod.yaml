@@ -1,12 +1,12 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Values.app_name}}-validation
+  name: {{ cat .Values.app_name "-validation" | nospace }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{.Values.app_name}}
+      app: {{ .Values.app_name }}
   template:
     metadata:
       annotations:
@@ -15,10 +15,10 @@ spec:
         dapr.io/app-id: "{{.Values.app_name}}"
         dapr.io/log-level: "debug"
       labels:
-        app: {{.Values.app_name}}
-        aadpodidbinding: {{.Values.msi_selector}}
+        app: {{ .Values.app_name }}
+        aadpodidbinding: {{.Values.msi_selector }}
     spec:
       containers:
       - name: utils
-        image: {{.Values.utils_container}}
+        image: {{ .Values.utils_container }}
         imagePullPolicy: Always

@@ -1,27 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{.Values.app_name}}-api
+  name: {{ cat .Values.app_name "-api" | nospace }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{.Values.app_name}}-api
+      app: {{ cat .Values.app_name "-api" | nospace }}
   template:
     metadata:
       annotations:
         dapr.io/enabled: "true"
         dapr.io/config: "appinsights"
-        dapr.io/app-id: "{{.Values.app_name}}-api"
+        dapr.io/app-id: {{ cat .Values.app_name "-api" | nospace | quote }}
         dapr.io/log-level: "debug"
         dapr.io/http-max-request-size: "16"
       labels:
-        app: {{.Values.app_name}}-api
-        aadpodidbinding: {{.Values.msi_selector}}
+        app: {{ cat .Values.app_name "-api" | nospace }}
+        aadpodidbinding: {{ .Values.msi_selector }} 
     spec:
       containers:
       - name: api
-        image: {{.Values.acr_name}}.azurecr.io/traduire/api:{{.Values.commit_version}} 
+        image: {{ cat .Values.acr_name ".azurecr.io/traduire/api:" .Values.commit_version | nospace }}
         imagePullPolicy: Always
         resources:
           limits:
@@ -34,17 +34,17 @@ spec:
           allowPrivilegeEscalation: false
         env:
         - name: AZURE_COGS_REGION
-          value: {{.Values.cogs_region}}
+          value: {{ .Values.cogs_region }} 
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{.Values.app_name}}-svc
+  name: {{ cat .Values.app_name "-svc" | nospace }}
   labels:
-    version: "{{.Values.commit_version}}"
+    version: {{ .Values.commit_version | quote }} 
 spec:
   selector:
-    app: {{.Values.app_name}}-api
+    app: {{ cat .Values.app_name "-api" | nospace }} 
   ports:
   - port: 8081
     targetPort: 80

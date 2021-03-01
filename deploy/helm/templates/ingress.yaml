@@ -2,15 +2,15 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{.Values.app_name}}-apikey
+  name:  {{ cat .Values.app_name "-apikey" | nospace }}
 data:
     kongCredType: a2V5LWF1dGg=
-    key: {{.Values.kong_api_secret}}
+    key:  {{ .Values.kong_api_secret }}
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name:  {{.Values.app_name}}-ingress
+  name:   {{ cat .Values.app_name "-ingress" | nospace }}
   annotations:
     kubernetes.io/ingress.class: kong
     konghq.com/plugins: httpbin-auth
@@ -20,7 +20,7 @@ spec:
       paths:
       - path: /api/upload
         backend:
-         serviceName: {{.Values.app_name}}-svc
+         serviceName:  {{ cat .Values.app_name "-svc" | nospace }}
          servicePort: 8081
 ---
 apiVersion: configuration.konghq.com/v1
@@ -32,9 +32,9 @@ plugin: key-auth
 apiVersion: configuration.konghq.com/v1
 kind: KongConsumer
 metadata:
-  name:  {{.Values.app_name}}
+  name:   {{ .Values.app_name }}
   annotations:
     kubernetes.io/ingress.class: kong
-username:  {{.Values.app_name}}
+username:   {{ .Values.app_name }}
 credentials:
--  {{.Values.app_name}}-apikey
+-   {{ cat .Values.app_name "-apikey" | nospace }}
