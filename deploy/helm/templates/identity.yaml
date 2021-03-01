@@ -1,7 +1,7 @@
 apiVersion: "aadpodidentity.k8s.io/v1"
 kind: AzureIdentity
 metadata:
-  name: {{ cat .Values.app_name "-identity" | nospace }}
+  name: {{ print .Values.app_name "-identity" }}
 spec:
   type: 0
   resourceID: {{ .Values.msi_resource_id }}
@@ -10,7 +10,7 @@ spec:
 apiVersion: "aadpodidentity.k8s.io/v1"
 kind: AzureIdentityBinding
 metadata:
-  name: {{ cat .Values.app_name "-identity-binding" | nospace }}
+  name: {{ print .Values.app_name "-identity-binding" }}
 spec:
-  azureIdentity: {{ cat .Values.app_name "-identity" | nospace }}
+  azureIdentity: {{ print .Values.app_name "-identity" }}
   selector: {{ .Values.msi_selector }}

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ cat .Values.app_name "-validation" | nospace }}
+  name: {{ print .Values.app_name "-validation" }}
 spec:
   replicas: 1
   selector:
