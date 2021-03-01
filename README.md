@@ -51,7 +51,7 @@ _Temporary steps_
 - [X] API exposed via Kong
 - [X] Tracing with Dapr / OpenTelemetry / App Insights
 - [X] Migrate Cognitive Services to Dapr Secure Store
-- [ ] API to display transcribed text
+- [X] API to display transcribed text
 - [ ] UX re-written in React 
 - [ ] Port AKS, KeyVault, PostgreSQL, and Service Bus to GCP equivalents  
 

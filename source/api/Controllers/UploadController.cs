@@ -84,12 +84,10 @@ namespace transcription.Controllers
                 await daprClient.PublishEventAsync(Components.PubSubName, Topics.TranscriptionSubmittedTopicName, eventdata, cancellationToken );
 
                 _logger.LogInformation($"{TranscriptionId}. Event was successfullly published to {Components.PubSubName} pubsub store");
-
-                return Ok(TranscriptionId); 
+                return Ok( new { TranscriptionId = TranscriptionId, StatusMessage = state.Value.Status, LastUpdated = state.Value.LastUpdateTime }  ); 
             }
             catch( Exception ex ) 
             {
-                //Add Compensating tranasaction to undo error
                 _logger.LogWarning($"Failed to create {file.FileName} - {ex.Message}");    
             }
 
