@@ -46,7 +46,7 @@ spec:
     value: "true"
 auth:
   secretStore: keyvault
-scope:
+scopes:
   - {{ print .Values.app_name "-api" }}
 ---
 apiVersion: dapr.io/v1alpha1
