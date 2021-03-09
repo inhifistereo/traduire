@@ -11,19 +11,18 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 
 ## Deployment
 ### Prerequisite
-* A Linux machine or Windows Subsytem for Linux 
-* PowerShell 7 for Linux
+* A Linux machine or Windows Subsytem for Linux or Docker for Windows 
+* PowerShell 7
 * Azure Cli and an Azure Subscription
 * Terraform 0.12 or greater
+* Kubectl
 * Helm 3 or greater
 * Docker 
-* [bjd.Common.Functions Modules](https://github.com/briandenicola/PSScripts/packages/)
 
 ### Infrastructure 
 * pwsh
-* Import-Module bjd.Common.Functions
 * cd ./Infrastructure
-* $AppName = "trad{0}" -f (New-Uuid).Substring(0,4)
+* $AppName = "trad{0}" -f (New-Guid).ToString('N').Substring(0,4)
 * ./create_infrastructure.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -Region southcentralus
 
 ### Application Deployment 

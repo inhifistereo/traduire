@@ -7,6 +7,15 @@ param(
     [string] $SubscriptionName
 )
 
+function New-APISecret 
+{
+    param( 
+        [string] $Length = 20
+    )
+    
+    [System.Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes((New-Guid).ToString('N').Substring(0,$Length)))
+}
+
 function Write-Log 
 {
     param( [string] $Message )
@@ -114,8 +123,6 @@ Set-Variable -Name APP_MSI_NAME     -Value ("{0}-dapr-reader" -f $AppName)  -Opt
 Set-Variable -Name APP_COGS_NAME    -Value ("{0}-cogs01" -f $AppName)       -Option Constant
 Set-Variable -Name APP_AI_NAME      -Value ("{0}-ai01" -f $AppName)         -Option Constant
 
-Import-Module bjd.Common.Functions
-
 $root   = (Get-Item $PWD.Path).Parent.FullName
 $source = Join-Path -Path $root -ChildPath "source"
 
@@ -129,7 +136,7 @@ Connect-ToAzureContainerRepo -ACRName $APP_ACR_NAME -SubscriptionName $Subscript
 Get-AKSCredentials -AKSName $APP_K8S_NAME -AKSResourceGroup $APP_RG_NAME
 
 #Generate Kong API secret
-$kong_api_secret = ConvertTo-Base64EncodedString (New-Password -Length 25 -ExcludedSpecialCharacters) 
+$kong_api_secret = New-APISecret -Length 25
 
 #Get App Insights Key
 $app_insights_key = (az monitor app-insights component show --app $APP_AI_NAME -g $CORE_RG_NAME --query instrumentationKey -o tsv)
