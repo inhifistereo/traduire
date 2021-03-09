@@ -1,0 +1,24 @@
+// Requires kubectl port-forward of pod to local machine 
+
+###
+POST http://localhost:3500/v1.0/publish/tra7db0a-pubsub/transcriptioncompleted HTTP/1.1
+content-type: application/json
+
+{
+    "status": "completed"
+}
+
+###
+GET http://localhost:3500/v1.0/secrets/tra7db0a-vault HTTP/1.1
+
+###
+
+POST http://localhost:3500/v1.0/bindings/tra7db0a-storage" HTTP/1.1
+content-type: application/json
+
+{
+    "operation": "create", 
+    "data": { 
+        "field1": "value1" 
+    }
+}

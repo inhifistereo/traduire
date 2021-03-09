@@ -9,10 +9,7 @@ param(
   [string] $region
 )
 
-Import-Module -Name bjd.Common.Functions
-
 $today = (Get-Date).ToString("yyyyMMdd")
-$uuid = New-Uuid
 
 az account show -o none
 if(!$?) {
@@ -27,7 +24,7 @@ $objectUPN = (az ad signed-in-user show --query "mail" -o tsv)
 
 #Terraform Variables
 $tfVarFileName = "variables.tfvars"
-$tfPlanFileName = "{0}.plan.{1}-{2}" -f $AppName, $today, $uuid
+$tfPlanFileName = "{0}.plan.{1}" -f $AppName, $today
 
 #Resource Names
 $acrAccountName = "{0}acr01" -f $appName
