@@ -9,6 +9,9 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 ## Data Flow
 ![Flow](./assets/flow_diagram.png)
 
+## Dapr Components
+![Dapr](./assets/dapr.png)
+
 ## Deployment
 ### Prerequisite
 * A Linux machine or Windows Subsytem for Linux or Docker for Windows 
