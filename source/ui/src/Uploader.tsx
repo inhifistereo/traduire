@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 type Props = {
 	selectedFile: File,
-	show: boolean
+	uploadFileUri: string
 }
 
 type State = {
@@ -20,14 +20,23 @@ class Uploader extends Component<Props,State> {
 		}
 	}
 
-	private simulateNetworkRequest = async () => {
-  		return new Promise((resolve) => setTimeout(resolve, 5000));
-  	};
+	private uploadFileRequest = async () => {
+		/*const response = await fetch(this.props.uploadFileUri, {
+			method: 'POST',
+			body: this.props.selectedFile
+		});*/
+
+		console.log(this.props.uploadFileUri);
+		console.log(this.props.selectedFile);
+
+		//return response;
+		return new Promise((resolve) => setTimeout(resolve, 5000));
+	}
 
   	private uploadFile = async () => {
 	  this.setState({ isLoading: true })
 	  try{
-		await this.simulateNetworkRequest();
+		await this.uploadFileRequest();
 	  }
 	  finally {
 		this.setState({ isLoading: false })
@@ -38,13 +47,9 @@ class Uploader extends Component<Props,State> {
 		const selectedFile = this.props.selectedFile;
 	  	return ( 
 			<div>
-				{this.props.show ?
-					<div>
-						<Button variant="primary" disabled={this.state.isLoading} size="lg" block onClick={this.uploadFile} >
-							{this.state.isLoading ? 'Uploading ' : 'Upload ' + selectedFile.name }
-						</Button>
-					</div>
-				: null }
+				<Button variant="primary" disabled={this.state.isLoading} size="lg" block onClick={this.uploadFile} >
+					{this.state.isLoading ? 'Uploading ' : 'Upload ' + selectedFile.name }
+				</Button>
 			</div>
   		);
   	}

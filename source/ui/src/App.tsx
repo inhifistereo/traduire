@@ -22,12 +22,12 @@ class App extends Component<any, iApp> {
 	
   	render() {
 		const selectedFile = this.state.selectedFile;
+		const uploadFileUri = process.env.REACT_APP_APP_URI ?? "http://localhost:3000/api/upload";
+		
 		return ( 
 			<div>
 				<FileSelector selectedFile={this.state.selectedFile} onFileSelected={this.handleFileSelection} />
-				{selectedFile.name === "foo.txt" ?
-					<Uploader selectedFile={this.state.selectedFile} show={false} />
-				: <Uploader selectedFile={this.state.selectedFile} show={true} /> }
+				{selectedFile.name !== "foo.txt" && <Uploader selectedFile={this.state.selectedFile} uploadFileUri={uploadFileUri} /> }
 			</div>
   		);
   	}
