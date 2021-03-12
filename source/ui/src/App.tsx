@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
-import FileSelector from './FileSelector'
-import Uploader from './Uploader';
+import FileSelector from './Components/FileSelector/FileSelector'
+import Uploader from './Components/Uploader/Uploader';
 
 interface iApp {
 	selectedFile: File
