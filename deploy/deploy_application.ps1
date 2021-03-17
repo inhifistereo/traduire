@@ -68,6 +68,16 @@ function Get-AKSCredentials
     az aks get-credentials -n $AKSNAME -g $AKSResourceGroup
 }
 
+function Get-APIGatewayIP 
+{
+    function Test-IPAddress($IP) { return ($IP -as [IPAddress] -as [Bool]) }
+
+    $ip = (kubectl -n kong-gateway get service kong-kong-proxy -o jsonpath=`{.status.loadBalancer.ingress[].ip`})
+
+    if( (Test-IPAddress -IP $ip) ) { return $ip }
+    return [string]::Empty
+}
+
 function New-MSIAccount 
 {
     param(
@@ -147,8 +157,14 @@ Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/oncom
 
 if($Upgrade) {
     Write-Log -Message "Upgrading Traduire to ${commit_version}"
-    helm upgrade traduire helm/. --reuse-values --set commit_version=$commit_version  
-    return
+    helm upgrade traduire helm/. --reuse-values --set commit_version=$commit_version 
+
+    if($?){
+        Write-Log ("Review DNS (A) Record: {0} - {1}" -f $uri, (Get-APIGatewayIP))
+        Write-Log "API successfully updated. Done"
+        return 0
+    }
+    return -1
 }
 
 #Get AKS Credential file
@@ -218,3 +234,11 @@ helm upgrade -i `
    --set kong_api_secret=$kong_api_secret `
    --set kong_api_uri=$Uri `
    traduire helm/. 
+
+if($?){
+    Write-Log ("Manually create DNS (A) Record: {0} - {1}" -f $uri, (Get-APIGatewayIP))
+    Write-Log "API successfully deployed. Done"
+}
+else {
+    Write-Log ("Errors encountered while deploying API. Please review. Application Name: {0}" -f $AppName )
+} 

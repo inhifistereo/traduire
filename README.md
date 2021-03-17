@@ -32,6 +32,7 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 * pwsh
 * cd ./Deploy
 * ./deploy_application.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -Uri api.bjd.tech [-upgrade] -verbose
+* Update the DNS record of Uri to the IP Address returned by the script
 
 ### UI Deployment 
 * TBD
@@ -46,7 +47,8 @@ _Temporary steps_
 * dotnet run --urls=http://localhost:5002/
 
 ### Browser 
-* Launch UI
+* Launch Browser
+* Navigate to https://${AppName}ui01.z21.web.core.windows.net/
 * Select assets\recording.m4a
 
 ## Backlog 
@@ -58,4 +60,3 @@ _Temporary steps_
 - [X] Let's Encrypt 
 - [ ] UX re-written in React (In-progress)
 - [ ] ~~Port AKS, KeyVault, PostgreSQL, and Service Bus to GCP equivalents~~
-
