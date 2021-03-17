@@ -3,6 +3,7 @@ import './App.css';
 import FileSelector from './Components/FileSelector/FileSelector'
 import Uploader from './Components/Uploader/Uploader';
 import Header from './Components/Header/Header';
+import Footer from './Components/Footer/Footer';
 
 interface iApp {
 	selectedFile: File
@@ -30,6 +31,7 @@ class App extends Component<any, iApp> {
 				<Header />
 				<FileSelector selectedFile={this.state.selectedFile} onFileSelected={this.handleFileSelection} />
 				{selectedFile.name !== "foo.txt" && <Uploader selectedFile={this.state.selectedFile} uploadFileUri={uploadFileUri} /> }
+				<Footer />
 			</div>
   		);
   	}
