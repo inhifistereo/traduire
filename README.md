@@ -34,20 +34,14 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 * ./deploy_application.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -verbose
 
 ### UI Deployment 
-_Temporary Steps_
-* Get API Key  - kubectl get secret ${AppName}-apikey -o json | jq ".data.key" | tr -d "\"" | base64 -d
-* cd source\ui\
-* Update pages\Index.cshtml. Replace {{replaceme}} with Kong IP and API Uri (api.bjd.tech)
-* dotnet run --urls=http://localhost:5002/
-
-_Work in Progress_
 * pwsh
 * cd ./Deploy
-* ./deploy_ui.ps1 -AppName $AppName 
+* ./deploy_ui.ps1 -AppName $AppName -ApiUri api.bjd.tech -Verbose
 
-### Browser 
-* Launch UI
-* Select assets\recording.m4a
+### Validate
+* Launch Browser
+* Navigate to https://{$AppName}.z21.web.core.windows.net/
+* Select assets\recording.m4a and upload the test file
 
 ## Backlog 
 - [X] API exposed via Kong
