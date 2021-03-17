@@ -38,3 +38,8 @@ spec:
         env:
         - name: AZURE_COGS_REGION
           value: {{ .Values.cogs_region }}
+      tolerations:
+      - key: "app"
+        operator: "Equal"
+        value: "traduire"
+        effect: "NoSchedule"

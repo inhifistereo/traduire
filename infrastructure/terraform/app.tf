@@ -150,7 +150,7 @@ resource "azurerm_kubernetes_cluster" "traduire_app" {
   default_node_pool  {
     name                    = "default"
     node_count              = 3
-    vm_size                = "Standard_B4ms"
+    vm_size                = "Standard_DS2_v2"
     os_disk_size_gb         = 30
     vnet_subnet_id          = azurerm_subnet.kubernetes.id
     type                    = "VirtualMachineScaleSets"
@@ -180,6 +180,18 @@ resource "azurerm_kubernetes_cluster" "traduire_app" {
   }
 }
 
+resource "azurerm_kubernetes_cluster_node_pool" "traduire_app_node_pool" {
+  name                  = "traduire"
+  kubernetes_cluster_id = azurerm_kubernetes_cluster.traduire_app.id
+  vm_size               = "Standard_B4ms"
+  enable_auto_scaling   = true
+  node_count            = 3
+  min_count             = 3
+  max_count             = 10
+
+  node_taints           = [ "app=traduire:NoSchedule" ]
+}
+
 resource "azurerm_role_assignment" "acr_pullrole_node" {
   scope                     = azurerm_container_registry.traduire_acr.id
   role_definition_name      = "AcrPull"
@@ -198,13 +210,6 @@ resource "azurerm_role_assignment" "network_contributor_cluster" {
   scope                     = azurerm_resource_group.traduire_core.id
   role_definition_name      = "Network Contributor"
   principal_id              = azurerm_kubernetes_cluster.traduire_app.kubelet_identity.0.object_id 
-  skip_service_principal_aad_check = true
-}
-
-resource "azurerm_role_assignment" "network_contributor_node" {
-  scope                     = azurerm_resource_group.traduire_core.id
-  role_definition_name      = "Network Contributor"
-  principal_id              = azurerm_kubernetes_cluster.traduire_app.identity.0.principal_id
   skip_service_principal_aad_check = true
 }
 
