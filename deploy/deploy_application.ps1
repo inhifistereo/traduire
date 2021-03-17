@@ -1,10 +1,16 @@
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = 'Default')]
 param(
-    [Parameter(Mandatory=$true)]
+    [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
     [string] $AppName,
   
-    [Parameter(Mandatory=$true)]
-    [string] $SubscriptionName
+    [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
+    [string] $SubscriptionName,
+
+    [Parameter(ParameterSetName = 'Default', Mandatory=$false)]
+    [string] $Uri,
+
+    [Parameter(ParameterSetName = 'Default', Mandatory=$false)]
+    [switch] $Upgrade
 )
 
 function New-APISecret 
@@ -132,6 +138,19 @@ Start-Docker
 #Connect to Azure and Log into ACR
 Connect-ToAzureContainerRepo -ACRName $APP_ACR_NAME -SubscriptionName $SubscriptionName
 
+#Build Source
+$commit_version = Get-GitCommitVersion
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/api:${commit_version}" -DockerFile "$source/dockerfile.api" -SourcePath $source
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onstarted.handler:${commit_version}" -DockerFile "$source/dockerfile.onstarted" -SourcePath $source
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onpending.handler:${commit_version}" -DockerFile "$source/dockerfile.onpending" -SourcePath $source
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/oncompletion.handler:${commit_version}" -DockerFile "$source/dockerfile.oncompletion" -SourcePath $source
+
+if($Upgrade) {
+    Write-Log -Message "Upgrading Traduire to ${commit_version}"
+    helm upgrade traduire helm/. --reuse-values --set commit_version=$commit_version  
+    return
+}
+
 #Get AKS Credential file
 Get-AKSCredentials -AKSName $APP_K8S_NAME -AKSResourceGroup $APP_RG_NAME
 
@@ -147,18 +166,12 @@ $msi = New-MSIAccount -MSIName $APP_MSI_NAME -MSIResourceGroup $APP_RG_NAME
 #Get Cognitive Services Info
 $cogs = New-CognitiveServicesAccount -CogsAccountName $APP_COGS_NAME -CogsResourceGroup $APP_RG_NAME
 
-#Build Source
-$commit_version = Get-GitCommitVersion
-Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/api:${commit_version}" -DockerFile "$source/dockerfile.api" -SourcePath $source
-Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onstarted.handler:${commit_version}" -DockerFile "$source/dockerfile.onstarted" -SourcePath $source
-Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onpending.handler:${commit_version}" -DockerFile "$source/dockerfile.onpending" -SourcePath $source
-Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/oncompletion.handler:${commit_version}" -DockerFile "$source/dockerfile.oncompletion" -SourcePath $source
-
 # Install Kong API Gateway 
 Write-Log -Message "Deploying Kong API Gateway"
 helm repo add kong https://charts.konghq.com
 helm repo update        
-helm upgrade -i kong kong/kong --set ingressController.installCRDs=false
+kubectl create namespace kong-gateway
+helm upgrade -i kong kong/kong --namespace kong-gateway --set ingressController.installCRDs=false
  
 # Install Keda
 Write-Log -Message "Deploying Keda"
@@ -183,6 +196,13 @@ helm repo add aad-pod-identity https://raw.githubusercontent.com/Azure/aad-pod-i
 helm repo update
 helm upgrade -i aad-pod-identity aad-pod-identity/aad-pod-identity
 
+# Install Cert Manager
+Write-Log -Message "Deploying Let's Encrypt Cert Manager"
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+kubectl create namespace cert-manager
+helm upgrade -i cert-manager jetstack/cert-manager  --namespace cert-manager  --version v1.2.0  --set installCRDs=true
+
 # Install App
 Write-Log -Message "Deploying Traduire"
 helm upgrade -i `
@@ -196,4 +216,5 @@ helm upgrade -i `
    --set cogs_region=$($cogs.region) `
    --set app_insights_key=$app_insights_key `
    --set kong_api_secret=$kong_api_secret `
+   --set kong_api_uri=$Uri `
    traduire helm/. 

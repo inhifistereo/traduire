@@ -2,26 +2,33 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name:  {{ print .Values.app_name "-apikey" }}
+  name: {{ print .Values.app_name "-apikey" }}
 data:
     kongCredType: a2V5LWF1dGg=
-    key:  {{ .Values.kong_api_secret }}
+    key: {{ .Values.kong_api_secret }}
 ---
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name:   {{ print .Values.app_name "-ingress" }}
+  name: {{ print .Values.app_name "-ingress" }}
   annotations:
     kubernetes.io/ingress.class: kong
     konghq.com/plugins: httpbin-auth
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
+  tls: 
+  - secretName: {{ print .Values.kong_api_uri "-tls" | replace "." "-" }}
+    hosts:
+    - {{ .Values.kong_api_uri }}
   rules:
-  - http:
+  - host: {{ .Values.kong_api_uri }}
+    http:
       paths:
-      - path: /api/upload
+      - path: /
         backend:
-         serviceName:  {{ print .Values.app_name "-svc" }}
-         servicePort: 8081
+         serviceName: {{ print .Values.app_name "-svc" }}
+         servicePort: {{ .Values.service_port }}
 ---
 apiVersion: configuration.konghq.com/v1
 kind: KongPlugin
@@ -32,9 +39,9 @@ plugin: key-auth
 apiVersion: configuration.konghq.com/v1
 kind: KongConsumer
 metadata:
-  name:   {{ .Values.app_name }}
+  name: {{ .Values.app_name }}
   annotations:
     kubernetes.io/ingress.class: kong
-username:   {{ .Values.app_name }}
+username: {{ .Values.app_name }}
 credentials:
--   {{ print .Values.app_name "-apikey" }}
+-  {{ print .Values.app_name "-apikey" }}
