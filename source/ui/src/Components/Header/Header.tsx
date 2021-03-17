@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './About.css';
+import './Header.css';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
 
@@ -11,7 +11,7 @@ type Props = {
 type State = {
 }
 
-class About extends Component<Props,State> {
+class Header extends Component<Props,State> {
   	render() {
 	  	return ( 
 			<Container>
@@ -26,4 +26,4 @@ class About extends Component<Props,State> {
   		);
   	}
 }
-export default About;
+export default Header;
