@@ -6,10 +6,10 @@ param(
     [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
     [string] $SubscriptionName,
 
-    [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
+    [Parameter(ParameterSetName = 'Default', Mandatory=$false)]
     [string] $Uri,
 
-    [Parameter(ParameterSetName = 'Upgrade', Mandatory=$true)]
+    [Parameter(ParameterSetName = 'Default', Mandatory=$false)]
     [switch] $Upgrade
 )
 
@@ -170,7 +170,8 @@ $cogs = New-CognitiveServicesAccount -CogsAccountName $APP_COGS_NAME -CogsResour
 Write-Log -Message "Deploying Kong API Gateway"
 helm repo add kong https://charts.konghq.com
 helm repo update        
-helm upgrade -i kong kong/kong --set ingressController.installCRDs=false
+kubectl create namespace kong-gateway
+helm upgrade -i kong kong/kong --namespace kong-gateway --set ingressController.installCRDs=false
  
 # Install Keda
 Write-Log -Message "Deploying Keda"

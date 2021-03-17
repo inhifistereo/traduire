@@ -16,3 +16,5 @@ utils_container                         : "bjd145/utils:latest"
 commit_version                          : "1.0"
 kong_api_secret                         : ""
 kong_api_uri                            : ""
+cert_email_address                      : "brian@bjdazure.tech"
+service_port                            : 8081

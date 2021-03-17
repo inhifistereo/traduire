@@ -47,6 +47,6 @@ spec:
   selector:
     app: {{ print .Values.app_name "-api" }} 
   ports:
-  - port: 8081
+  - port: {{ .Values.service_port }}
     targetPort: 80
   type: NodePort
