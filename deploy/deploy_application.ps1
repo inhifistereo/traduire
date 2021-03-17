@@ -6,7 +6,7 @@ param(
     [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
     [string] $SubscriptionName,
 
-    [Parameter(ParameterSetName = 'Default', Mandatory=$false)]
+    [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
     [string] $Uri,
 
     [Parameter(ParameterSetName = 'Default', Mandatory=$false)]
