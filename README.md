@@ -35,18 +35,11 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 * Update the DNS record of Uri to the IP Address returned by the script
 
 ### UI Deployment 
-* TBD
+* pwsh
+* cd ./Deploy
+* ./deploy_ui.ps1 -AppName $AppName -ApiUri api.bjd.tech -Verbose
 
-## Validate 
-_Temporary steps_
-### Run UI
-* Get Kong Service IP - kubectl get service kong-kong-proxy -o jsonpath={.status.loadBalancer.ingress[].ip}
-* Get API Key  - kubectl get secret ${AppName}-apikey -o json | jq ".data.key" | tr -d "\"" | base64 -d
-* cd source\ui\
-* Update pages\Index.cshtml. Replace {{replaceme}} with Kong IP and API Key
-* dotnet run --urls=http://localhost:5002/
-
-### Browser 
+### Validate
 * Launch Browser
 * Navigate to https://${AppName}ui01.z21.web.core.windows.net/
 * Select assets\recording.m4a

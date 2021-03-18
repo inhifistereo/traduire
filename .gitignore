@@ -352,3 +352,7 @@ infrastructure/terraform/terraform.tfstate
 infrastructure/terraform/terraform.tfstate.backup
 infrastructure/terraform/variables.tfvars
 infrastructure/terraform/.terraform/
+source/ui/.env
+source/ui/build
+deploy/deploy_ui.ps1
+source/ui/src/config.json
