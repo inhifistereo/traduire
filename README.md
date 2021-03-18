@@ -31,7 +31,8 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 ### Application Deployment 
 * pwsh
 * cd ./Deploy
-* ./deploy_application.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -verbose
+* ./deploy_application.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -Uri api.bjd.tech [-upgrade] -verbose
+* Update the DNS record of Uri to the IP Address returned by the script
 
 ### UI Deployment 
 * pwsh
@@ -40,13 +41,15 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 
 ### Validate
 * Launch Browser
-* Navigate to https://{$AppName}ui01.z21.web.core.windows.net/
-* Select assets\recording.m4a and upload the test file
+* Navigate to https://${AppName}ui01.z21.web.core.windows.net/
+* Select assets\recording.m4a
 
 ## Backlog 
 - [X] API exposed via Kong
 - [X] Tracing with Dapr / OpenTelemetry / App Insights
 - [X] Migrate Cognitive Services to Dapr Secure Store
 - [X] API to display transcribed text
-- [ ] UX re-written in React 
-- [ ] Port AKS, KeyVault, PostgreSQL, and Service Bus to GCP equivalents  
+- [X] Additional Node Pool for AKS
+- [X] Let's Encrypt 
+- [ ] UX re-written in React (In-progress)
+- [ ] ~~Port AKS, KeyVault, PostgreSQL, and Service Bus to GCP equivalents~~

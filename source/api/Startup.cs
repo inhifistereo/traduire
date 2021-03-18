@@ -29,7 +29,7 @@ namespace traduire.webapi
         {
             services.AddHealthChecks();
              //.AddAzureServiceBusQueue("Endpoint=...", "que1")
-             
+
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(
