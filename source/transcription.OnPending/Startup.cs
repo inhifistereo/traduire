@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -31,7 +32,9 @@ namespace transcription.status
 
             services.AddControllers();
 
-            var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecureStore] ,Configuration[Components.SecretName]);
+            //var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecureStore] ,Configuration[Components.SecretName]);
+            var region = Environment.GetEnvironmentVariable("AZURE_COGS_REGION");
+            var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecretName], region);
             services.AddSingleton<AzureCognitiveServicesClient>(cogs);
         }
 
