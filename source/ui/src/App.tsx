@@ -4,6 +4,7 @@ import FileSelector from './Components/FileSelector/FileSelector'
 import Uploader from './Components/Uploader/Uploader';
 import Header from './Components/Header/Header';
 import Footer from './Components/Footer/Footer';
+import config from './config.json';
 
 interface iApp {
 	selectedFile: File
@@ -24,7 +25,7 @@ class App extends Component<any, iApp> {
 	
   	render() {
 		const selectedFile = this.state.selectedFile;
-		const uploadFileUri = process.env.REACT_APP_APP_URI ?? "http://localhost:3000/api/upload";
+		const uploadFileUri = config.UPLOAD_URI ?? "http://localhost:3000/api/upload";
 		
 		return ( 
 			<div>

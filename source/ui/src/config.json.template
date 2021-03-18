@@ -1,0 +1,5 @@
+{
+    "UPLOAD_URI": "https://{{uri}}/api/upload?apikey={{apikey}}",
+    "STATUS_URI": "https://{{uri}}/api/status/{0}?apikey={{apikey}}",
+    "TRANSCRIPT_URI": "https://{{uri}}/api/download/{0}?apikey={{apikey}}"
+}

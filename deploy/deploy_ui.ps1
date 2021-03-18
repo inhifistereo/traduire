@@ -103,7 +103,7 @@ Write-Log -Message "Getting API Gateway Secret"
 $kong_api_key = Get-KubernetesSecret -secret ("{0}-apikey" -f $AppName) -value "key"
 
 Write-Log -Message "Setting Reactjs Environment File"
-Set-ReactEnvironmentFile -Path ".env.template" -OutPath ".env" -Uri $ApiUri -Key $kong_api_key
+Set-ReactEnvironmentFile -Path "src\config.json.template" -OutPath "src\config.json" -Uri $ApiUri -Key $kong_api_key
 
 Write-Log -Message "Building UI Code"
 Start-UiBuild
