@@ -18,7 +18,7 @@ spec:
   rules:
   - http:
       paths:
-      - path: /api/upload
+      - path: /
         backend:
          serviceName:  {{ print .Values.app_name "-svc" }}
          servicePort: 8081
