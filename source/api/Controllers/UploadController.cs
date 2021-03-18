@@ -81,10 +81,10 @@ namespace transcription.Controllers
                     TranscriptionId = TranscriptionId, 
                     BlobUri = response.blobURL
                 };
-                await daprClient.PublishEventAsync(Components.PubSubName, Topics.TranscriptionSubmittedTopicName, eventdata, cancellationToken );
+                await daprClient.PublishEventAsync( Components.PubSubName, Topics.TranscriptionSubmittedTopicName, eventdata, cancellationToken );
 
-                _logger.LogInformation($"{TranscriptionId}. Event was successfullly published to {Components.PubSubName} pubsub store");
-                return Ok( new { TranscriptionId = TranscriptionId, StatusMessage = state.Value.Status, LastUpdated = state.Value.LastUpdateTime }  ); 
+                _logger.LogInformation($"{TranscriptionId}. {response.blobURL} was successfullly published to {Components.PubSubName} pubsub store");
+                return Ok( new { TranscriptionId = TranscriptionId, BlobUrl = response.blobURL, StatusMessage = state.Value.Status, LastUpdated = state.Value.LastUpdateTime }  ); 
             }
             catch( Exception ex ) 
             {
