@@ -34,11 +34,10 @@ class Uploader extends Component<Props,State> {
 	}
 
 	private uploadFileRequest = async () => {
-		/*const response = await fetch(this.props.uploadFileUri, {
+		const response = await fetch(this.props.uploadFileUri, {
 			method: 'POST',
 			body: this.props.selectedFile
-		});*/
-		let response = fetch("http://localhost:3000/");
+		});
 		return response;
 	}
 
