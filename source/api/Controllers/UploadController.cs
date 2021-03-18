@@ -44,8 +44,8 @@ namespace transcription.Controllers
             return String.Empty;
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Post(IFormFile file, CancellationToken cancellationToken, [FromServices] DaprClient daprClient)
+        [HttpPost, DisableRequestSizeLimit]
+        public async Task<ActionResult> Post([FromForm] IFormFile file, [FromServices] DaprClient daprClient, CancellationToken cancellationToken)
         {
             try{
                 var TranscriptionId = Guid.NewGuid();

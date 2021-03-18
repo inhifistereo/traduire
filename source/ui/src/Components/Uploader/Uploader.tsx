@@ -34,12 +34,12 @@ class Uploader extends Component<Props,State> {
 	}
 
 	private uploadFileRequest = async () => {
+		const formData = new FormData();
+		formData.append('file', this.props.selectedFile);
+
 		const response = await fetch(this.props.uploadFileUri, {
 			method: 'POST',
-			body: this.props.selectedFile,
-			headers: {
-				'Content-Type': "multipart/form-data"
-			}
+			body:  formData
 		});
 		return response;
 	}
