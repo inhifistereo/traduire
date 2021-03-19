@@ -42,7 +42,10 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 ### Validate
 * Launch Browser
 * Navigate to https://${AppName}ui01.z21.web.core.windows.net/
-* Select assets\recording.m4a
+* Select and upload assets\recording.m4a
+* Click 'Check Status' to watch the transcription go through its stages 
+* Then the final result should be: \
+    ![UI](./assets/ui.png)]
 
 ## Backlog 
 - [X] API exposed via Kong
@@ -51,5 +54,5 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 - [X] API to display transcribed text
 - [X] Additional Node Pool for AKS
 - [X] Let's Encrypt 
-- [ ] UX re-written in React (In-progress)
+- [X] UX re-written in React 
 - [ ] ~~Port AKS, KeyVault, PostgreSQL, and Service Bus to GCP equivalents~~
