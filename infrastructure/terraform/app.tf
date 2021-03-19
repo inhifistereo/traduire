@@ -319,8 +319,7 @@ resource "azurerm_key_vault" "traduire_app" {
       "set",
       "get",
       "delete",
-      "purge",
-      "recover"
+      "list"
     ]
   }
 }
