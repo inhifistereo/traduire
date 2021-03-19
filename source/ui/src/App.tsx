@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import FileSelector from './Components/FileSelector/FileSelector'
-import Uploader from './Components/Uploader/Uploader';
+import Transcription from './Components/Transcription/Transcription';
 import Header from './Components/Header/Header';
 import Footer from './Components/Footer/Footer';
 import config from './config.json';
@@ -26,12 +26,18 @@ class App extends Component<any, iApp> {
   	render() {
 		const selectedFile = this.state.selectedFile;
 		const uploadFileUri = config.UPLOAD_URI ?? "http://localhost:3000/api/upload";
-		
+		const statusUri = config.STATUS_URI ?? "http://localhost:3000/api/status/{0}";
+		const transcriptUri = config.TRANSCRIPT_URI ?? "http://localhost:3000/api/download/{0}";
+
 		return ( 
 			<div>
 				<Header />
 				<FileSelector selectedFile={this.state.selectedFile} onFileSelected={this.handleFileSelection} />
-				{selectedFile.name !== "foo.txt" && <Uploader selectedFile={this.state.selectedFile} uploadFileUri={uploadFileUri} /> }
+				{selectedFile.name !== "foo.txt" && <Transcription selectedFile={this.state.selectedFile} 
+														uploadFileUri={uploadFileUri} 
+														statusUri={statusUri}
+														transcriptUri={transcriptUri} /> 
+				}
 				<Footer />
 			</div>
   		);

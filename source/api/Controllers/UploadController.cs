@@ -84,7 +84,7 @@ namespace transcription.Controllers
                 await daprClient.PublishEventAsync( Components.PubSubName, Topics.TranscriptionSubmittedTopicName, eventdata, cancellationToken );
 
                 _logger.LogInformation($"{TranscriptionId}. {response.blobURL} was successfullly published to {Components.PubSubName} pubsub store");
-                return Ok( new { TranscriptionId = TranscriptionId, BlobUrl = response.blobURL, StatusMessage = state.Value.Status, LastUpdated = state.Value.LastUpdateTime }  ); 
+                return Ok( new { TranscriptionId = TranscriptionId, StatusMessage = state.Value.Status, LastUpdated = state.Value.LastUpdateTime }  ); 
             }
             catch( Exception ex ) 
             {
