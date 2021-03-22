@@ -129,6 +129,7 @@ function Build-DockerContainers
 
 Set-Variable -Name DAPR_VERSION     -Value "1.0.1"                           -Option Constant
 Set-Variable -Name KEDA_VERSION     -Value "2.2.0"                           -Option Constant
+Set-Variable -Name CERT_MGR_VERSION -Value "v1.2.0"                          -Option Constant
 Set-Variable -Name APP_RG_NAME      -Value ("{0}_app_rg" -f $AppName)        -Option Constant
 Set-Variable -Name CORE_RG_NAME     -Value ("{0}_core_rg" -f $AppName)       -Option Constant
 Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks01" -f $AppName)         -Option Constant
@@ -188,16 +189,14 @@ $cogs = New-CognitiveServicesAccount -CogsAccountName $APP_COGS_NAME -CogsResour
 # Install Kong API Gateway 
 Write-Log -Message "Deploying Kong API Gateway"
 helm repo add kong https://charts.konghq.com
-helm repo update        
-kubectl create namespace kong-gateway
-helm upgrade -i kong kong/kong --namespace kong-gateway --set ingressController.installCRDs=false
+helm repo update
+helm upgrade -i kong kong/kong --namespace kong-gateway --create-namespace --set ingressController.installCRDs=false
 
 # Install Dapr
 Write-Log -Message "Deploying Dapr"
 helm repo add dapr https://dapr.github.io/helm-charts
 helm repo update
-kubectl create namespace dapr-system
-helm upgrade -i dapr dapr/dapr --namespace dapr-system --version $DAPR_VERSION --set global.mtls.enabled=true --set global.logAsJson=true --set global.ha.enabled=true --wait
+helm upgrade -i dapr dapr/dapr --namespace dapr-system --create-namespace --version $DAPR_VERSION --set global.mtls.enabled=true --set global.logAsJson=true --set global.ha.enabled=true --wait
 
 #Due to https://github.com/dapr/dapr/issues/1621#
 #kubectl -n dapr-system rollout restart deployment dapr-sidecar-injector
@@ -212,15 +211,13 @@ helm upgrade -i aad-pod-identity aad-pod-identity/aad-pod-identity
 Write-Log -Message "Deploying Let's Encrypt Cert Manager"
 helm repo add jetstack https://charts.jetstack.io
 helm repo update
-kubectl create namespace cert-manager
-helm upgrade -i cert-manager jetstack/cert-manager  --namespace cert-manager  --version v1.2.0  --set installCRDs=true
+helm upgrade -i cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version $CERT_MGR_VERSION  --set installCRDs=true
 
 # Install Keda
 Write-Log -Message "Deploying Keda"
 helm repo add kedacore https://kedacore.github.io/charts
 helm repo update
-kubectl create namespace keda
-helm upgrade -i keda kedacore/keda --namespace keda --version $KEDA_VERSION --set podIdentity.activeDirectory.identity=$KEDA_POD_BINDING
+helm upgrade -i keda kedacore/keda --namespace keda --create-namespace --version $KEDA_VERSION --set podIdentity.activeDirectory.identity=$KEDA_POD_BINDING
 
 # Install App
 Write-Log -Message "Deploying Traduire"
