@@ -127,17 +127,19 @@ function Build-DockerContainers
     docker push $ContainerName
 }
 
-Set-Variable -Name DAPR_VERSION     -Value "1.0.0"                          -Option Constant
-Set-Variable -Name KEDA_VERSION     -Value "2.1.1"                          -Option Constant
-Set-Variable -Name APP_RG_NAME      -Value ("{0}_app_rg" -f $AppName)       -Option Constant
-Set-Variable -Name CORE_RG_NAME     -Value ("{0}_core_rg" -f $AppName)      -Option Constant
-Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks01" -f $AppName)        -Option Constant
-Set-Variable -Name APP_ACR_NAME     -Value ("{0}acr01" -f $AppName)         -Option Constant
-Set-Variable -Name APP_KV_NAME      -Value ("{0}-kv01" -f $AppName)         -Option Constant
-Set-Variable -Name APP_SA_NAME      -Value ("{0}files01" -f $AppName)       -Option Constant
-Set-Variable -Name APP_MSI_NAME     -Value ("{0}-dapr-reader" -f $AppName)  -Option Constant
-Set-Variable -Name APP_COGS_NAME    -Value ("{0}-cogs01" -f $AppName)       -Option Constant
-Set-Variable -Name APP_AI_NAME      -Value ("{0}-ai01" -f $AppName)         -Option Constant
+Set-Variable -Name DAPR_VERSION     -Value "1.0.1"                           -Option Constant
+Set-Variable -Name KEDA_VERSION     -Value "2.2.0"                           -Option Constant
+Set-Variable -Name APP_RG_NAME      -Value ("{0}_app_rg" -f $AppName)        -Option Constant
+Set-Variable -Name CORE_RG_NAME     -Value ("{0}_core_rg" -f $AppName)       -Option Constant
+Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks01" -f $AppName)         -Option Constant
+Set-Variable -Name APP_ACR_NAME     -Value ("{0}acr01" -f $AppName)          -Option Constant
+Set-Variable -Name APP_KV_NAME      -Value ("{0}-kv01" -f $AppName)          -Option Constant
+Set-Variable -Name APP_SA_NAME      -Value ("{0}files01" -f $AppName)        -Option Constant
+Set-Variable -Name APP_MSI_NAME     -Value ("{0}-dapr-reader" -f $AppName)   -Option Constant
+Set-Variable -Name APP_COGS_NAME    -Value ("{0}-cogs01" -f $AppName)        -Option Constant
+Set-Variable -Name APP_AI_NAME      -Value ("{0}-ai01" -f $AppName)          -Option Constant
+Set-Variable -Name KEDA_MSI_NAME    -Value ("{0}-keda-sb-owner" -f $AppName) -Option Constant
+Set-Variable -Name KEDA_POD_BINDING -Value "keda-podidentity"                -Option Constant
 
 $root   = (Get-Item $PWD.Path).Parent.FullName
 $source = Join-Path -Path $root -ChildPath "source"
@@ -177,7 +179,8 @@ $kong_api_secret = New-APISecret -Length 25
 $app_insights_key = (az monitor app-insights component show --app $APP_AI_NAME -g $CORE_RG_NAME --query instrumentationKey -o tsv)
 
 #Get MSI Account Info
-$msi = New-MSIAccount -MSIName $APP_MSI_NAME -MSIResourceGroup $APP_RG_NAME
+$app_msi  = New-MSIAccount -MSIName $APP_MSI_NAME -MSIResourceGroup $APP_RG_NAME
+$keda_msi = New-MSIAccount -MSIName $KEDA_MSI_NAME -MSIResourceGroup $APP_RG_NAME
 
 #Get Cognitive Services Info
 $cogs = New-CognitiveServicesAccount -CogsAccountName $APP_COGS_NAME -CogsResourceGroup $APP_RG_NAME
@@ -188,13 +191,6 @@ helm repo add kong https://charts.konghq.com
 helm repo update        
 kubectl create namespace kong-gateway
 helm upgrade -i kong kong/kong --namespace kong-gateway --set ingressController.installCRDs=false
- 
-# Install Keda
-Write-Log -Message "Deploying Keda"
-helm repo add kedacore https://kedacore.github.io/charts
-helm repo update
-kubectl create namespace keda
-helm upgrade -i keda kedacore/keda --namespace keda --version $KEDA_VERSION
 
 # Install Dapr
 Write-Log -Message "Deploying Dapr"
@@ -219,12 +215,19 @@ helm repo update
 kubectl create namespace cert-manager
 helm upgrade -i cert-manager jetstack/cert-manager  --namespace cert-manager  --version v1.2.0  --set installCRDs=true
 
+# Install Keda
+Write-Log -Message "Deploying Keda"
+helm repo add kedacore https://kedacore.github.io/charts
+helm repo update
+kubectl create namespace keda
+helm upgrade -i keda kedacore/keda --namespace keda --version $KEDA_VERSION --set podIdentity.activeDirectory.identity=$KEDA_POD_BINDING
+
 # Install App
 Write-Log -Message "Deploying Traduire"
 helm upgrade -i `
    --set app_name=$AppName `
-   --set msi_client_id=$($msi.client_id) `
-   --set msi_resource_id=$($msi.resource_id) `
+   --set msi_client_id=$($app_msi.client_id) `
+   --set msi_resource_id=$($app_msi.resource_id) `
    --set keyvault_name=$APP_KV_NAME `
    --set storage_name=$APP_SA_NAME `
    --set acr_name=$APP_ACR_NAME `
@@ -233,6 +236,8 @@ helm upgrade -i `
    --set app_insights_key=$app_insights_key `
    --set kong_api_secret=$kong_api_secret `
    --set kong_api_uri=$Uri `
+   --set keda_msi_client_id=$($keda_msi.client_id) `
+   --set keda_msi_resource_id=$($keda_msi.resource_id) `
    traduire helm/. 
 
 if($?){
