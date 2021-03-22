@@ -197,7 +197,7 @@ Write-Log -Message "Deploying Dapr"
 helm repo add dapr https://dapr.github.io/helm-charts
 helm repo update
 kubectl create namespace dapr-system
-helm upgrade -i dapr dapr/dapr --namespace dapr-system --version $DAPR_VERSION --set global.logAsJson=true --set global.ha.enabled=true --wait
+helm upgrade -i dapr dapr/dapr --namespace dapr-system --version $DAPR_VERSION --set global.mtls.enabled=true --set global.logAsJson=true --set global.ha.enabled=true --wait
 
 #Due to https://github.com/dapr/dapr/issues/1621#
 #kubectl -n dapr-system rollout restart deployment dapr-sidecar-injector
