@@ -366,3 +366,16 @@ resource "azurerm_key_vault_secret" "azurerm_cognitive_account_key" {
   value        = azurerm_cognitive_account.traduire_app.primary_access_key
   key_vault_id = azurerm_key_vault.traduire_app.id
 }
+
+resource "azurerm_user_assigned_identity" "keda_sb_user" {
+  resource_group_name = azurerm_resource_group.traduire_app.name
+  location            = azurerm_resource_group.traduire_app.location
+  name                = "${var.application_name}-keda-sb-owner"
+}
+
+resource "azurerm_role_assignment" "keda_sb_data_owner" {
+  scope                     = azurerm_servicebus_namespace.traduire_app.id
+  role_definition_name      = "Azure Service Bus Data Owner" 
+  principal_id              = azurerm_user_assigned_identity.keda_sb_user.principal_id
+  skip_service_principal_aad_check = true
+}
