@@ -44,12 +44,18 @@ namespace transcription.Controllers
                 (TranscriptionResults result, HttpStatusCode code)  = await _cogsClient.DownloadTranscriptionResultAsync(new Uri(request.BlobUri)); 
 
                 if( code == HttpStatusCode.OK ) {                  
+                    
                     var firstChannel                = result.CombinedRecognizedPhrases.FirstOrDefault();
                     state.Value.Status              = TraduireTranscriptionStatus.Completed;
                     state.Value.TranscriptionText   = firstChannel.Display;
+                    
                     await state.SaveAsync();
+                    _logger.LogInformation($"{request.TranscriptionId}. Transcription from '{request.BlobUri}' was saved to state store ");
                 }
-                _logger.LogInformation($"{request.TranscriptionId}. {request.BlobUri} was saved to state store ");
+                
+                _logger.LogInformation($"{request.TranscriptionId}. All working completed on request");
+                return Ok(request.TranscriptionId); 
+
             }
             catch( Exception ex )  
             {
