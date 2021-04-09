@@ -47,15 +47,20 @@ namespace transcription.Controllers
         [HttpPost, DisableRequestSizeLimit]
         public async Task<ActionResult> Post([FromForm] IFormFile file, [FromServices] DaprClient daprClient, CancellationToken cancellationToken)
         {
-            try{
+			_logger.LogInformation($"File upload request was received.");
+
+            try
+			{
                 var TranscriptionId = Guid.NewGuid();
                 var safeFileName = WebUtility.HtmlEncode(file.FileName); 
 
                 var metadata = new Dictionary<string, string>();
                 metadata.Add("blobName", safeFileName);
 
+				_logger.LogInformation($"{TranscriptionId}. Base64 encoding file for Dapr upload.");
                 var encodedFile = await ConvertFileToBase64Encoding(file);
-
+	
+				 _logger.LogInformation($"{TranscriptionId}. Uploading file via Dapr to {Components.BlobStoreName}"); 
                 var response = await daprClient.InvokeBindingAsync<string,BlobBindingResponse>(
                         Components.BlobStoreName, 
                         Components.CreateOperation, 
