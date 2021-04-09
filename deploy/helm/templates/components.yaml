@@ -1,0 +1,79 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: keyvault
+spec:
+  type: secretstores.azure.keyvault
+  version: v1
+  metadata:
+  - name: vaultName
+    value: {{ .Values.keyvault_name }} 
+  - name: spnClientId
+    value: {{ .Values.msi_client_id }} 
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub
+spec:
+  type: pubsub.azure.servicebus
+  version: v1
+  metadata:
+  - name: connectionString
+    secretKeyRef:
+      name: {{ .Values.service_bus_connection_string_secret }} 
+      key: {{ .Values.service_bus_connection_string_secret }} 
+auth:
+  secretStore: keyvault
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: storage
+spec:
+  type: bindings.azure.blobstorage
+  version: v1
+  metadata:
+  - name: storageAccount
+    value: {{ .Values.storage_name }} 
+  - name: storageAccessKey
+    secretKeyRef:
+      name: {{ .Values.storage_connection_string_secret }} 
+      key: {{ .Values.storage_connection_string_secret }} 
+  - name: container
+    value: {{ .Values.storage_container }} 
+  - name: decodeBase64 
+    value: "true"
+auth:
+  secretStore: keyvault
+scopes:
+  - {{ print .Values.app_name "-api" }}
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: sql
+spec:
+  type: state.postgresql
+  version: v1
+  metadata:
+  - name: connectionString 
+    secretKeyRef:
+      name: {{ .Values.postgresql_connection_string_secret }} 
+      key: {{ .Values.postgresql_connection_string_secret }} 
+  - name: actorStateStore
+    value: "false"
+  - name: keyPrefix
+    value: none
+auth:
+  secretStore: keyvault
+---
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: appinsights
+spec:
+  tracing:
+    samplingRate: "1"
+    zipkin:
+      endpointAddress: "http://otel-collector.default.svc.cluster.local:9411/api/v2/spans"

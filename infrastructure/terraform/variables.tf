@@ -118,3 +118,9 @@ variable "postgresql_secret_name" {
   type        = string
   default     = "postgresqlconnection"
 }
+
+variable "cognitive_services_secret_name" {
+  description = "Key Vault Secret Name for Cognitive Secret Primary Key"
+  type        = string
+  default     = "speech2textkey"
+}
