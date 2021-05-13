@@ -78,7 +78,7 @@ jobs:
           run: echo "GITHUB_AZURE_STATIC_WEB_APPS_ID=$(az staticwebapp browse -g ${{ secrets.APP_RG_NAME }} -n ${{ secrets.APP_NAME }} -o tsv --query id)" >> $GITHUB_ENV
 
         - name: Get Static Web App Deployment Token
-          run: echo "GITHUB_AZURE_STATIC_WEB_APPS_TOKEN=$(az rest --method post --url "$id/listsecrets?api-version=2020-06-01" --query properties.apiKey -o tsv)" >> $GITHUB_ENV
+          run: echo "GITHUB_AZURE_STATIC_WEB_APPS_TOKEN=$(az rest --method post --url "$GITHUB_AZURE_STATIC_WEB_APPS_ID/listsecrets?api-version=2020-06-01" --query properties.apiKey -o tsv)" >> $GITHUB_ENV
 
       - name: Build
         shell: pwsh
