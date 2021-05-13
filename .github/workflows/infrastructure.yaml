@@ -45,7 +45,8 @@ jobs:
           azcliversion: 2.22.1
           inlineScript: |
             az account set -s ${{ secrets.ARM_SUBSCRIPTION_ID }}
-            az staticwebapp create -g ${{ secrets.APP_RG_NAME }} -n ${{ secrets.APP_NAME }} -l centralus -s "" -t "-" -b ""
+            az group create -n ${{ secrets.APP_RG_NAME }} -l ${{ env.LOCATION }}
+            az staticwebapp create -g ${{ secrets.APP_RG_NAME }} -n ${{ secrets.APP_NAME }} -l ${{ env.LOCATION }} -s "" -t "-" -b ""
 
   deploy_api:
     needs: create_infrastructure
