@@ -42,7 +42,7 @@ jobs:
       - name: Create Azure StaticWebApp via Azure CLI
         uses: azure/CLI@v1
         with:
-          azcliversion: 2.0.72
+          azcliversion: 2.22.1
           inlineScript: |
             az account set -s ${{ secrets.ARM_SUBSCRIPTION_ID }}
             az staticwebapp create -g ${{ secrets.APP_RG_NAME }} -n ${{ secrets.APP_NAME }} -l centralus -s "" -t "-" -b ""
