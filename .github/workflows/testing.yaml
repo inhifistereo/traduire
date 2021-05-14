@@ -1,0 +1,21 @@
+name: 'test'
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Create and Deploy Traduire to Azure'
+
+jobs:
+  testingpowershell:
+    name: 'test-step'
+    runs-on: ubuntu-latest
+    environment: production
+
+    defaults:
+      run:
+        shell: powershell
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
