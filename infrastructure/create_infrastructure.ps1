@@ -11,7 +11,7 @@ param(
 
 $today = (Get-Date).ToString("yyyyMMdd")
 
-#az login
+az login
 az account set -s $SubscriptionName
 
 #Azure Environment 
