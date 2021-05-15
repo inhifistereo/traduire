@@ -44,18 +44,23 @@ namespace transcription.Controllers
             return String.Empty;
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Post(IFormFile file, CancellationToken cancellationToken, [FromServices] DaprClient daprClient)
+        [HttpPost, DisableRequestSizeLimit]
+        public async Task<ActionResult> Post([FromForm] IFormFile file, [FromServices] DaprClient daprClient, CancellationToken cancellationToken)
         {
-            try{
+			_logger.LogInformation($"File upload request was received.");
+
+            try
+			{
                 var TranscriptionId = Guid.NewGuid();
                 var safeFileName = WebUtility.HtmlEncode(file.FileName); 
 
                 var metadata = new Dictionary<string, string>();
                 metadata.Add("blobName", safeFileName);
 
+				_logger.LogInformation($"{TranscriptionId}. Base64 encoding file for Dapr upload.");
                 var encodedFile = await ConvertFileToBase64Encoding(file);
-
+	
+				 _logger.LogInformation($"{TranscriptionId}. Uploading file via Dapr to {Components.BlobStoreName}"); 
                 var response = await daprClient.InvokeBindingAsync<string,BlobBindingResponse>(
                         Components.BlobStoreName, 
                         Components.CreateOperation, 
@@ -81,9 +86,9 @@ namespace transcription.Controllers
                     TranscriptionId = TranscriptionId, 
                     BlobUri = response.blobURL
                 };
-                await daprClient.PublishEventAsync(Components.PubSubName, Topics.TranscriptionSubmittedTopicName, eventdata, cancellationToken );
+                await daprClient.PublishEventAsync( Components.PubSubName, Topics.TranscriptionSubmittedTopicName, eventdata, cancellationToken );
 
-                _logger.LogInformation($"{TranscriptionId}. Event was successfullly published to {Components.PubSubName} pubsub store");
+                _logger.LogInformation($"{TranscriptionId}. {response.blobURL} was successfullly published to {Components.PubSubName} pubsub store");
                 return Ok( new { TranscriptionId = TranscriptionId, StatusMessage = state.Value.Status, LastUpdated = state.Value.LastUpdateTime }  ); 
             }
             catch( Exception ex ) 

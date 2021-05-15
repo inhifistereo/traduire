@@ -39,8 +39,11 @@ namespace transcription.downloader
             });
 
             services.AddControllers();
+
+            //var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecureStore] ,Configuration[Components.SecretName]);
+            var region = Environment.GetEnvironmentVariable("AZURE_COGS_REGION");
+            var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecretName], region);
             
-            var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecureStore] ,Configuration[Components.SecretName]);
             services.AddSingleton<AzureCognitiveServicesClient>(cogs);
         }
 
