@@ -29,6 +29,8 @@ namespace transcription.Controllers
             var TranscriptionId = Guid.NewGuid();
 
             try{
+                _logger.LogInformation($"{TranscriptionId}. Request to transcribe {reference.blobURL} was received");
+
                 var state = await dapr.UpdateState(TranscriptionId, reference.blobURL);
                 _logger.LogInformation($"{TranscriptionId}. Record was successfullly saved as to {Components.StateStoreName} State Store");
 
