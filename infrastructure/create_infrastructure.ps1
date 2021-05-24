@@ -11,10 +11,7 @@ param(
 
 $today = (Get-Date).ToString("yyyyMMdd")
 
-az account show -o none
-if(!$?) {
-    az login
-}
+az login
 az account set -s $SubscriptionName
 
 #Azure Environment 

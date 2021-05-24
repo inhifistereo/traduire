@@ -11,9 +11,9 @@ spec:
     metadata:
       annotations:
         dapr.io/enabled: "true"
-        dapr.io/config: "appinsights"
-        dapr.io/app-id: "{{.Values.app_name}}"
-        dapr.io/log-level: "debug"
+        dapr.io/config: {{ print .Values.app_name "-config" | quote }}
+        dapr.io/app-id: {{ print .Values.app_name "-validation" | nospace | quote }}
+        dapr.io/log-level: "info"
       labels:
         app: {{ .Values.app_name }}
         aadpodidbinding: {{.Values.msi_selector }}

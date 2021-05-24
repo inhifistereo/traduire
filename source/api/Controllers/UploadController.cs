@@ -21,23 +21,26 @@ namespace transcription.Controllers
         {
             _logger = logger;
         }
-        
+
         [HttpPost, DisableRequestSizeLimit]
         public async Task<ActionResult> Post([FromForm] IFormFile file, [FromServices] DaprClient daprClient, CancellationToken cancellationToken)
         {
             var dapr = new DaprHelper( daprClient, file );
             var TranscriptionId = Guid.NewGuid();
 
+            _logger.LogInformation($"File upload request was received.");
             try{
+                _logger.LogInformation($"{TranscriptionId}. Base64 encoding file and uploading via Dapr to {Components.BlobStoreName}.");
+                
                 var response = await dapr.UploadFile(cancellationToken);
-                _logger.LogInformation($"{TranscriptionId}. File was successfullly saved to {Components.BlobStoreName} blob storage");
-
+                _logger.LogInformation($"{TranscriptionId}. File was successfullly saved to {Components.BlobStoreName} blob storage"); 
+                
                 var state = await dapr.UpdateState(TranscriptionId, response.blobURL);
                 _logger.LogInformation($"{TranscriptionId}. Record was successfullly saved as to {Components.StateStoreName} State Store");
 
                 await dapr.PublishEvent( TranscriptionId, response.blobURL, cancellationToken);
                 _logger.LogInformation($"{TranscriptionId}. {response.blobURL} was successfullly published to {Components.PubSubName} pubsub store");
-                
+
                 return Ok( new { TranscriptionId = TranscriptionId, StatusMessage = state.Value.Status, LastUpdated = state.Value.LastUpdateTime }  ); 
             }
             catch( Exception ex ) 

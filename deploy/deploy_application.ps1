@@ -39,19 +39,44 @@ function Start-Docker
     }
 }
 
-function Connect-ToAzureContainerRepo
+function Connect-ToAzure 
 {
     param(
-        [string] $ACRName,
         [string] $SubscriptionName
     )
 
-    Write-Log -Message "Logging into Azure"
-    az account show 
-    if(!$?) {
+    function Get-AzTokenExpiration {
+        $e = (az account get-access-token --query "expiresOn" --output tsv)
+        if($null -eq $e){
+            return $null
+        }        
+        return (Get-Date -Date $e)
+    }
+
+    function Test-ExpireToken {
+        param(
+            [DateTime] $Expire
+        )
+        return (($exp - (Get-Date)).Ticks -lt 0 )
+    }
+
+    $exp = Get-AzTokenExpiration
+    if( ($null -eq $exp) -or (Test-ExpireToken -Expire $exp)) {
+        Write-Log -Message "Logging into Azure"
         az login
     }
-    az account set -s $SubscriptionName -o none
+
+    Write-Log -Message "Setting subscription context to ${SubscriptionName}"
+    az account set -s $SubscriptionName
+    
+}
+
+function Connect-ToAzureContainerRepo
+{
+    param(
+        [string] $ACRName
+
+    )
 
     Write-Log -Message "Logging into ${ACRName} Azure Container Repo"
     az acr login -n $ACRName
@@ -127,7 +152,7 @@ function Build-DockerContainers
     docker push $ContainerName
 }
 
-Set-Variable -Name DAPR_VERSION     -Value "1.0.1"                           -Option Constant
+Set-Variable -Name DAPR_VERSION     -Value "1.1.1"                           -Option Constant
 Set-Variable -Name KEDA_VERSION     -Value "2.2.0"                           -Option Constant
 Set-Variable -Name CERT_MGR_VERSION -Value "v1.2.0"                          -Option Constant
 Set-Variable -Name APP_RG_NAME      -Value ("{0}_app_rg" -f $AppName)        -Option Constant
@@ -149,7 +174,8 @@ $source = Join-Path -Path $root -ChildPath "source"
 Start-Docker
 
 #Connect to Azure and Log into ACR
-Connect-ToAzureContainerRepo -ACRName $APP_ACR_NAME -SubscriptionName $SubscriptionName
+Connect-ToAzure -SubscriptionName $SubscriptionName
+Connect-ToAzureContainerRepo -ACRName $APP_ACR_NAME 
 
 #Build Source
 $commit_version = Get-GitCommitVersion
