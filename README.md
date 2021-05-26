@@ -55,4 +55,5 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 - [X] Additional Node Pool for AKS
 - [X] Let's Encrypt 
 - [X] UX re-written in React 
+- [X] Update API to use SAS tokens
 - [ ] ~~Port AKS, KeyVault, PostgreSQL, and Service Bus to GCP equivalents~~
