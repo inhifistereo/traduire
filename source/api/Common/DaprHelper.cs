@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Dapr;
 using Dapr.Client;
+using Azure.Identity;
+using Azure.Storage.Blobs;
+using Azure.Storage.Sas;
 
 using transcription.models;
 
@@ -60,6 +63,40 @@ namespace transcription.api.dapr
                     metadata,
                     cancellationToken
             ));   
+        }
+
+        public async Task<string> GetBlobSasToken(string url, string userAssignedClientId) 
+        {
+            var uri = new Uri(url);
+            var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = userAssignedClientId });
+            var blobClient = new BlobServiceClient(new Uri($"https://{uri.Host}"), credential);
+            var accountName = blobClient.AccountName;
+
+            Console.WriteLine(uri.Segments[1].Trim('/'));
+            
+            var delegationKey = await blobClient.GetUserDelegationKeyAsync(DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(7));
+            BlobSasBuilder sasBuilder = new BlobSasBuilder()
+            {
+                BlobContainerName = uri.Segments[1].Trim('/'),
+                BlobName = uri.Segments[2],
+                Resource = "b",
+                StartsOn = DateTimeOffset.UtcNow,
+                ExpiresOn = DateTimeOffset.UtcNow.AddHours(1)
+            };
+
+            sasBuilder.SetPermissions(BlobSasPermissions.Read);
+            Console.WriteLine(sasBuilder.Permissions);
+            var sasQueryParams = sasBuilder.ToSasQueryParameters(delegationKey, accountName).ToString();
+
+            UriBuilder sasUri = new UriBuilder()
+            {
+                Scheme = "https",
+                Host = uri.Host,
+                Path = uri.AbsolutePath,
+                Query = sasQueryParams
+            };
+
+            return sasUri.ToString();
         }
 
         public async Task<StateEntry<TraduireTranscription>> UpdateState(Guid id, string url)

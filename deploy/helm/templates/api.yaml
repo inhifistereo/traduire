@@ -36,6 +36,8 @@ spec:
         env:
         - name: AZURE_COGS_REGION
           value: {{ .Values.cogs_region }}
+        - name: MSI_CLIENT_ID
+          value: {{ .Values.msi_client_id }}
       tolerations:
       - key: "app"
         operator: "Equal"
