@@ -7,7 +7,7 @@ data:
     kongCredType: a2V5LWF1dGg=
     key: {{ .Values.kong_api_secret }}
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ print .Values.app_name "-ingress" }}
@@ -26,9 +26,12 @@ spec:
     http:
       paths:
       - path: /
+        pathType: Prefix
         backend:
-         serviceName: {{ print .Values.app_name "-svc" }}
-         servicePort: {{ .Values.service_port }}
+          service:
+            name: {{ print .Values.app_name "-svc" }}
+            port: 
+              number: {{ .Values.service_port }}
 ---
 apiVersion: configuration.konghq.com/v1
 kind: KongPlugin
