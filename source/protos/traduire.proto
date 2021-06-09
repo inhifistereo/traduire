@@ -6,6 +6,7 @@ package transcription;
 
 service Transcriber {
   rpc TranscribeAudio (TranscriptionRequest) returns (TranscriptionReply);
+  rpc TranscribeAudioStream (TranscriptionRequest) returns (stream TranscriptionReply);
 }
 
 message TranscriptionRequest {

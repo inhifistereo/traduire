@@ -14,15 +14,75 @@ namespace traduire.webapi
         {
             _logger = logger;
         }
-
         public override Task<TranscriptionReply> TranscribeAudio(TranscriptionRequest request, ServerCallContext context)
         {
             return Task.FromResult(new TranscriptionReply {
                 TranscriptionId = Guid.NewGuid().ToString(),
                 CreateTime = DateTime.UtcNow.ToString(),
                 LastUpdateTime = DateTime.UtcNow.ToString(),
-                Status = "Running",
+                Status = "TBD",
                 FileName = "TBD",
+                BlobUri = request.BlobUri,
+                TranscriptionStatusUri = string.Empty,
+                TranscriptionTextUri = string.Empty,
+                TranscriptionText = string.Empty,
+                StatusDetails = string.Empty
+            });
+        }
+
+        public override async Task TranscribeAudioStream(TranscriptionRequest request, IServerStreamWriter<TranscriptionReply> responseStream, ServerCallContext context)
+        {
+            await responseStream.WriteAsync(new TranscriptionReply {
+                TranscriptionId = Guid.NewGuid().ToString(),
+                CreateTime = DateTime.UtcNow.ToString(),
+                LastUpdateTime = DateTime.UtcNow.ToString(),
+                Status = "Started",
+                FileName = "TBD",
+                BlobUri = request.BlobUri,
+                TranscriptionStatusUri = string.Empty,
+                TranscriptionTextUri = string.Empty,
+                TranscriptionText = string.Empty,
+                StatusDetails = string.Empty
+            });
+
+            await Task.Delay(500);
+
+            await responseStream.WriteAsync(new TranscriptionReply {
+                TranscriptionId = Guid.NewGuid().ToString(),
+                CreateTime = DateTime.UtcNow.ToString(),
+                LastUpdateTime = DateTime.UtcNow.ToString(),
+                Status = "SentToCognitiveServices",
+                FileName = string.Empty,
+                BlobUri = request.BlobUri,
+                TranscriptionStatusUri = string.Empty,
+                TranscriptionTextUri = string.Empty,
+                TranscriptionText = string.Empty,
+                StatusDetails = string.Empty
+            });
+
+            await Task.Delay(500);
+
+            await responseStream.WriteAsync(new TranscriptionReply {
+                TranscriptionId = Guid.NewGuid().ToString(),
+                CreateTime = DateTime.UtcNow.ToString(),
+                LastUpdateTime = DateTime.UtcNow.ToString(),
+                Status = "Pending",
+                FileName = string.Empty,
+                BlobUri = request.BlobUri,
+                TranscriptionStatusUri = string.Empty,
+                TranscriptionTextUri = string.Empty,
+                TranscriptionText = string.Empty,
+                StatusDetails = string.Empty
+            });
+
+            await Task.Delay(500);
+
+            await responseStream.WriteAsync(new TranscriptionReply {
+                TranscriptionId = Guid.NewGuid().ToString(),
+                CreateTime = DateTime.UtcNow.ToString(),
+                LastUpdateTime = DateTime.UtcNow.ToString(),
+                Status = "Completed",
+                FileName = string.Empty,
                 BlobUri = request.BlobUri,
                 TranscriptionStatusUri = string.Empty,
                 TranscriptionTextUri = string.Empty,
