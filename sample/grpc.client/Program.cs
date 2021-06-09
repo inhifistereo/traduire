@@ -11,12 +11,13 @@ namespace GrpcTraduireClient
     {
         static async Task Main(string[] args)
         {
-            var address = "";
-	    var apikey = "";
+            var guid = Guid.NewGuid().ToString();
+            var address = "https://api.bjdazure.tech";
+            var apikey = "";
 
             var credentials = CallCredentials.FromInterceptor((context, metadata) =>
             {
-                metadata.Add("apikey", "");
+                metadata.Add("apikey", apikey);
                 return Task.CompletedTask;
             });
 
@@ -26,15 +27,31 @@ namespace GrpcTraduireClient
             });
         
             var client =  new Transcriber.TranscriberClient(channel);
+
+            Console.WriteLine($"Single Call to GRPC service. TranscriptionID: {guid}");
             var reply = await client.TranscribeAudioAsync(new TranscriptionRequest { 
-                TranscriptionId = Guid.NewGuid().ToString(), 
+                TranscriptionId = guid, 
                 BlobUri = "https://www.bjdazure.tech"
             });
             
             Console.WriteLine("Transcription ID: " + reply.TranscriptionId);
-            Console.WriteLine("Transcription ID: " + reply.CreateTime);
-            Console.WriteLine("Transcription ID: " + reply.BlobUri);
-            Console.WriteLine("Transcription ID: " + reply.FileName);
+            Console.WriteLine("Create Time: " + reply.CreateTime);
+            Console.WriteLine("Blob Uri: " + reply.BlobUri);
+            Console.WriteLine();
+
+            Console.WriteLine($"Streaming Call to GRPC service. TranscriptionID: {guid}");
+            var replies = client.TranscribeAudioStream(new TranscriptionRequest { 
+                TranscriptionId = guid,
+                BlobUri = "https://www.bjdazure.tech"
+            });
+            
+            await foreach (var streamreply in replies.ResponseStream.ReadAllAsync())
+            {
+                Console.WriteLine("Transcription ID: " + streamreply.TranscriptionId);
+                Console.WriteLine("Create Time: " + streamreply.CreateTime);
+                Console.WriteLine("Blob Uri: " + streamreply.BlobUri);
+                Console.WriteLine("Transcription ID: " + streamreply.Status);
+            }
         }
     }
 }
