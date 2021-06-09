@@ -10,6 +10,9 @@ COPY ./transcription.models/*.csproj .
 RUN dotnet restore 
 COPY ./transcription.models/. .
 
+WORKDIR /app/protos
+COPY ./protos/* .
+
 WORKDIR /app/api
 COPY ./api/*.csproj .
 RUN dotnet restore 
