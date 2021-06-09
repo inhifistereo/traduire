@@ -14,14 +14,14 @@ message TranscriptionRequest {
 }
 
 message TranscriptionReply {
-  string transcriptionId = 1
-  string createTime = 2
-  string lastUpdateTime = 3
-  string status = 4
-  string fileName = 5
-  string blobUri = 6
-  string transcriptionStatusUri = 7
-  string transcriptionTextUri = 8 
-  string transcriptionText = 9
-  string statusDetails = 10
+  string transcriptionId = 1;
+  string createTime = 2;
+  string lastUpdateTime = 3;
+  string status = 4;
+  string fileName = 5;
+  string blobUri = 6;
+  string transcriptionStatusUri = 7;
+  string transcriptionTextUri = 8;
+  string transcriptionText = 9;
+  string statusDetails = 10;
 }
