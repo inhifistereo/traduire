@@ -49,7 +49,9 @@ kind: Service
 metadata:
   name: {{ print .Values.app_name "-svc" }}
   labels:
-    version: {{ .Values.commit_version | quote }} 
+    version: {{ .Values.commit_version | quote }}
+  annotations:
+    konghq.com/protocol: "grpc"
 spec:
   selector:
     app: {{ print .Values.app_name "-api" }} 

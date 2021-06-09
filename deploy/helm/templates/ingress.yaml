@@ -13,6 +13,7 @@ metadata:
   name: {{ print .Values.app_name "-ingress" }}
   annotations:
     kubernetes.io/ingress.class: kong
+    konghq.com/protocols : "grpc,grpcs,https"
     konghq.com/plugins: httpbin-auth
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: letsencrypt-prod
