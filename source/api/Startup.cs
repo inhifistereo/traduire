@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Dapr;
+using Grpc.AspNetCore.Server;
 
 namespace traduire.webapi
 {
@@ -38,6 +39,9 @@ namespace traduire.webapi
             });
 
             services.AddControllers().AddDapr();
+            services.AddGrpc();
+            services.AddGrpcReflection();
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -55,6 +59,8 @@ namespace traduire.webapi
             {
                 endpoints.MapHealthChecks("/healthz");
                 endpoints.MapControllers();
+                endpoints.MapGrpcService<TranscriberService>();  
+                endpoints.MapGrpcReflectionService();
             });
         }
     }

@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Protobuf Include="..\protos\traduire.proto" GrpcServices="Server" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Dapr.AspNetCore" Version="1.0.0" />
     <PackageReference Include="Azure.Storage.Blobs" Version="12.9.0-beta.4" />
     <PackageReference Include="Azure.Identity" Version="1.4.0" />
@@ -12,6 +16,8 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.0" NoWarn="NU1605" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.HealthChecks" Version="2.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.37.0" />
+    <PackageReference Include="Grpc.AspNetCore.Server.Reflection" Version="2.37.0" />
     <ProjectReference Include="..\transcription.models\transcription.models.csproj" />
     <ProjectReference Include="..\transcription.common\transcription.common.csproj" />
   </ItemGroup>

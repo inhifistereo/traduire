@@ -116,6 +116,12 @@ namespace transcription.api.dapr
             return state;
         }
 
+        public async Task<TraduireTranscription> GetState(Guid id)
+        {
+            var state = await _client.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, id.ToString());
+            return state.Value;
+        }
+
         public async Task PublishEvent(Guid id, string url, CancellationToken cancellationToken)
         {
             var eventdata = new TradiureTranscriptionRequest() { 
