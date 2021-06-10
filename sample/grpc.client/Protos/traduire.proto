@@ -5,24 +5,18 @@ option csharp_namespace = "traduire.webapi";
 package transcription;
 
 service Transcriber {
-  rpc TranscribeAudio (TranscriptionRequest) returns (TranscriptionReply);
   rpc TranscribeAudioStream (TranscriptionRequest) returns (stream TranscriptionReply);
 }
 
 message TranscriptionRequest {
-  string transcriptionId = 1;
-  string blobUri = 2;
+  string blobUri = 1;
 }
 
 message TranscriptionReply {
   string transcriptionId = 1;
-  string createTime = 2;
-  string lastUpdateTime = 3;
-  string status = 4;
-  string fileName = 5;
-  string blobUri = 6;
-  string transcriptionStatusUri = 7;
-  string transcriptionTextUri = 8;
-  string transcriptionText = 9;
-  string statusDetails = 10;
+  string blobUri = 2;
+  string createTime = 3;
+  string lastUpdateTime = 4;
+  string status = 5;
+  string transcriptionText = 6;
 }

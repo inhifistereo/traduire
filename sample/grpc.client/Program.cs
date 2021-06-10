@@ -28,21 +28,9 @@ namespace GrpcTraduireClient
         
             var client =  new Transcriber.TranscriberClient(channel);
 
-            Console.WriteLine($"Single Call to GRPC service. TranscriptionID: {guid}");
-            var reply = await client.TranscribeAudioAsync(new TranscriptionRequest { 
-                TranscriptionId = guid, 
-                BlobUri = "https://www.bjdazure.tech"
-            });
-            
-            Console.WriteLine("Transcription ID: " + reply.TranscriptionId);
-            Console.WriteLine("Create Time: " + reply.CreateTime);
-            Console.WriteLine("Blob Uri: " + reply.BlobUri);
-            Console.WriteLine();
-
             Console.WriteLine($"Streaming Call to GRPC service. TranscriptionID: {guid}");
             var replies = client.TranscribeAudioStream(new TranscriptionRequest { 
-                TranscriptionId = guid,
-                BlobUri = "https://www.bjdazure.tech"
+                BlobUri = "https://www.bjdazure.tech/files/sample.mp3"
             });
             
             await foreach (var streamreply in replies.ResponseStream.ReadAllAsync())
