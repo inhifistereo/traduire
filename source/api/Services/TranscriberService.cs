@@ -43,7 +43,7 @@ namespace traduire.webapi
 
                 var state = await _daprClient.UpdateState(TranscriptionId, request.BlobUri);
                 _logger.LogInformation($"{TranscriptionId}. Record was successfullly saved as to {Components.StateStoreName} State Store");
-                await responseStream.WriteAsync( TranscriptionReplyFactory(TranscriptionId.ToString(), TraduireTranscriptionStatus.Pending.ToString(), request.BlobUri, createdTime, string.Empty ));
+                await responseStream.WriteAsync( TranscriptionReplyFactory(TranscriptionId.ToString(), TraduireTranscriptionStatus.Started.ToString(), request.BlobUri, createdTime, string.Empty ));
 
                 await _daprClient.PublishEvent( TranscriptionId, request.BlobUri, context.CancellationToken );
                 _logger.LogInformation($"{TranscriptionId}. {request.BlobUri} was successfullly published to {Components.PubSubName} pubsub store");
