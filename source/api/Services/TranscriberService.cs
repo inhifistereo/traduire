@@ -22,33 +22,32 @@ namespace traduire.webapi
             _logger = logger;
         }
 
-        private TranscriptionReply TranscriptionReplyFactory(string id, string status, string uri, string createdTime, string transcription)
-        {
-            return new TranscriptionReply {
-                TranscriptionId = id,
-                CreateTime = createdTime,
-                LastUpdateTime = DateTime.UtcNow.ToString(),
-                Status = status,
-                BlobUri = uri,
-                TranscriptionText = transcription
-            };
-        }
-
         public override async Task TranscribeAudioStream(TranscriptionRequest request, IServerStreamWriter<TranscriptionReply> responseStream, ServerCallContext context)
         {
             var TranscriptionId = Guid.NewGuid(); 
             var createdTime = DateTime.UtcNow.ToString();
 
+            var reply = new TranscriptionReply {
+                TranscriptionId = TranscriptionId.ToString(),
+                CreateTime = DateTime.UtcNow.ToString(),
+                LastUpdateTime = DateTime.UtcNow.ToString(),
+                Status = TraduireTranscriptionStatus.Started.ToString(),
+                BlobUri = request.BlobUri,
+                TranscriptionText = string.Empty
+            };
+
             _logger.LogInformation($"Transcription request was received.");
             try{
 
                 var state = await _daprClient.UpdateState(TranscriptionId, request.BlobUri);
-                _logger.LogInformation($"{TranscriptionId}. Record was successfullly saved as to {Components.StateStoreName} State Store");
-                await responseStream.WriteAsync( TranscriptionReplyFactory(TranscriptionId.ToString(), TraduireTranscriptionStatus.Started.ToString(), request.BlobUri, createdTime, string.Empty ));
+                _logger.LogInformation($"{TranscriptionId}. Transcription request was successfullly saved as to {Components.StateStoreName} State Store");
+                await responseStream.WriteAsync(reply);
 
                 await _daprClient.PublishEvent( TranscriptionId, request.BlobUri, context.CancellationToken );
                 _logger.LogInformation($"{TranscriptionId}. {request.BlobUri} was successfullly published to {Components.PubSubName} pubsub store");
-                await responseStream.WriteAsync( TranscriptionReplyFactory(TranscriptionId.ToString(), TraduireTranscriptionStatus.SentToCognitiveServices.ToString(), request.BlobUri, createdTime, string.Empty ));
+                reply.Status = TraduireTranscriptionStatus.SentToCognitiveServices.ToString();
+                reply.LastUpdateTime = DateTime.UtcNow.ToString();
+                await responseStream.WriteAsync(reply);
 
                 TraduireTranscription currentState;
                 do {
@@ -57,17 +56,22 @@ namespace traduire.webapi
                     currentState = await _daprClient.GetState(TranscriptionId);
 
                     _logger.LogInformation($"{TranscriptionId}. Transcription status is {currentState.Status}");
-                    await responseStream.WriteAsync( TranscriptionReplyFactory(TranscriptionId.ToString(), currentState.Status.ToString(), request.BlobUri, createdTime, string.Empty ));
+                    reply.Status = currentState.Status.ToString();
+                    reply.LastUpdateTime = DateTime.UtcNow.ToString();
+                    await responseStream.WriteAsync(reply);
 
                 } while( currentState.Status != TraduireTranscriptionStatus.Completed );
 
-                _logger.LogInformation($"{TranscriptionId}. Attempting to download completed transcription"); 
-                await responseStream.WriteAsync( TranscriptionReplyFactory(TranscriptionId.ToString(), TraduireTranscriptionStatus.Completed.ToString(), request.BlobUri, createdTime, currentState.TranscriptionText ));
+                _logger.LogInformation($"{TranscriptionId}. Attempting to download completed transcription");
+                reply.TranscriptionText = currentState.TranscriptionText;
+                await responseStream.WriteAsync(reply);
             }
             catch( Exception ex ) 
             {
-                _logger.LogWarning($"Failed to transcribe {request.BlobUri} - {ex.Message}");        
-                await responseStream.WriteAsync( TranscriptionReplyFactory(TranscriptionId.ToString(), TraduireTranscriptionStatus.Failed.ToString(), request.BlobUri, createdTime, string.Empty ));            
+                _logger.LogWarning($"Failed to transcribe {request.BlobUri} - {ex.Message}");
+                reply.Status = TraduireTranscriptionStatus.Failed.ToString();
+                reply.LastUpdateTime = DateTime.UtcNow.ToString();       
+                await responseStream.WriteAsync(reply);            
             }
             
         }
