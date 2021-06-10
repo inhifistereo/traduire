@@ -35,7 +35,7 @@ namespace GrpcTraduireClient
             {
                 Console.WriteLine("Transcription ID: " + streamreply.TranscriptionId);
                 Console.WriteLine("Create Time: " + streamreply.CreateTime);
-                Console.WriteLine("Create Time: " + streamreply.LastUpdateTime);
+                Console.WriteLine("Last Update Time: " + streamreply.LastUpdateTime);
                 Console.WriteLine("Blob Uri: " + streamreply.BlobUri);
                 Console.WriteLine("Transcription Status: " + streamreply.Status);
                 Console.WriteLine("Transcription Text: " + streamreply.TranscriptionText);
