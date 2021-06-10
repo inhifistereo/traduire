@@ -11,7 +11,6 @@ namespace GrpcTraduireClient
     {
         static async Task Main(string[] args)
         {
-            var guid = Guid.NewGuid().ToString();
             var address = "https://api.bjdazure.tech";
             var apikey = "";
 
@@ -28,17 +27,19 @@ namespace GrpcTraduireClient
         
             var client =  new Transcriber.TranscriberClient(channel);
 
-            Console.WriteLine($"Streaming Call to GRPC service. TranscriptionID: {guid}");
             var replies = client.TranscribeAudioStream(new TranscriptionRequest { 
-                BlobUri = "https://www.bjdazure.tech/files/sample.mp3"
+                BlobUri = "https://traffic.libsyn.com/historyofrome/01-_In_the_Beginning.mp3"
             });
             
             await foreach (var streamreply in replies.ResponseStream.ReadAllAsync())
             {
                 Console.WriteLine("Transcription ID: " + streamreply.TranscriptionId);
                 Console.WriteLine("Create Time: " + streamreply.CreateTime);
+                Console.WriteLine("Create Time: " + streamreply.LastUpdateTime);
                 Console.WriteLine("Blob Uri: " + streamreply.BlobUri);
-                Console.WriteLine("Transcription ID: " + streamreply.Status);
+                Console.WriteLine("Transcription Status: " + streamreply.Status);
+                Console.WriteLine("Transcription Text: " + streamreply.TranscriptionText);
+                Console.WriteLine();
             }
         }
     }
