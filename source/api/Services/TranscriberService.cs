@@ -13,6 +13,7 @@ namespace traduire.webapi
 {
     public class TranscriberService : Transcriber.TranscriberBase
     {
+        private readonly int waitTime = 15;
         private readonly ILogger<TranscriberService> _logger;
         private readonly DaprHelper _daprClient;
         public TranscriberService(ILogger<TranscriberService> logger)
@@ -51,7 +52,7 @@ namespace traduire.webapi
 
                 TraduireTranscription currentState;
                 do {
-                    await Task.Delay(TimeSpan.FromSeconds(30));
+                    await Task.Delay(TimeSpan.FromSeconds(waitTime));
 
                     currentState = await _daprClient.GetState(TranscriptionId);
 
