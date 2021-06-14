@@ -51,6 +51,29 @@ function Copy-BuildToStorage
 
 }
 
+function Get-AzStaticWebAppSecret
+{
+    param(
+        [string] $Name,
+        [string] $ResourceGroup
+    )
+
+    $id =$(az staticwebapp show -g $ResourceGroup -n $Name -o tsv --query id)
+    return $(az rest --method post --url "$id/listsecrets?api-version=2020-06-01" --query properties.apiKey -o tsv)
+}
+
+function Deploy-toAzStaticWebApp
+{
+    param(
+        [string] $Name,
+        [string] $ResourceGroup,
+        [string] $LocalPath
+    )
+
+    #TBD - Need to deteremine how to deploy to ASW from local dist directory... if possible
+    #az staticwebapp reconnect -n $Name -g $$ResourceGroup --source MyGitHubRepo -b master -
+}
+
 function Set-ReactEnvironmentFile
 {
     param(
