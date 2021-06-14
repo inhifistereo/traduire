@@ -70,8 +70,15 @@ function Deploy-toAzStaticWebApp
         [string] $LocalPath
     )
 
-    #TBD - Need to deteremine how to deploy to ASW from local dist directory... if possible
-    #az staticwebapp reconnect -n $Name -g $$ResourceGroup --source MyGitHubRepo -b master -
+    $token = Get-AzStaticWebAppSecret -Name $Name -ResourceGroup $ResourceGroup
+
+    docker run --entrypoint "/bin/staticsites/StaticSitesClient" `
+        --volume "$LocalPath":/root/build `
+        mcr.microsoft.com/appsvc/staticappsclient:stable `
+        upload `
+        --skipAppBuild true `
+        --app /root/build `
+        --apiToken $token
 }
 
 function Set-ReactEnvironmentFile
