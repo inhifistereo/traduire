@@ -73,7 +73,7 @@ function Deploy-toAzStaticWebApp
     $token = Get-AzStaticWebAppSecret -Name $Name -ResourceGroup $ResourceGroup
 
     docker run --entrypoint "/bin/staticsites/StaticSitesClient" `
-        --volume "$LocalPath":/root/build `
+        --volume ${LocalPath}:/root/build `
         mcr.microsoft.com/appsvc/staticappsclient:stable `
         upload `
         --skipAppBuild true `
