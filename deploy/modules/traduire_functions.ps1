@@ -51,6 +51,36 @@ function Copy-BuildToStorage
 
 }
 
+function Get-AzStaticWebAppSecret
+{
+    param(
+        [string] $Name,
+        [string] $ResourceGroup
+    )
+
+    $id =$(az staticwebapp show -g $ResourceGroup -n $Name -o tsv --query id)
+    return $(az rest --method post --url "$id/listsecrets?api-version=2020-06-01" --query properties.apiKey -o tsv)
+}
+
+function Deploy-toAzStaticWebApp
+{
+    param(
+        [string] $Name,
+        [string] $ResourceGroup,
+        [string] $LocalPath
+    )
+
+    $token = Get-AzStaticWebAppSecret -Name $Name -ResourceGroup $ResourceGroup
+
+    docker run --entrypoint "/bin/staticsites/StaticSitesClient" `
+        --volume ${LocalPath}:/root/build `
+        mcr.microsoft.com/appsvc/staticappsclient:stable `
+        upload `
+        --skipAppBuild true `
+        --app /root/build `
+        --apiToken $token
+}
+
 function Set-ReactEnvironmentFile
 {
     param(

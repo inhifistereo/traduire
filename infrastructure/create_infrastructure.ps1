@@ -35,6 +35,7 @@ $postgresqlAccountName = "{0}-psql01" -f $appName
 $postgresqlPassword = New-Password -Length 25 -ExcludedSpecialCharacters
 $serviceBusAccountName = "{0}-sb01" -f $appName
 $keyVaultAccountName = "{0}-kv01" -f $appName
+$pubsubAccountName = "{0}-pubsub01" -f $appName
 
 $public_ip = (Invoke-RestMethod http://checkip.amazonaws.com/).Trim()
 $ssh_pub_key= (Get-Content -Path ~/.ssh/id_rsa.pub)
@@ -53,6 +54,7 @@ loganalytics_account_name = "$logAnalyticsWorkspace"
 vnet_name = "$vnetName"
 aks_name = "$aks"
 ui_storage_name = "$uiStorageAccountName"
+pubsub_name = "$pubsubAccountName"
 mp3_storage_name = "$mp3StorageAccountName"
 service_bus_namespace_name = "$serviceBusAccountName"
 keyvault_name = "$keyVaultAccountName"
