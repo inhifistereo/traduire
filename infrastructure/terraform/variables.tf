@@ -124,3 +124,8 @@ variable "cognitive_services_secret_name" {
   type        = string
   default     = "speech2textkey"
 }
+
+variable "pubsub_name" {
+  description = "Azure Web Pubsub Name"
+  type        = string
+}
