@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 using Dapr;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Mvc;
 using Azure.Messaging.WebPubSub; 
 
 using transcription.models;
@@ -52,14 +53,14 @@ namespace transcription.Controllers
                     BlobUri = response.Self
                 };
 
-                await _serviceClient.serviceClient.SendToAllAsync(
-                    new
+                await _serviceClient.SendToAllAsync(
+                    JsonSerializer.Serialize(new
                     { 
                         TranscriptionId = request.TranscriptionId,
                         StatusMessage = response.Status,
                         LastUpdated = state.Value.LastUpdateTime
                     }
-                );
+                ));
 
                 if( code == HttpStatusCode.Created ) {
                     state.Value.LastUpdateTime          = DateTime.UtcNow;

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web.Routing;
+using System.Text.Json;
 
 using Microsoft.AspNetCore.Mvc;
 using Dapr;
@@ -54,14 +54,14 @@ namespace transcription.Controllers
                     state.Value.Status              = TraduireTranscriptionStatus.Completed;
                     state.Value.TranscriptionText   = firstChannel.Display;
 
-                    await _serviceClient.serviceClient.SendToAllAsync(
-                        new
+                    await _serviceClient.SendToAllAsync(
+                        JsonSerializer.Serialize(new
                         { 
                             TranscriptionId = request.TranscriptionId,
                             StatusMessage = state.Value.Status.ToString(),
                             LastUpdated = state.Value.LastUpdateTime
                         }
-                    );
+                    ));
 
                     await state.SaveAsync();
                     _logger.LogInformation($"{request.TranscriptionId}. Transcription from '{request.BlobUri}' was saved to state store ");
