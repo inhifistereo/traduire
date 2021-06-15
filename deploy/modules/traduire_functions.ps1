@@ -68,7 +68,7 @@ function Get-WebPubSubAccessKey
         [string] $PubSubName,
         [string] $ResourceGroup
     )
-    return (az webpubsub key show -n $PubSubName -g $ResourceGroup -o tsv --query primaryKey)
+    return $(az webpubsub key show -n $PubSubName -g $ResourceGroup -o tsv --query primaryKey)
 }
 
 function Deploy-toAzStaticWebApp
