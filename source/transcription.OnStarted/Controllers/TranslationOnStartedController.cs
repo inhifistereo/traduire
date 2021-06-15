@@ -32,6 +32,7 @@ namespace transcription.Controllers
             _logger = logger;
             _configuration = configuration;
             _cogsClient = CogsClient;
+			_serviceClient = ServiceClient;
         }
 
         [Topic(Components.PubSubName, Topics.TranscriptionSubmittedTopicName)]
