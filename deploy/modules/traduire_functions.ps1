@@ -62,6 +62,15 @@ function Get-AzStaticWebAppSecret
     return $(az rest --method post --url "$id/listsecrets?api-version=2020-06-01" --query properties.apiKey -o tsv)
 }
 
+function Get-WebPubSubAccessKey 
+{
+    param(
+        [string] $PubSubName,
+        [string] $ResourceGroup
+    )
+    return (az webpubsub key show -n $PubSubName -g $ResourceGroup -o tsv --query primaryKey)
+}
+
 function Deploy-toAzStaticWebApp
 {
     param(
@@ -87,13 +96,15 @@ function Set-ReactEnvironmentFile
         [string] $Path = ".env.template",
         [string] $OutPath = ".env",
         [string] $Uri,
-        [string] $Key
+        [string] $Key,
+        [string] $WebPubSubUri,
+        [string] $WebPubSubKey
     )
 
-    (Get-Content -Path $Path -Raw).Replace("{{uri}}", $Uri).Replace("{{apikey}}", $Key) | 
-        Set-Content -Path $OutPath -Encoding ascii
-
+    (Get-Content -Path $Path -Raw).Replace("{{uri}}", $Uri).Replace("{{apikey}}", $Key).Replace("{{pubsub_uri}}", $WebPubSubUri).Replace("{{pubsub_key}}", $WebPubSubKey) |
+    Set-Content -Path $OutPath -Encoding ascii
 }
+
 function New-APISecret 
 {
     param( 

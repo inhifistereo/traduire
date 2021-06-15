@@ -11,6 +11,7 @@ param(
 
 Set-Variable -Name APP_UI_NAME      -Value ("{0}ui01" -f $AppName)         -Option Constant
 Set-Variable -Name APP_UI_RG        -Value ("{0}_ui_rg" -f $AppName)       -Option Constant
+Set-Variable -Name APP_PUBSUB_NAME  -Value ("{0}-pubsub01" -f $AppName)    -Option Constant
 
 Set-Variable -Name cwd              -Value $PWD.Path
 Set-Variable -Name root             -Value (Get-Item $PWD.Path).Parent.FullName
@@ -24,8 +25,11 @@ Connect-ToAzure
 Write-Log -Message "Getting API Gateway Secret"
 $kong_api_key = Get-KubernetesSecret -secret ("{0}-apikey" -f $AppName) -value "key"
 
+Write-Log -Message "Getting Web PubSub AccessKey"
+$pubsub_key = Get-WebPubSubAccessKey -PubSubName $APP_PUBSUB_NAME -ResourceGroup $APP_UI_RG
+
 Write-Log -Message "Setting Reactjs Environment File"
-Set-ReactEnvironmentFile -Path "src\config.json.template" -OutPath "src\config.json" -Uri $ApiUri -Key $kong_api_key
+Set-ReactEnvironmentFile -Path "src\config.json.template" -OutPath "src\config.json" -Uri $ApiUri -Key $kong_api_key -WebPubSubUri $APP_PUBSUB_NAME  -WebPubSubKey $pubsub_key
 
 Write-Log -Message "Building UI Code"
 Start-UiBuild
