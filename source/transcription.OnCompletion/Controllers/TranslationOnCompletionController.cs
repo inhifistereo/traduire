@@ -3,17 +3,15 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.Json;
-
-using Microsoft.AspNetCore.Mvc;
 using Dapr;
 using Dapr.Client;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Azure.Messaging.WebPubSub; 
+using Azure.Core;
 
 using transcription.models;
-using transcription.common;
 using transcription.common.cognitiveservices;
 
 namespace transcription.Controllers
@@ -54,12 +52,11 @@ namespace transcription.Controllers
                     state.Value.Status              = TraduireTranscriptionStatus.Completed;
                     state.Value.TranscriptionText   = firstChannel.Display;
 
-                    await _serviceClient.SendToAllAsync(
-                        JsonSerializer.Serialize(new
+                    _serviceClient.SendToUser(request.TranscriptionId.ToString(), RequestContent.Create( new 
                         { 
-                            TranscriptionId = request.TranscriptionId,
-                            StatusMessage = state.Value.Status.ToString(),
-                            LastUpdated = state.Value.LastUpdateTime
+                            transcriptionId = request.TranscriptionId,
+                            statusMessage = state.Value.Status.ToString(),
+                            lastUpdated = state.Value.LastUpdateTime
                         }
                     ));
 

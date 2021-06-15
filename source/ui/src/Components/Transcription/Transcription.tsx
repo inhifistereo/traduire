@@ -63,12 +63,14 @@ class Transcription extends Component<Props,State>
 
 	private configWSConnection = async () => 
 	{
-		var token = await this.state.serviceClient.getAuthenticationToken();
+		var userId = this.state.transcriptionId;
+		var token = await this.state.serviceClient.getAuthenticationToken({userId: userId});
+
 		ws = new WebSocket(token.url);
 		ws.onmessage = (event:MessageEvent) => {
 			let msg = JSON.parse(event.data);
 			this.setState({
-				transcriptionStatus: `${msg.StatusMessage} [${new Date(msg.LastUpdated)}]`
+				transcriptionStatus: `${msg.statusMessage} [${new Date(msg.lastUpdated)}]`
 			})
 		};
 	}
@@ -115,8 +117,6 @@ class Transcription extends Component<Props,State>
 			body:  formData
 		});
 
-		await this.configWSConnection();
-
 		return response;
 	}
 
@@ -128,12 +128,11 @@ class Transcription extends Component<Props,State>
 		this.updateState(body);
 	  }
 	  finally {
-
 		this.setState({ 
 			isLoading: false,
 			isReady: true
 		})
-
+		await this.configWSConnection();
 	  }
   	}
 
