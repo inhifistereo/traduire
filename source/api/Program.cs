@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace traduire.webapi
 {
@@ -25,6 +26,11 @@ namespace traduire.webapi
                 })
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    webBuilder.ConfigureKestrel(options =>
+                    {
+                        options.ListenAnyIP(80, o => o.Protocols = HttpProtocols.Http2);
+                    });
+                    
                     webBuilder.UseStartup<Startup>();
                 });
     }

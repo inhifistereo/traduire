@@ -9,6 +9,8 @@ namespace transcription.models
         public const string StateStoreName   = "sql";
         public const string SecureStore      = "keyvault";
         public const string SecretName       = "speech2textkey";
+        public const string PubSubSecretName = "pubsubkey";
+        public const string PubSubHubName   = "transcription";
         public const string CreateOperation  = "create";
     }
 }

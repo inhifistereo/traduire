@@ -13,159 +13,22 @@ param(
     [switch] $Upgrade
 )
 
-function New-APISecret 
-{
-    param( 
-        [string] $Length = 20
-    )
-    
-    [System.Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes((New-Guid).ToString('N').Substring(0,$Length)))
-}
+. .\modules\traduire_functions.ps1
 
-function Write-Log 
-{
-    param( [string] $Message )
-    Write-Verbose -Message ("[{0}] - {1} ..." -f $(Get-Date), $Message)
-}
-
-function Start-Docker
-{
-    Write-Log -Message "Starting Docker"
-    if(Get-OSType -eq "Unix") {
-        sudo /etc/init.d/docker start
-    }
-    else {
-        Start-Service -Name docker
-    }
-}
-
-function Connect-ToAzure 
-{
-    param(
-        [string] $SubscriptionName
-    )
-
-    function Get-AzTokenExpiration {
-        $e = (az account get-access-token --query "expiresOn" --output tsv)
-        if($null -eq $e){
-            return $null
-        }        
-        return (Get-Date -Date $e)
-    }
-
-    function Test-ExpireToken {
-        param(
-            [DateTime] $Expire
-        )
-        return (($exp - (Get-Date)).Ticks -lt 0 )
-    }
-
-    $exp = Get-AzTokenExpiration
-    if( ($null -eq $exp) -or (Test-ExpireToken -Expire $exp)) {
-        Write-Log -Message "Logging into Azure"
-        az login
-    }
-
-    Write-Log -Message "Setting subscription context to ${SubscriptionName}"
-    az account set -s $SubscriptionName
-    
-}
-
-function Connect-ToAzureContainerRepo
-{
-    param(
-        [string] $ACRName
-
-    )
-
-    Write-Log -Message "Logging into ${ACRName} Azure Container Repo"
-    az acr login -n $ACRName
-}
-
-function Get-AKSCredentials 
-{
-    param(
-        [string] $AKSNAME,
-        [string] $AKSResourceGroup
-    )
-
-    Write-Log -Message "Get ${AKSNAME} AKS Credentials"
-    az aks get-credentials -n $AKSNAME -g $AKSResourceGroup
-}
-
-function Get-APIGatewayIP 
-{
-    function Test-IPAddress($IP) { return ($IP -as [IPAddress] -as [Bool]) }
-
-    $ip = (kubectl -n kong-gateway get service kong-kong-proxy -o jsonpath=`{.status.loadBalancer.ingress[].ip`})
-
-    if( (Test-IPAddress -IP $ip) ) { return $ip }
-    return [string]::Empty
-}
-
-function New-MSIAccount 
-{
-    param(
-        [string] $MSIName,
-        [string] $MSIResourceGroup
-    )
-
-    Write-Log -Message "Get ${MSIName} Manage Identity properties"
-    return (New-Object psobject -Property @{
-        client_id = (az identity show -n $MSIName -g $MSIResourceGroup --query clientId -o tsv)
-        resource_id = (az identity show -n $MSIName -g $MSIResourceGroup --query id -o tsv)
-    })
-}
-
-function New-CognitiveServicesAccount 
-{
-    param(
-        [string] $CogsAccountName,
-        [string] $CogsResourceGroup
-    )
-
-    Write-Log -Message "Get ${CogsAccountName} Cognitive Services Account properties"
-    return (New-Object psobject -Property @{
-        region = (az cognitiveservices account show -n $CogsAccountName -g $CogsResourceGroup -o tsv --query location)
-        key = (ConvertTo-Base64EncodedString (az cognitiveservices account keys list -n $CogsAccountName -g $CogsResourceGroup -o tsv --query key1))
-    })
-}
-
-function Get-GitCommitVersion
-{
-    Write-Log -Message "Get Latest Git commit version id"
-    return (git rev-parse HEAD).SubString(0,8)
-}
-
-function Build-DockerContainers
-{
-    param(
-        [string] $ContainerName,
-        [string] $DockerFile,
-        [string] $SourcePath
-    )
-
-    Write-Log -Message "Building ${ContainerName}"
-    docker build -t $ContainerName -f $DockerFile $SourcePath
-
-    Write-Log -Message "Pushing ${ContainerName}"
-    docker push $ContainerName
-}
-
-Set-Variable -Name DAPR_VERSION     -Value "1.1.1"                           -Option Constant
-Set-Variable -Name KEDA_VERSION     -Value "2.2.0"                           -Option Constant
-Set-Variable -Name CERT_MGR_VERSION -Value "v1.2.0"                          -Option Constant
-Set-Variable -Name APP_RG_NAME      -Value ("{0}_app_rg" -f $AppName)        -Option Constant
-Set-Variable -Name CORE_RG_NAME     -Value ("{0}_core_rg" -f $AppName)       -Option Constant
-Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks01" -f $AppName)         -Option Constant
-Set-Variable -Name APP_ACR_NAME     -Value ("{0}acr01" -f $AppName)          -Option Constant
-Set-Variable -Name APP_KV_NAME      -Value ("{0}-kv01" -f $AppName)          -Option Constant
-Set-Variable -Name APP_SA_NAME      -Value ("{0}files01" -f $AppName)        -Option Constant
-Set-Variable -Name APP_MSI_NAME     -Value ("{0}-dapr-reader" -f $AppName)   -Option Constant
-Set-Variable -Name APP_COGS_NAME    -Value ("{0}-cogs01" -f $AppName)        -Option Constant
-Set-Variable -Name APP_AI_NAME      -Value ("{0}-ai01" -f $AppName)          -Option Constant
-Set-Variable -Name KEDA_MSI_NAME    -Value ("{0}-keda-sb-owner" -f $AppName) -Option Constant
-Set-Variable -Name KEDA_POD_BINDING -Value "keda-podidentity"                -Option Constant
+Set-Variable -Name DAPR_VERSION         -Value "1.1.1"                           -Option Constant
+Set-Variable -Name KEDA_VERSION         -Value "2.2.0"                           -Option Constant
+Set-Variable -Name CERT_MGR_VERSION     -Value "v1.2.0"                          -Option Constant
+Set-Variable -Name APP_RG_NAME          -Value ("{0}_app_rg" -f $AppName)        -Option Constant
+Set-Variable -Name CORE_RG_NAME         -Value ("{0}_core_rg" -f $AppName)       -Option Constant
+Set-Variable -Name APP_K8S_NAME         -Value ("{0}-aks01" -f $AppName)         -Option Constant
+Set-Variable -Name APP_ACR_NAME         -Value ("{0}acr01" -f $AppName)          -Option Constant
+Set-Variable -Name APP_KV_NAME          -Value ("{0}-kv01" -f $AppName)          -Option Constant
+Set-Variable -Name APP_SA_NAME          -Value ("{0}files01" -f $AppName)        -Option Constant
+Set-Variable -Name APP_MSI_NAME         -Value ("{0}-dapr-reader" -f $AppName)   -Option Constant
+Set-Variable -Name APP_COGS_NAME        -Value ("{0}-cogs01" -f $AppName)        -Option Constant
+Set-Variable -Name APP_AI_NAME          -Value ("{0}-ai01" -f $AppName)          -Option Constant
+Set-Variable -Name KEDA_MSI_NAME        -Value ("{0}-keda-sb-owner" -f $AppName) -Option Constant
+Set-Variable -Name KEDA_POD_BINDING     -Value "keda-podidentity"                -Option Constant
 
 $root   = (Get-Item $PWD.Path).Parent.FullName
 $source = Join-Path -Path $root -ChildPath "source"

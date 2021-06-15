@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option csharp_namespace = "traduire.webapi";
+
+package transcription;
+
+service Transcriber {
+  rpc TranscribeAudioStream (TranscriptionRequest) returns (stream TranscriptionReply);
+}
+
+message TranscriptionRequest {
+  string blobUri = 1;
+}
+
+message TranscriptionReply {
+  string transcriptionId = 1;
+  string blobUri = 2;
+  string createTime = 3;
+  string lastUpdateTime = 4;
+  string status = 5;
+  string transcriptionText = 6;
+}

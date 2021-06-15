@@ -12,6 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Dapr;
+using Grpc.AspNetCore.Server;
 
 namespace traduire.webapi
 {
@@ -24,11 +25,9 @@ namespace traduire.webapi
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHealthChecks();
-             //.AddAzureServiceBusQueue("Endpoint=...", "que1")
 
             services.AddCors(options =>
             {
@@ -40,6 +39,9 @@ namespace traduire.webapi
             });
 
             services.AddControllers().AddDapr();
+            services.AddGrpc();
+            services.AddGrpcReflection();
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -57,6 +59,8 @@ namespace traduire.webapi
             {
                 endpoints.MapHealthChecks("/healthz");
                 endpoints.MapControllers();
+                endpoints.MapGrpcService<TranscriberService>();  
+                endpoints.MapGrpcReflectionService();
             });
         }
     }

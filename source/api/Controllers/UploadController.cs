@@ -1,20 +1,13 @@
 using System; 
-using System.IO;
-using System.Net;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.WebUtilities;
-using System.Text.Encodings.Web;
-using Dapr;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;
 
 using transcription.models;
-using transcription.common;
+using transcription.api.dapr;
 
 namespace transcription.Controllers
 { 
@@ -23,72 +16,34 @@ namespace transcription.Controllers
     public class UploadController : ControllerBase
     {
         private readonly ILogger _logger;
-
+        
         public UploadController(ILogger<UploadController> logger)
         {
             _logger = logger;
         }
 
-        private async Task<string> ConvertFileToBase64Encoding( IFormFile f )
-        {          
-            try
-            {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await f.CopyToAsync(memoryStream);
-                    return Convert.ToBase64String(memoryStream.ToArray());
-                }            
-            }
-            catch{}
-
-            return String.Empty;
-        }
-
         [HttpPost, DisableRequestSizeLimit]
         public async Task<ActionResult> Post([FromForm] IFormFile file, [FromServices] DaprClient daprClient, CancellationToken cancellationToken)
         {
-			_logger.LogInformation($"File upload request was received.");
+            var dapr = new DaprHelper( daprClient, file );
+            var TranscriptionId = Guid.NewGuid();
 
-            try
-			{
-                var TranscriptionId = Guid.NewGuid();
-                var safeFileName = WebUtility.HtmlEncode(file.FileName); 
+            _logger.LogInformation($"File upload request was received.");
+            try{
+                _logger.LogInformation($"{TranscriptionId}. Base64 encoding file and uploading via Dapr to {Components.BlobStoreName}.");
+                
+                var response = await dapr.UploadFile(cancellationToken);
+                _logger.LogInformation($"{TranscriptionId}. File was successfullly saved to {Components.BlobStoreName} blob storage"); 
+                
+                var sasUrl = await dapr.GetBlobSasToken(response.blobURL, Environment.GetEnvironmentVariable("MSI_CLIENT_ID"));
+                _logger.LogInformation($"{TranscriptionId}. File was successfullly saved to {Components.BlobStoreName} blob storage"); 
 
-                var metadata = new Dictionary<string, string>();
-                metadata.Add("blobName", safeFileName);
-
-				_logger.LogInformation($"{TranscriptionId}. Base64 encoding file for Dapr upload.");
-                var encodedFile = await ConvertFileToBase64Encoding(file);
-	
-				 _logger.LogInformation($"{TranscriptionId}. Uploading file via Dapr to {Components.BlobStoreName}"); 
-                var response = await daprClient.InvokeBindingAsync<string,BlobBindingResponse>(
-                        Components.BlobStoreName, 
-                        Components.CreateOperation, 
-                        encodedFile, 
-                        metadata,
-                        cancellationToken
-                );                      
-                _logger.LogInformation($"{TranscriptionId}. File was successfullly saved as {safeFileName} to {Components.BlobStoreName} blob storage");
-
-                var state = await daprClient.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, TranscriptionId.ToString());
-                state.Value ??= new TraduireTranscription() { 
-                    TranscriptionId     = TranscriptionId,
-                    CreateTime          = DateTime.UtcNow,
-                    LastUpdateTime      = DateTime.UtcNow,
-                    Status              = TraduireTranscriptionStatus.Started,
-                    FileName            = safeFileName,
-                    BlobUri             = response.blobURL
-                };
-                await state.SaveAsync();
+                var state = await dapr.UpdateState(TranscriptionId, sasUrl);
                 _logger.LogInformation($"{TranscriptionId}. Record was successfullly saved as to {Components.StateStoreName} State Store");
 
-                var eventdata = new TradiureTranscriptionRequest() { 
-                    TranscriptionId = TranscriptionId, 
-                    BlobUri = response.blobURL
-                };
-                await daprClient.PublishEventAsync( Components.PubSubName, Topics.TranscriptionSubmittedTopicName, eventdata, cancellationToken );
+                await dapr.PublishEvent( TranscriptionId, sasUrl, cancellationToken);
+                _logger.LogInformation($"{TranscriptionId}. {sasUrl} was successfullly published to {Components.PubSubName} pubsub store");
 
-                _logger.LogInformation($"{TranscriptionId}. {response.blobURL} was successfullly published to {Components.PubSubName} pubsub store");
                 return Ok( new { TranscriptionId = TranscriptionId, StatusMessage = state.Value.Status, LastUpdated = state.Value.LastUpdateTime }  ); 
             }
             catch( Exception ex ) 

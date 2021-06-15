@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import './Transcription.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import { WebPubSubServiceClient, AzureKeyCredential } from "@azure/web-pubsub";
+
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -13,15 +15,18 @@ type Props = {
 	selectedFile: File,
 	uploadFileUri: string,
 	statusUri: string,
-	transcriptUri: string
+	transcriptUri: string,
+	webpubSubUri: string,
+	webpubSubKey: string,
 }
 
 type State = {
 	isLoading: boolean,
 	isReady: boolean,
 	transcriptionId: string,
-	transcriptionMessage: string
-	transcriptionStatus: string
+	transcriptionMessage: string,
+	transcriptionStatus: string,
+	serviceClient: WebPubSubServiceClient,
 }
 
 type TranscriptionText = {
@@ -36,56 +41,57 @@ type TranscriptionMessage = {
 	lastUpdated: string
 }
 
-class Transcription extends Component<Props,State> {
-	constructor(props:any) {
+var ws:WebSocket;
+var hubName:string = "transcription";
+
+class Transcription extends Component<Props,State> 
+{
+	constructor(props:any) 
+	{
 		super(props);
 		this.state = {
 			isLoading: false,
 			isReady: false,
 			transcriptionId: "",
 			transcriptionStatus: "Pending Upload...",
-			transcriptionMessage: "...."
+			transcriptionMessage: "....",
+			serviceClient: new WebPubSubServiceClient(this.props.webpubSubUri, new AzureKeyCredential(this.props.webpubSubKey), hubName)
 		}
+
+		this.configWSConnection = this.configWSConnection.bind(this);
 	}
 
-	//Hack. Please refact. 
-	private getStatusMessage = (status: number) => {
-		if( status === 0 ) {
-			return "Waiting to be picked up";
-		}
-		else if ( status === 1 ) {
-			return "Sent to CognitiveServices";
-		}
-		else if ( status === 2 ) {
-			return "Working on Transcription";
-		}
-		else if ( status === 3 ) {
-			return "Completed";
-		}
-		else {
-			return "Failed";
-		}		
+	private configWSConnection = async () => 
+	{
+		var token = await this.state.serviceClient.getAuthenticationToken();
+		ws = new WebSocket(token.url);
+		ws.onmessage = (event:MessageEvent) => {
+			let msg = JSON.parse(event.data);
+			this.setState({
+				transcriptionStatus: `${msg.StatusMessage} [${new Date(msg.LastUpdated)}]`
+			})
+		};
 	}
 
-	private replaceUri = (uri: string, id: string) => {
+	private replaceUri = (uri: string, id: string) => 
+	{
 		return uri.replace("{0}", id);
 	}
 
-	private updateState = (msg: TranscriptionMessage) => {
+	private updateState = (msg: TranscriptionMessage) => 
+	{
 		this.setState({
 			transcriptionId: msg.transcriptionId,
-			transcriptionStatus: `${this.getStatusMessage(msg.statusMessage)} [${msg.lastUpdated}]`
 		})
 	}
 
-	private checkStatus = async () =>
+	private checkStatus = async () => 
 	{
 		var uri = this.replaceUri(this.props.statusUri, this.state.transcriptionId);
 		const response = await fetch(uri);
 		var body = await response.json().then(data => data as TranscriptionMessage);
-		this.updateState(body);
 
-		if(body.statusMessage === 3 ) {
+		if(body.statusMessage === 3) {
 			await this.getTranscription();
 		}
 	}
@@ -109,6 +115,8 @@ class Transcription extends Component<Props,State> {
 			body:  formData
 		});
 
+		await this.configWSConnection();
+
 		return response;
 	}
 
@@ -120,10 +128,12 @@ class Transcription extends Component<Props,State> {
 		this.updateState(body);
 	  }
 	  finally {
+
 		this.setState({ 
 			isLoading: false,
 			isReady: true
 		})
+
 	  }
   	}
 
@@ -131,7 +141,7 @@ class Transcription extends Component<Props,State> {
 		const selectedFile = this.props.selectedFile;
 		const transcriptionMessage = this.state.transcriptionMessage;
 		const transcriptionStatus = this.state.transcriptionStatus;
-
+	
 	  	return ( 
 			<div>
 				<Container>
@@ -146,7 +156,7 @@ class Transcription extends Component<Props,State> {
 				<hr/>
 				<Container>
 					<Row>
-						<Col><Button variant="secondary" size="lg" block onClick={this.checkStatus}>Check Status</Button></Col>
+						<Col><Button variant="secondary" size="lg" block onClick={this.checkStatus}>Get Transcription</Button></Col>
 						<Col><Alert variant="info">{transcriptionStatus}</Alert></Col>
 					</Row>
 					<Row>

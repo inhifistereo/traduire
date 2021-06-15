@@ -28,7 +28,9 @@ class App extends Component<any, iApp> {
 		const uploadFileUri = config.UPLOAD_URI ?? "http://localhost:3000/api/upload";
 		const statusUri = config.STATUS_URI ?? "http://localhost:3000/api/status/{0}";
 		const transcriptUri = config.TRANSCRIPT_URI ?? "http://localhost:3000/api/download/{0}";
-
+		const webpubSubUri = config.WEB_PUBSUB_URI ?? "http://localhost:5000";
+		const webpubSubKey = config.WEB_PUBSUB_KEY ?? null;
+		
 		return ( 
 			<div>
 				<Header />
@@ -36,7 +38,9 @@ class App extends Component<any, iApp> {
 				{selectedFile.name !== "foo.txt" && <Transcription selectedFile={this.state.selectedFile} 
 														uploadFileUri={uploadFileUri} 
 														statusUri={statusUri}
-														transcriptUri={transcriptUri} /> 
+														transcriptUri={transcriptUri} 
+														webpubSubUri={webpubSubUri}
+														webpubSubKey={webpubSubKey} /> 
 				}
 				<Footer />
 			</div>
