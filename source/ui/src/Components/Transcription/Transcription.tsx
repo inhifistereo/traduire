@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import './Transcription.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import { WebPubSubServiceClient, AzureKeyCredential } from "@azure/web-pubsub";
+
 import Button from 'react-bootstrap/Button';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
@@ -13,15 +15,18 @@ type Props = {
 	selectedFile: File,
 	uploadFileUri: string,
 	statusUri: string,
-	transcriptUri: string
+	transcriptUri: string,
+	webpubSubUri: string,
+	webpubSubKey: string,
 }
 
 type State = {
 	isLoading: boolean,
 	isReady: boolean,
 	transcriptionId: string,
-	transcriptionMessage: string
-	transcriptionStatus: string
+	transcriptionMessage: string,
+	transcriptionStatus: string,
+	serviceClient: WebPubSubServiceClient,
 }
 
 type TranscriptionText = {
@@ -36,6 +41,9 @@ type TranscriptionMessage = {
 	lastUpdated: string
 }
 
+const hubName = "transcription"
+var ws:WebSocket;
+
 class Transcription extends Component<Props,State> {
 	constructor(props:any) {
 		super(props);
@@ -44,8 +52,18 @@ class Transcription extends Component<Props,State> {
 			isReady: false,
 			transcriptionId: "",
 			transcriptionStatus: "Pending Upload...",
-			transcriptionMessage: "...."
+			transcriptionMessage: "....",
+			serviceClient: new WebPubSubServiceClient(this.props.webpubSubUri, new AzureKeyCredential(this.props.webpubSubKey), hubName)
 		}
+
+		this.state.serviceClient.getAuthenticationToken().then( token => {
+			ws = new WebSocket(token.url);
+			ws.onmessage = (event:MessageEvent) => {
+				let msg = event.data as TranscriptionMessage
+				this.updateState(msg);
+			};
+		});	
+
 	}
 
 	//Hack. Please refact. 
@@ -120,10 +138,12 @@ class Transcription extends Component<Props,State> {
 		this.updateState(body);
 	  }
 	  finally {
+
 		this.setState({ 
 			isLoading: false,
 			isReady: true
 		})
+
 	  }
   	}
 
@@ -131,7 +151,7 @@ class Transcription extends Component<Props,State> {
 		const selectedFile = this.props.selectedFile;
 		const transcriptionMessage = this.state.transcriptionMessage;
 		const transcriptionStatus = this.state.transcriptionStatus;
-
+	
 	  	return ( 
 			<div>
 				<Container>

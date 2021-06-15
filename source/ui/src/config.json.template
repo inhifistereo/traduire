@@ -1,5 +1,7 @@
 {
     "UPLOAD_URI": "https://{{uri}}/api/upload?apikey={{apikey}}",
     "STATUS_URI": "https://{{uri}}/api/status/{0}?apikey={{apikey}}",
-    "TRANSCRIPT_URI": "https://{{uri}}/api/download/{0}?apikey={{apikey}}"
+    "TRANSCRIPT_URI": "https://{{uri}}/api/download/{0}?apikey={{apikey}}",
+    "WEB_PUBSUB_URI": "https://{{webpubsub}}.webpubsub.azure.com",
+    "WEB_PUBSUB_KEY": "{{pubsb_key}}"
 }
