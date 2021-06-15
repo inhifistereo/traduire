@@ -3,6 +3,9 @@ param(
     [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
     [string] $AppName,
 
+    [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
+    [string] $SubscriptionName,
+
     [Parameter(ParameterSetName = 'Default', Mandatory=$false)]
     [string] $ApiUri
 )
@@ -20,7 +23,7 @@ Set-Variable -Name ui_source_dir    -Value (Join-Path -Path $root -ChildPath "so
 Set-Location -Path $ui_source_dir
 
 Write-Log -Message "Logging into Azure"
-Connect-ToAzure
+Connect-ToAzure -SubscriptionName $SubscriptionName
 
 Write-Log -Message "Getting API Gateway Secret"
 $kong_api_key = Get-KubernetesSecret -secret ("{0}-apikey" -f $AppName) -value "key"
@@ -40,4 +43,4 @@ Copy-BuildToStorage -StorageAccount $APP_UI_NAME -LocalPath (Join-Path -Path $ui
 Write-Log -Message "Deploying to Azure Static Web Site"
 Deploy-toAzStaticWebApp -Name $APP_UI_NAME -ResourceGroup $APP_UI_RG -LocalPath (Join-Path -Path $ui_source_dir -ChildPath "build")
 
-Set-Location Path $cwd
+Set-Location -Path $cwd

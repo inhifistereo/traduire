@@ -47,7 +47,7 @@ function Copy-BuildToStorage
     }
 
     $source = ("{0}/*" -f $LocalPath) | Add-Quotes 
-    az storage copy --source-local-path $source --destination-account-name $StorageAccount --destination-container $Container --recursive --put-md5
+    az storage copy --source $source --account-name $StorageAccount --destination-container $Container --recursive --put-md5
 
 }
 
