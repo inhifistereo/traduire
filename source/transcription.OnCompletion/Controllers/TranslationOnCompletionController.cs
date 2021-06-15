@@ -8,6 +8,7 @@ using Dapr;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using Azure.Messaging.WebPubSub; 
 
 using transcription.models;
 using transcription.common;
@@ -48,7 +49,17 @@ namespace transcription.Controllers
                     var firstChannel                = result.CombinedRecognizedPhrases.FirstOrDefault();
                     state.Value.Status              = TraduireTranscriptionStatus.Completed;
                     state.Value.TranscriptionText   = firstChannel.Display;
-                    
+
+                    await _serviceClient.serviceClient.SendToAllAsync(
+                        RequestContent.Create(
+                            new
+                            { 
+                                TranscriptionId = request.TranscriptionId,
+                                StatusMessage = state.Value.Status.ToString(),
+                                LastUpdated = state.Value.LastUpdateTime
+                            }
+                    ));
+
                     await state.SaveAsync();
                     _logger.LogInformation($"{request.TranscriptionId}. Transcription from '{request.BlobUri}' was saved to state store ");
                 }

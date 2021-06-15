@@ -38,6 +38,8 @@ spec:
         env:
         - name: AZURE_COGS_REGION
           value: {{ .Values.cogs_region }}
+        - name: AZURE_PUBSUB_ENDPONT
+          value: {{ .Values.pubsub_endpoint }}
       tolerations:
       - key: "app"
         operator: "Equal"

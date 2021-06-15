@@ -8,6 +8,7 @@ using Dapr;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using Azure.Messaging.WebPubSub; 
 
 using transcription.models;
 using transcription.common;
@@ -49,6 +50,16 @@ namespace transcription.Controllers
                     TranscriptionId = request.TranscriptionId, 
                     BlobUri = response.Self
                 };
+
+                await _serviceClient.serviceClient.SendToAllAsync(
+                    RequestContent.Create(
+                        new
+                        { 
+                            TranscriptionId = request.TranscriptionId,
+                            StatusMessage = response.Status,
+                            LastUpdated = state.Value.LastUpdateTime
+                        }
+                ));
 
                 if( code == HttpStatusCode.Created ) {
                     state.Value.LastUpdateTime          = DateTime.UtcNow;

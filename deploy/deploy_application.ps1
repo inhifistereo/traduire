@@ -15,20 +15,21 @@ param(
 
 . .\modules\traduire_functions.ps1
 
-Set-Variable -Name DAPR_VERSION     -Value "1.1.1"                           -Option Constant
-Set-Variable -Name KEDA_VERSION     -Value "2.2.0"                           -Option Constant
-Set-Variable -Name CERT_MGR_VERSION -Value "v1.2.0"                          -Option Constant
-Set-Variable -Name APP_RG_NAME      -Value ("{0}_app_rg" -f $AppName)        -Option Constant
-Set-Variable -Name CORE_RG_NAME     -Value ("{0}_core_rg" -f $AppName)       -Option Constant
-Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks01" -f $AppName)         -Option Constant
-Set-Variable -Name APP_ACR_NAME     -Value ("{0}acr01" -f $AppName)          -Option Constant
-Set-Variable -Name APP_KV_NAME      -Value ("{0}-kv01" -f $AppName)          -Option Constant
-Set-Variable -Name APP_SA_NAME      -Value ("{0}files01" -f $AppName)        -Option Constant
-Set-Variable -Name APP_MSI_NAME     -Value ("{0}-dapr-reader" -f $AppName)   -Option Constant
-Set-Variable -Name APP_COGS_NAME    -Value ("{0}-cogs01" -f $AppName)        -Option Constant
-Set-Variable -Name APP_AI_NAME      -Value ("{0}-ai01" -f $AppName)          -Option Constant
-Set-Variable -Name KEDA_MSI_NAME    -Value ("{0}-keda-sb-owner" -f $AppName) -Option Constant
-Set-Variable -Name KEDA_POD_BINDING -Value "keda-podidentity"                -Option Constant
+Set-Variable -Name DAPR_VERSION         -Value "1.1.1"                           -Option Constant
+Set-Variable -Name KEDA_VERSION         -Value "2.2.0"                           -Option Constant
+Set-Variable -Name CERT_MGR_VERSION     -Value "v1.2.0"                          -Option Constant
+Set-Variable -Name APP_RG_NAME          -Value ("{0}_app_rg" -f $AppName)        -Option Constant
+Set-Variable -Name CORE_RG_NAME         -Value ("{0}_core_rg" -f $AppName)       -Option Constant
+Set-Variable -Name APP_K8S_NAME         -Value ("{0}-aks01" -f $AppName)         -Option Constant
+Set-Variable -Name APP_ACR_NAME         -Value ("{0}acr01" -f $AppName)          -Option Constant
+Set-Variable -Name APP_KV_NAME          -Value ("{0}-kv01" -f $AppName)          -Option Constant
+Set-Variable -Name APP_SA_NAME          -Value ("{0}files01" -f $AppName)        -Option Constant
+Set-Variable -Name APP_MSI_NAME         -Value ("{0}-dapr-reader" -f $AppName)   -Option Constant
+Set-Variable -Name APP_COGS_NAME        -Value ("{0}-cogs01" -f $AppName)        -Option Constant
+Set-Variable -Name APP_AI_NAME          -Value ("{0}-ai01" -f $AppName)          -Option Constant
+Set-Variable -Name KEDA_MSI_NAME        -Value ("{0}-keda-sb-owner" -f $AppName) -Option Constant
+Set-Variable -Name KEDA_POD_BINDING     -Value "keda-podidentity"                -Option Constant
+Set-Variable -Name APP_PUBSUB_ENDPOINT  -Value ("{0}-pubusb01.webpubsub.azure.com" -f $AppName)  -Option Constant
 
 $root   = (Get-Item $PWD.Path).Parent.FullName
 $source = Join-Path -Path $root -ChildPath "source"
@@ -124,6 +125,7 @@ helm upgrade -i `
    --set kong_api_uri=$Uri `
    --set keda_msi_client_id=$($keda_msi.client_id) `
    --set keda_msi_resource_id=$($keda_msi.resource_id) `
+   --set pubsub_endpoint=$APP_PUBSUB_ENDPOINT `
    traduire helm/. 
 
 if($?){

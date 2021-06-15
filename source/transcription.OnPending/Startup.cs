@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Azure.Messaging.WebPubSub; 
 
 using transcription.models;
 using transcription.common.cognitiveservices;
@@ -32,10 +33,13 @@ namespace transcription.status
 
             services.AddControllers();
 
-            //var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecureStore] ,Configuration[Components.SecretName]);
             var region = Environment.GetEnvironmentVariable("AZURE_COGS_REGION");
             var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecretName], region);
             services.AddSingleton<AzureCognitiveServicesClient>(cogs);
+
+            var pubsub = Environment.GetEnvironmentVariable("AZURE_PUBSUB_ENDPONT");
+            var serviceClient = new WebPubSubServiceClient(new Uri(pubsub), Components.PubSubHubName, new AzureKeyCredential(Configuration[Components.PubSubSecretName]));
+            services.AddSingleton<WebPubSubServiceClient>(serviceClient);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

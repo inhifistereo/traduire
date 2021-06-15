@@ -8,6 +8,7 @@ using Dapr;
 using Dapr.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using Azure.Messaging.WebPubSub;
 
 using transcription.models;
 using transcription.common;
@@ -18,17 +19,19 @@ namespace transcription.Controllers
     [ApiController]
     public class TranslationOnPending : ControllerBase
     {
+        private readonly WebPubSubServiceClient _serviceClient;
         private readonly IConfiguration _configuration;
         private readonly DaprClient _client;
         private readonly AzureCognitiveServicesClient _cogsClient; 
         private readonly ILogger _logger;
                 
-        public TranslationOnPending(ILogger<TranslationOnPending> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient)
+        public TranslationOnPending(ILogger<TranslationOnPending> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient, WebPubSubServiceClient ServiceClient)
         {
             _client = Client;
             _logger = logger;
             _configuration = configuration;
             _cogsClient = CogsClient;
+            _serviceClient = ServiceClient;
         }
 
         [Topic(Components.PubSubName, Topics.TranscriptionPendingTopicName)]
@@ -49,6 +52,16 @@ namespace transcription.Controllers
                     TranscriptionId = request.TranscriptionId,
                     BlobUri = response.Self
                 };
+
+                await _serviceClient.serviceClient.SendToAllAsync(
+                    RequestContent.Create(
+                        new
+                        { 
+                            TranscriptionId = request.TranscriptionId,
+                            StatusMessage = response.Status,
+                            LastUpdated = state.Value.LastUpdateTime
+                        }
+                ));
 
                 if( code == HttpStatusCode.OK  && (response.Status == "NotStarted" || response.Status == "Running" )) {
                     
