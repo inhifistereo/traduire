@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Dapr;
 using Dapr.Client;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
+using Azure.Messaging.WebPubSub;
 
 using transcription.models;
 using transcription.common;
@@ -18,17 +20,19 @@ namespace transcription.Controllers
     [ApiController]
     public class TranslationOnPending : ControllerBase
     {
+        private readonly WebPubSubServiceClient _serviceClient;
         private readonly IConfiguration _configuration;
         private readonly DaprClient _client;
         private readonly AzureCognitiveServicesClient _cogsClient; 
         private readonly ILogger _logger;
                 
-        public TranslationOnPending(ILogger<TranslationOnPending> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient)
+        public TranslationOnPending(ILogger<TranslationOnPending> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient, WebPubSubServiceClient ServiceClient)
         {
             _client = Client;
             _logger = logger;
             _configuration = configuration;
             _cogsClient = CogsClient;
+            _serviceClient = ServiceClient;
         }
 
         [Topic(Components.PubSubName, Topics.TranscriptionPendingTopicName)]
@@ -49,6 +53,15 @@ namespace transcription.Controllers
                     TranscriptionId = request.TranscriptionId,
                     BlobUri = response.Self
                 };
+
+                await _serviceClient.SendToAllAsync(
+                    JsonSerializer.Serialize(new
+                    { 
+                        TranscriptionId = request.TranscriptionId,
+                        StatusMessage = response.Status,
+                        LastUpdated = state.Value.LastUpdateTime
+                    }
+                ));
 
                 if( code == HttpStatusCode.OK  && (response.Status == "NotStarted" || response.Status == "Running" )) {
                     

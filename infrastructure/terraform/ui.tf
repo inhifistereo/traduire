@@ -7,7 +7,7 @@ resource "azurerm_resource_group" "traduire_ui" {
   }
 
   provisioner "local-exec" {
-    command = "az webpubsub create -n ${var.pubsub_name} -g ${azurerm_resource_group.traduire_ui.name} --sku Free_F1 -l eastus"
+    command = "bash ./create_pubsub.sh ${var.pubsub_name} ${azurerm_resource_group.traduire_ui.name} ${var.pubsub_secret_name} ${var.keyvault_name}"
   }
 }
 
