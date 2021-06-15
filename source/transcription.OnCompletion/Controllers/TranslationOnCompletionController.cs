@@ -3,6 +3,8 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web.Routing;
+
 using Microsoft.AspNetCore.Mvc;
 using Dapr;
 using Dapr.Client;
@@ -19,17 +21,19 @@ namespace transcription.Controllers
     [ApiController]
     public class TranslationOnCompletion : ControllerBase
     {
+        private readonly WebPubSubServiceClient _serviceClient;
         private readonly IConfiguration _configuration;
         private readonly DaprClient _client;
         private readonly AzureCognitiveServicesClient _cogsClient; 
         private readonly ILogger _logger;
                 
-        public TranslationOnCompletion(ILogger<TranslationOnCompletion> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient)
+        public TranslationOnCompletion(ILogger<TranslationOnCompletion> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient, WebPubSubServiceClient ServiceClient)
         {
             _client = Client;
             _logger = logger;
             _configuration = configuration;
             _cogsClient = CogsClient;
+            _serviceClient = ServiceClient;
         }
 
         [Topic(Components.PubSubName, Topics.TranscriptionCompletedTopicName)]
@@ -51,14 +55,13 @@ namespace transcription.Controllers
                     state.Value.TranscriptionText   = firstChannel.Display;
 
                     await _serviceClient.serviceClient.SendToAllAsync(
-                        RequestContent.Create(
-                            new
-                            { 
-                                TranscriptionId = request.TranscriptionId,
-                                StatusMessage = state.Value.Status.ToString(),
-                                LastUpdated = state.Value.LastUpdateTime
-                            }
-                    ));
+                        new
+                        { 
+                            TranscriptionId = request.TranscriptionId,
+                            StatusMessage = state.Value.Status.ToString(),
+                            LastUpdated = state.Value.LastUpdateTime
+                        }
+                    );
 
                     await state.SaveAsync();
                     _logger.LogInformation($"{request.TranscriptionId}. Transcription from '{request.BlobUri}' was saved to state store ");

@@ -54,14 +54,13 @@ namespace transcription.Controllers
                 };
 
                 await _serviceClient.serviceClient.SendToAllAsync(
-                    RequestContent.Create(
-                        new
-                        { 
-                            TranscriptionId = request.TranscriptionId,
-                            StatusMessage = response.Status,
-                            LastUpdated = state.Value.LastUpdateTime
-                        }
-                ));
+                    new
+                    { 
+                        TranscriptionId = request.TranscriptionId,
+                        StatusMessage = response.Status,
+                        LastUpdated = state.Value.LastUpdateTime
+                    }
+                );
 
                 if( code == HttpStatusCode.OK  && (response.Status == "NotStarted" || response.Status == "Running" )) {
                     

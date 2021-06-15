@@ -19,12 +19,13 @@ namespace transcription.Controllers
     [ApiController]
     public class TranslationOnStarted : ControllerBase
     {
+        private readonly WebPubSubServiceClient _serviceClient;
         private readonly IConfiguration _configuration;
         private readonly DaprClient _client;
         private readonly AzureCognitiveServicesClient _cogsClient; 
         private readonly ILogger _logger;
                 
-        public TranslationOnStarted(ILogger<TranslationOnStarted> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient)
+        public TranslationOnStarted(ILogger<TranslationOnStarted> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient, WebPubSubServiceClient ServiceClient)
         {
             _client = Client;
             _logger = logger;
@@ -52,14 +53,13 @@ namespace transcription.Controllers
                 };
 
                 await _serviceClient.serviceClient.SendToAllAsync(
-                    RequestContent.Create(
-                        new
-                        { 
-                            TranscriptionId = request.TranscriptionId,
-                            StatusMessage = response.Status,
-                            LastUpdated = state.Value.LastUpdateTime
-                        }
-                ));
+                    new
+                    { 
+                        TranscriptionId = request.TranscriptionId,
+                        StatusMessage = response.Status,
+                        LastUpdated = state.Value.LastUpdateTime
+                    }
+                );
 
                 if( code == HttpStatusCode.Created ) {
                     state.Value.LastUpdateTime          = DateTime.UtcNow;

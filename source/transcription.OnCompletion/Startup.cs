@@ -10,6 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Azure; 
+
 using Dapr;
 using Azure.Messaging.WebPubSub; 
 
@@ -45,9 +47,10 @@ namespace transcription.downloader
             var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecretName], region);
             services.AddSingleton<AzureCognitiveServicesClient>(cogs);
 
-            var pubsub = Environment.GetEnvironmentVariable("AZURE_PUBSUB_ENDPONT");
-            var serviceClient = new WebPubSubServiceClient(new Uri(pubsub), Components.PubSubHubName, new AzureKeyCredential(Configuration[Components.PubSubSecretName]));
-            services.AddSingleton<WebPubSubServiceClient>(serviceClient);
+            services.AddAzureClients(builder =>
+            {
+                builder.AddWebPubSubServiceClient(Configuration[Components.PubSubSecretName], Components.PubSubHubName);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
