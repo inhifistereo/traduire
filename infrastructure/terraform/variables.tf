@@ -129,3 +129,9 @@ variable "pubsub_name" {
   description = "Azure Web Pubsub Name"
   type        = string
 }
+
+variable "pubsub_secret_name" {
+  description = "Key Vault Secret Name for Web PubSub Primary Key"
+  type        = string
+  default     = "pubsubkey"
+}
