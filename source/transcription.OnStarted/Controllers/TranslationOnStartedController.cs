@@ -49,17 +49,22 @@ namespace transcription.Controllers
 
                 await _serviceClient.PublishNotification(request.TranscriptionId.ToString(), response.Status);
 
-                if( code == HttpStatusCode.Created ) {
-                    _logger.LogInformation($"{request.TranscriptionId}. Event was successfullly publish to Azure Cognitive Services");
-                    var createdEvent = await UpdateStateRepository(TraduireTranscriptionStatus.SentToCognitiveServices, code, response.Self);
-                    await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionPendingTopicName, createdEvent, cancellationToken );
-                    return Ok(request.TranscriptionId); 
+                switch(code)
+                {
+                    case HttpStatusCode.Created:
+                        _logger.LogInformation($"{request.TranscriptionId}. Event was successfullly publish to Azure Cognitive Services");
+                        var createdEvent = await UpdateStateRepository(TraduireTranscriptionStatus.SentToCognitiveServices, code, response.Self);
+                        await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionPendingTopicName, createdEvent, cancellationToken );
+                        
+                        return Ok(request.TranscriptionId); 
+                    
+                    default:
+                        _logger.LogInformation($"{request.TranscriptionId}. Transcription Failed for an unexpected reason. Added to Failed Queue for review");
+                        var failedEvent = await UpdateStateRepository(TraduireTranscriptionStatus.Failed, code, response.Self);
+                        await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionFailedTopicName, failedEvent, cancellationToken);
+                        break;
                 }
                 
-                _logger.LogInformation($"{request.TranscriptionId}. Transcription Failed for an unexpected reason. Added to Failed Queue for review");
-                var failedEvent = await UpdateStateRepository(TraduireTranscriptionStatus.Failed, code, response.Self);
-                await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionFailedTopicName, failedEvent, cancellationToken);
-
             }
             catch( Exception ex )  
             {
