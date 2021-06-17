@@ -31,7 +31,7 @@ namespace transcription.Controllers
             _client = Client;
             _logger = logger;
             _configuration = configuration;
-            _cogsClient = CogsClient;
+        	_cogsClient = CogsClient;
 			_serviceClient = new TraduireNotificationService(ServiceClient);
         }
 
