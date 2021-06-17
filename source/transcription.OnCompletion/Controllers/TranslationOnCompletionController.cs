@@ -49,22 +49,24 @@ namespace transcription.Controllers
 
                 (TranscriptionResults result, HttpStatusCode code)  = await _cogsClient.DownloadTranscriptionResultAsync(new Uri(request.BlobUri)); 
 
-                if( code == HttpStatusCode.OK ) {                  
+                switch(code)
+                {
+                    case HttpStatusCode.OK:                  
+                        _logger.LogInformation($"{request.TranscriptionId}. Transcription from '{request.BlobUri}' was saved to state store ");
+                        var firstChannel = result.CombinedRecognizedPhrases.FirstOrDefault();
+
+                        await _serviceClient.PublishNotification(request.TranscriptionId.ToString(), state.Value.Status.ToString());
+                        await UpdateStateRepository(TraduireTranscriptionStatus.Completed, firstChannel.Display);
+
+                        _logger.LogInformation($"{request.TranscriptionId}. All working completed on request");
+                        return Ok(request.TranscriptionId); 
                     
-                    _logger.LogInformation($"{request.TranscriptionId}. Transcription from '{request.BlobUri}' was saved to state store ");
-                    var firstChannel = result.CombinedRecognizedPhrases.FirstOrDefault();
-
-                    await _serviceClient.PublishNotification(request.TranscriptionId.ToString(), state.Value.Status.ToString());
-                    await UpdateStateRepository(TraduireTranscriptionStatus.Completed, firstChannel.Display);
-
-                    _logger.LogInformation($"{request.TranscriptionId}. All working completed on request");
-                    return Ok(request.TranscriptionId); 
+                    default:
+                        _logger.LogInformation($"{request.TranscriptionId}. Transcription Failed for an unexpected reason. Added to Failed Queue for review");
+                        var failedEvent = await UpdateStateRepository(TraduireTranscriptionStatus.Failed, code, request.BlobUri);
+                        await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionFailedTopicName, failedEvent, cancellationToken);
+                        break;
                 }
-                
-                _logger.LogInformation($"{request.TranscriptionId}. Transcription Failed for an unexpected reason. Added to Failed Queue for review");
-                var failedEvent = await UpdateStateRepository(TraduireTranscriptionStatus.Failed, code, request.BlobUri);
-                await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionFailedTopicName, failedEvent, cancellationToken);
-
             }
             catch( Exception ex )  
             {
