@@ -60,7 +60,8 @@ namespace transcription.Controllers
                 if (code == HttpStatusCode.OK && response.Status == "Succeeded")
                 {
                     _logger.LogInformation($"{request.TranscriptionId}. Azure Cognitive Services has completed processing transcription");
-                    _ = await UpdateStateRepository(TraduireTranscriptionStatus.Completed, code, response.Links.Files);                                        
+                    var completionEvent = await UpdateStateRepository(TraduireTranscriptionStatus.Completed, code, response.Links.Files); 
+                    await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionCompletedTopicName, completionEvent, cancellationToken);                                       
                     return Ok(request.TranscriptionId);
                 }
 
