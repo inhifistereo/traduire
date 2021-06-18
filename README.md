@@ -41,7 +41,8 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 
 ### Validate
 * Launch Browser
-* Navigate to https://${AppName}ui01.z21.web.core.windows.net/
+* Navigate to the URI outputed by the deploy_ui.ps1
+    * Azure Static Website supports custom domain names, if desired. 
 * Select and upload assets\recording.m4a
 * Click 'Check Status' to watch the transcription go through its stages 
 * Then the final result should be: \
