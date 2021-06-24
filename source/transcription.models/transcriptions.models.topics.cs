@@ -8,5 +8,6 @@ namespace transcription.models
         public const string TranscriptionPendingTopicName   = "ontranscription_pending";
         public const string TranscriptionCompletedTopicName = "ontranscription_completed";
         public const string TranscriptionFailedTopicName    = "ontranscription_failed";
+        public const string TranscriptionSleepTopicName    = "ontranscription_sleep";
     }
 }

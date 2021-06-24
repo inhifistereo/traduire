@@ -61,8 +61,7 @@ namespace transcription.Controllers
                     case HttpStatusCode.OK:
                         _logger.LogInformation($"{request.TranscriptionId}. Azure Cognitive Services is still progressing request");
                         var pendingEvent = await UpdateStateRepository(TraduireTranscriptionStatus.Pending, code, response.Self );
-                        await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionPendingTopicName, pendingEvent, cancellationToken);
-                        await Task.Delay(new TimeSpan(0, 0, 30));
+                        await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionSleepTopicName, pendingEvent, cancellationToken);
                         return Ok(request.TranscriptionId);
 
                     default:
