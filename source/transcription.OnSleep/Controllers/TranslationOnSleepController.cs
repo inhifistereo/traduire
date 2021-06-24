@@ -19,13 +19,12 @@ namespace transcription.Controllers
     [ApiController]
     public class TranslationOnSleep : ControllerBase
     {   
-        private StateEntry<TraduireTranscription> state;
         private readonly TraduireNotificationService _serviceClient;
         private readonly IConfiguration _configuration;
         private readonly DaprClient _client;
         private readonly ILogger _logger;
                 
-        public TranslationOnPending(ILogger<TranslationOnPending> logger, IConfiguration configuration, DaprClient Client,  WebPubSubServiceClient ServiceClient)
+        public TranslationOnSleep(ILogger<TranslationOnSleep> logger, IConfiguration configuration, DaprClient Client,  WebPubSubServiceClient ServiceClient)
         {
             _client = Client;
             _logger = logger;
@@ -42,7 +41,7 @@ namespace transcription.Controllers
                 _logger.LogInformation($"{request.TranscriptionId}. {request.BlobUri} was successfullly received by Dapr PubSub");
                 await _serviceClient.PublishNotification(request.TranscriptionId.ToString(), $"Sleeping for {Components.SleepTimeInSeconds} s");
                 await Task.Delay(new TimeSpan(0, 0, Components.SleepTimeInSeconds));
-                await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionPendingTopicName, pendingEvent, cancellationToken);                      
+                await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionPendingTopicName, request, cancellationToken);                      
                 return Ok(request.TranscriptionId);
             }
             catch ( Exception ex )  
