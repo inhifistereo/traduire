@@ -32,7 +32,7 @@ namespace transcription.Controllers
             _serviceClient = new TraduireNotificationService(ServiceClient);
         }
 
-        [Topic(Components.PubSubName, Topics.TranscriptionPendingTopicName)]
+        [Topic(Components.PubSubName, Topics.TranscriptionSleepTopicName)]
         [HttpPost("sleep")]
         public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request,  CancellationToken cancellationToken)
         {
