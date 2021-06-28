@@ -11,7 +11,7 @@ using transcription.api.dapr;
 
 namespace transcription.Controllers
 { 
-    [Route("api/{controller}")]
+    [Route("api/transcribe")]
     [ApiController]
     public class TranscribeController : ControllerBase
     {
