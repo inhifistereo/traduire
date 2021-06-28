@@ -3,4 +3,4 @@ name: Traduire
 description: A demo application using Dapr to transcribe podcasts
 type: application
 version: 1.5.0
-appVersion: 1.25.0
+appVersion: 1.25.32
