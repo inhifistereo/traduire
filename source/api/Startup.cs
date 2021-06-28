@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.OpenApi.Models;
 using Dapr;
 using Grpc.AspNetCore.Server;
 
@@ -41,7 +42,7 @@ namespace traduire.webapi
             services.AddControllers().AddDapr();
             services.AddGrpc();
             services.AddGrpcReflection();
-
+            services.AddSwaggerGen();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -51,9 +52,15 @@ namespace traduire.webapi
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseSwagger();
             app.UseCors();
             app.UseRouting();
             app.UseAuthorization();
+            
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Traduie Api v1");
+            });
 
             app.UseEndpoints(endpoints =>
             {
