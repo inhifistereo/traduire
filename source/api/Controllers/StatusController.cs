@@ -18,7 +18,7 @@ using transcription.common;
 
 namespace transcription.Controllers
 { 
-    [Route("api/{controller}")]
+    [Route("api/status")]
     [ApiController]
     public class StatusController : ControllerBase
     {
