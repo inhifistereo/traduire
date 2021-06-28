@@ -24,7 +24,7 @@ namespace transcription.Controllers
     {
         private readonly ILogger _logger;
 
-        public DownloadController(ILogger<UploadController> logger)
+        public DownloadController(ILogger<DownloadController> logger)
         {
             _logger = logger;
         }

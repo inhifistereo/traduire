@@ -24,7 +24,7 @@ namespace transcription.Controllers
     {
         private readonly ILogger _logger;
 
-        public StatusController(ILogger<UploadController> logger)
+        public StatusController(ILogger<StatusController> logger)
         {
             _logger = logger;
         }
