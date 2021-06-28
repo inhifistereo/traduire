@@ -20,9 +20,9 @@ commit_version                          : "1.0"
 kong_api_secret                         : ""
 kong_api_uri                            : ""
 cert_email_address                      : "brian@bjdazure.tech"
+delay_time_in_seconds                   : 5
 service_port                            : 8081
 service_bus_oncompleted_topic           : "ontranscription_completed"
 service_bus_onpending_topic             : "ontranscription_pending"
 service_bus_onstarted_topic             : "ontranscription_submitted" 
 service_bus_onsleep_topic               : "ontranscription_sleep"
-sleep_in_seconds                        : "5"

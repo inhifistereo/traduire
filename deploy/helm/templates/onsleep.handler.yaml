@@ -37,7 +37,7 @@ spec:
           allowPrivilegeEscalation: false
         env:
         - name: TRADUIRE_SLEEP_TIME
-          value: {{ .Values.sleep_in_seconds }}
+          value: {{ print .Values.delay_time_in_seconds | quote  }}
       tolerations:
       - key: "app"
         operator: "Equal"
