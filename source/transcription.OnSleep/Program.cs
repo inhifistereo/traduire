@@ -36,6 +36,11 @@ namespace transcription.sleep
                 {
                     configBuilder.AddDaprSecretStore(Components.SecureStore, client);
                 })
+                .ConfigureAppConfiguration((HostingContext, configuration) =>
+                    configuration.AddEnvironmentVariables(
+                        prefix: "TRADUIRE_"
+                    )
+                )
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();

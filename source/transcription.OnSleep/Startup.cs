@@ -33,7 +33,6 @@ namespace transcription.sleep
             });
 
             services.AddControllers();
-
             services.AddAzureClients(builder =>
             {
                 builder.AddWebPubSubServiceClient(Configuration[Components.PubSubSecretName], Components.PubSubHubName);
