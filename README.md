@@ -1,10 +1,26 @@
-# Traduire
-This my fork of [inhifistereo/traduire](https://github.com/inhifistereo/traduire).  I am using it to learn [Dapr](https://dapr.io) patterns and practices. 
+# Traduire 
 
-**Note**: It is known that the use of Dapr is overkill for this app (see [client example](./sample/cognitiveservices.test)). 
+## Overview 
+This is an application to demotratres various Azure services. It will transcribe an audio podcast (up to 50mb in size) to text using Azure Cognitive Services. It uses a Saga pattern to monitor through out the  transcription.   It uses [Dapr](https://dapr.io) as the distributive runtime to manage communication between the various service components. The application exposes both a REST API consumed by a React-based UI and a gRPC API consumed by a commandline application
 
-## App Overview 
-The application uses Azure Cognitive Services to transcribe Podcasts in MP3 format to text.
+## Languages
+* C# and dotnet 5 
+* PowerShell
+* Hashicorp Terrfaform 
+
+## Components
+Component | Usage
+------ | ------
+Azure Kubernetes Service | Container Orchestration Runtime Platform  
+Azure Blob Storage | Podcast Storage 
+Azure Cognitive Services | Service that does actual transcription 
+Azure Service Bus | Pubsub
+Azure Web PubSub | Real-time UI upates
+Azure Static Web Apps | Hosting platform for React UI
+Azure PosgreSQL | Backing store
+Azure Key Vault | Secret store 
+Kong | API Gateway 
+Keda | Autoscaler for saga components 
 
 ## Data Flow
 ![Flow](./assets/flow_diagram.png)
@@ -13,6 +29,7 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 ![Dapr](./assets/dapr.png)
 
 ## Deployment
+
 ### Prerequisite
 * A Linux machine or Windows Subsytem for Linux or Docker for Windows 
 * PowerShell 7
@@ -39,14 +56,23 @@ The application uses Azure Cognitive Services to transcribe Podcasts in MP3 form
 * cd ./Deploy
 * ./deploy_ui.ps1 -AppName $AppName -ApiUri api.bjd.tech -Verbose
 
-### Validate
+### Validate REST API
 * Launch Browser
 * Navigate to the URI outputed by the deploy_ui.ps1
     * Azure Static Website supports custom domain names, if desired. 
 * Select and upload assets\recording.m4a
 * Click 'Check Status' to watch the transcription go through its stages 
 * Then the final result should be: \
-    ![UI](./assets/ui.png)]
+    ![UI](./assets/ui.png)
+
+### Validate gRPC API 
+* cd sample\grpc.client
+* Update appsettings.json
+    * API Url - The address of exposed by the Kong API Service
+    * API Key - The secret 
+* dotnet build 
+* dontet run 
+
 
 ## Backlog 
 - [X] API exposed via Kong
