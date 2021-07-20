@@ -67,12 +67,9 @@ Keda | Autoscaler for saga components
 
 ### Validate gRPC API 
 * cd sample\grpc.client
-* Update appsettings.json
-    * API Url - The address of exposed by the Kong API Service
-    * API Key - The secret 
 * dotnet build 
-* dontet run 
-
+* dontet run /ApiServer api.bjd.tech /ApiServer {{apikey}}
+    * API Key is stored as a Secret in Kubernetes
 
 ## Backlog 
 - [X] API exposed via Kong
