@@ -22,9 +22,6 @@ Azure Key Vault | Secret store
 Kong | API Gateway 
 Keda | Autoscaler for saga components 
 
-## Data Flow
-![Flow](./assets/flow_diagram.png)
-
 ## Dapr Components
 ![Dapr](./assets/dapr.png)
 
@@ -56,7 +53,7 @@ Keda | Autoscaler for saga components
 * cd ./Deploy
 * ./deploy_ui.ps1 -AppName $AppName -ApiUri api.bjd.tech -Verbose
 
-### Validate REST API
+### Validate Web Application
 * Launch Browser
 * Navigate to the URI outputed by the deploy_ui.ps1
     * Azure Static Website supports custom domain names, if desired. 
