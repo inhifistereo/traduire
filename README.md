@@ -22,7 +22,7 @@ Azure Key Vault | Secret store
 Kong | API Gateway 
 Keda | Autoscaler for saga components 
 
-## Dapr Architecture
+## Architecture
 ![Dapr](./assets/dapr.png)
 
 ## Deployment
@@ -53,7 +53,9 @@ Keda | Autoscaler for saga components
 * cd ./Deploy
 * ./deploy_ui.ps1 -AppName $AppName -ApiUri api.bjd.tech -Verbose
 
-### Validate Web Application
+## Validate 
+
+### Web Application
 * Launch Browser
 * Navigate to the URI outputed by the deploy_ui.ps1
     * Azure Static Website supports custom domain names, if desired. 
@@ -62,7 +64,7 @@ Keda | Autoscaler for saga components
 * Then the final result should be: \
     ![UI](./assets/ui.png)
 
-### Validate gRPC API 
+### gRPC API 
 * cd sample\grpc.client
 * dotnet build 
 * dontet run /ApiServer api.bjd.tech /ApiServer {{apikey}}
