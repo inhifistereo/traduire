@@ -22,7 +22,7 @@ Azure Key Vault | Secret store
 Kong | API Gateway 
 Keda | Autoscaler for saga components 
 
-## Dapr Components
+## Dapr Architecture
 ![Dapr](./assets/dapr.png)
 
 ## Deployment
