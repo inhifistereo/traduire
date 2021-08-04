@@ -12,5 +12,6 @@ namespace transcription.models
         public const string PubSubSecretName = "pubsubkey";
         public const string PubSubHubName   = "transcription";
         public const string CreateOperation  = "create";
+        
     }
 }

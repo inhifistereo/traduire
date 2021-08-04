@@ -62,23 +62,3 @@ spec:
       messageCount: "5" 
     authenticationRef:
         name: {{ print .Values.app_name "-azure-servicebus-auth" }}
----
-apiVersion: keda.sh/v1alpha1
-kind: ScaledObject
-metadata:
-  name: {{ print .Values.app_name "-oncompleted-scaledobject" }} 
-spec:
-  scaleTargetRef:
-    name: {{ print .Values.app_name "-oncompletion" }}
-  minReplicaCount: 1
-  maxReplicaCount: 4
-  pollingInterval: 15
-  triggers:
-  - type: azure-servicebus
-    metadata:
-      topicName: {{ .Values.service_bus_oncompleted_topic }} 
-      subscriptionName: {{ print .Values.app_name "-oncompleted" }}
-      namespace: {{ print .Values.app_name "-sb01" }}
-      messageCount: "5" 
-    authenticationRef:
-        name: {{ print .Values.app_name "-azure-servicebus-auth" }}

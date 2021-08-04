@@ -1,21 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.OpenApi.Models;
-using Dapr;
-using Grpc.AspNetCore.Server;
+using Microsoft.Extensions.Azure; 
+using Azure.Messaging.WebPubSub; 
 
-namespace traduire.webapi
+using transcription.models;
+using transcription.common.cognitiveservices;
+
+namespace transcription.sleep
 {
     public class Startup
     {
@@ -28,8 +23,6 @@ namespace traduire.webapi
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHealthChecks();
-
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(
@@ -39,12 +32,14 @@ namespace traduire.webapi
                     });
             });
 
-            services.AddControllers().AddDapr();
-            services.AddGrpc();
-            services.AddGrpcReflection();
-            services.AddSwaggerGen();
+            services.AddControllers();
+            services.AddAzureClients(builder =>
+            {
+                builder.AddWebPubSubServiceClient(Configuration[Components.PubSubSecretName], Components.PubSubHubName);
+            });
         }
 
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -52,22 +47,15 @@ namespace traduire.webapi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseSwagger();
             app.UseCors();
+            app.UseCloudEvents();
             app.UseRouting();
             app.UseAuthorization();
-            
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Traduie Api v1");
-            });
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapHealthChecks("/healthz");
+                endpoints.MapSubscribeHandler();
                 endpoints.MapControllers();
-                endpoints.MapGrpcService<TranscriberService>();  
-                endpoints.MapGrpcReflectionService();
             });
         }
     }

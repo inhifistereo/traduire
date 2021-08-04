@@ -18,13 +18,13 @@ using transcription.common;
 
 namespace transcription.Controllers
 { 
-    [Route("api/{controller}")]
+    [Route("api/download")]
     [ApiController]
     public class DownloadController : ControllerBase
     {
         private readonly ILogger _logger;
 
-        public DownloadController(ILogger<UploadController> logger)
+        public DownloadController(ILogger<DownloadController> logger)
         {
             _logger = logger;
         }

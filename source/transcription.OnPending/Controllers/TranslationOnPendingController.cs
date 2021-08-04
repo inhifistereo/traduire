@@ -1,15 +1,14 @@
 using System; 
-using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Dapr;
 using Dapr.Client;
 using Azure.Messaging.WebPubSub;
+using Azure.Core;
 
 using transcription.models;
 using transcription.common;
@@ -19,8 +18,9 @@ namespace transcription.Controllers
 { 
     [ApiController]
     public class TranslationOnPending : ControllerBase
-    {
-        private readonly WebPubSubServiceClient _serviceClient;
+    {   
+        private StateEntry<TraduireTranscription> state;
+        private readonly TraduireNotificationService _serviceClient;
         private readonly IConfiguration _configuration;
         private readonly DaprClient _client;
         private readonly AzureCognitiveServicesClient _cogsClient; 
@@ -32,7 +32,7 @@ namespace transcription.Controllers
             _logger = logger;
             _configuration = configuration;
             _cogsClient = CogsClient;
-            _serviceClient = ServiceClient;
+            _serviceClient = new TraduireNotificationService(ServiceClient);
         }
 
         [Topic(Components.PubSubName, Topics.TranscriptionPendingTopicName)]
@@ -42,69 +42,57 @@ namespace transcription.Controllers
             try
             {
                 _logger.LogInformation($"{request.TranscriptionId}. {request.BlobUri} was successfullly received by Dapr PubSub");
-                var state = await _client.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, request.TranscriptionId.ToString());
+                state = await _client.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, request.TranscriptionId.ToString());
                 state.Value ??= new TraduireTranscription();
 
-                (Transcription response, HttpStatusCode code)  = await _cogsClient.CheckTranscriptionRequestAsync(new Uri(request.BlobUri));
+                (Transcription response, HttpStatusCode code) = await _cogsClient.CheckTranscriptionRequestAsync(new Uri(request.BlobUri));
 
-                state.Value.LastUpdateTime = DateTime.UtcNow;
+                await _serviceClient.PublishNotification(request.TranscriptionId.ToString(), response.Status);
 
-                var eventdata = new TradiureTranscriptionRequest() { 
-                    TranscriptionId = request.TranscriptionId,
-                    BlobUri = response.Self
-                };
+                switch(code)
+                {
+                    case HttpStatusCode.OK when response.Status == "Succeeded":
+                        _logger.LogInformation($"{request.TranscriptionId}. Azure Cognitive Services has completed processing transcription");
+                        var completionEvent = await UpdateStateRepository(TraduireTranscriptionStatus.Completed, code, response.Links.Files); 
+                        await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionCompletedTopicName, completionEvent, cancellationToken);  
 
-                await _serviceClient.SendToAllAsync(
-                    JsonSerializer.Serialize(new
-                    { 
-                        TranscriptionId = request.TranscriptionId,
-                        StatusMessage = response.Status,
-                        LastUpdated = state.Value.LastUpdateTime
-                    }
-                ));
+                       return Ok(request.TranscriptionId);
 
-                if( code == HttpStatusCode.OK  && (response.Status == "NotStarted" || response.Status == "Running" )) {
-                    
-                    Thread.Sleep(10000);
+                    case HttpStatusCode.OK:
+                        _logger.LogInformation($"{request.TranscriptionId}. Azure Cognitive Services is still progressing request");
+                        var pendingEvent = await UpdateStateRepository(TraduireTranscriptionStatus.Pending, code, response.Self );
+                        await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionSleepTopicName, pendingEvent, cancellationToken);
+                        return Ok(request.TranscriptionId);
 
-                    state.Value.Status                  = TraduireTranscriptionStatus.Pending;
-                    state.Value.TranscriptionStatusUri  = response.Self;
-                    await state.SaveAsync();
-                    await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionPendingTopicName, eventdata, cancellationToken );
-
-                    _logger.LogInformation($"{request.TranscriptionId}. Azure Cognitive Services is still progressing request");
-                    return Ok(request.TranscriptionId); 
+                    default:
+                        _logger.LogInformation($"{request.TranscriptionId}. Transcription Failed for an unexpected reason. Added to Failed Queue for review");
+                        var failedEvent = await UpdateStateRepository(TraduireTranscriptionStatus.Failed, code, response.Self);
+                        await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionFailedTopicName, failedEvent, cancellationToken);
+                        break;
                 }
-                
-                if( code == HttpStatusCode.OK && response.Status == "Succeeded" ) {
-                                        
-                    state.Value.Status                  = TraduireTranscriptionStatus.Completed;
-                    state.Value.TranscriptionStatusUri  = response.Links.Files;
-                    await state.SaveAsync();
-
-                    eventdata.BlobUri = response.Links.Files;
-                    await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionCompletedTopicName, eventdata, cancellationToken );
-
-                    _logger.LogInformation($"{request.TranscriptionId}. Azure Cognitive Services has completed processing transcription");
-                    return Ok(request.TranscriptionId);    
-                }
-
-                state.Value.Status                  = TraduireTranscriptionStatus.Failed;
-                state.Value.StatusDetails           = code.ToString();
-                await state.SaveAsync();
-                await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionFailedTopicName, eventdata, cancellationToken );
-
-                _logger.LogInformation($"{request.TranscriptionId}. Event Failed. Added to deadletter queue");
-                return BadRequest(request.TranscriptionId);  
 
             }
-            catch( Exception ex )  
+            catch ( Exception ex )  
             {
-                //Add Compensating tranasaction to undo error
-                _logger.LogWarning($"Failed to process {request.BlobUri} - {ex.Message}"); 
+                _logger.LogWarning($"Nuts. Something really bad happened processing {request.BlobUri} - {ex.Message}"); 
             }
 
             return BadRequest(); 
         }
+
+        private async Task<TradiureTranscriptionRequest> UpdateStateRepository(TraduireTranscriptionStatus status, HttpStatusCode code, string uri)
+        {
+            state.Value.LastUpdateTime = DateTime.UtcNow;
+            state.Value.Status = status;
+            state.Value.StatusDetails = code.ToString();
+            state.Value.TranscriptionStatusUri = uri;
+            await state.SaveAsync();
+
+            return new TradiureTranscriptionRequest() {
+                TranscriptionId = state.Value.TranscriptionId,
+                BlobUri = uri
+            };
+        }
+
     }
 }

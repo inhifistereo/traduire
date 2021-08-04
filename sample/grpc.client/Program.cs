@@ -1,6 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+
 using Grpc.Net.Client;
 using Grpc.Core;
 using traduire.webapi;
@@ -11,8 +14,11 @@ namespace GrpcTraduireClient
     {
         static async Task Main(string[] args)
         {
-            var address = "https://api.bjdazure.tech";
-            var apikey = "";
+            var builder = new ConfigurationBuilder().AddCommandLine(args);
+            var config = builder.Build();
+            
+            var address = config["ApiServer"]; //"https://api.bjdazure.tech";
+            var apikey = config["ApiKey"];
 
             var credentials = CallCredentials.FromInterceptor((context, metadata) =>
             {
