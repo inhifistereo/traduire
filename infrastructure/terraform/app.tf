@@ -279,10 +279,17 @@ resource "azurerm_cognitive_account" "traduire_app" {
   sku_name            = "S0"
 }
 
-resource "azurerm_user_assigned_identity" "dapr_kv_reader" {
+resource "azurerm_user_assigned_identity" "dapr_reader" {
   resource_group_name = azurerm_resource_group.traduire_app.name
   location            = azurerm_resource_group.traduire_app.location
   name                = "${var.application_name}-dapr-reader"
+}
+
+resource "azurerm_role_assignment" "dapr_storage_data_reader" {
+  scope                     = azurerm_storage_account.traduire_app.id
+  role_definition_name      = "Storage Blob Data Reader" 
+  principal_id              = azurerm_user_assigned_identity.dapr_reader.principal_id
+  skip_service_principal_aad_check = true
 }
 
 resource "azurerm_key_vault" "traduire_app" {
@@ -303,7 +310,7 @@ resource "azurerm_key_vault" "traduire_app" {
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = azurerm_user_assigned_identity.dapr_kv_reader.principal_id 
+    object_id = azurerm_user_assigned_identity.dapr_reader.principal_id 
 
     secret_permissions = [
       "list",
