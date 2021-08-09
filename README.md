@@ -56,13 +56,18 @@ Keda | Autoscaler for saga components
 ## Validate 
 
 ### Web Application
+* Install [Playwright](https://playwright.dev)
+* cd testing
+* ./run-tests.sh traduire.bjd.tech #Or whatever your default Url from Azure Static Web Apps 
+
+_Manually_
 * Launch Browser
 * Navigate to the URI outputed by the deploy_ui.ps1
     * Azure Static Website supports custom domain names, if desired. 
 * Select and upload assets\recording.m4a
 * Click 'Check Status' to watch the transcription go through its stages 
 * Then the final result should be: \
-    ![UI](./assets/ui.png)
+    ![UI](./assets/ui.png)*
 
 ### gRPC API 
 * cd sample\grpc.client
