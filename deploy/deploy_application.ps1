@@ -15,7 +15,7 @@ param(
 
 . .\modules\traduire_functions.ps1
 
-Set-Variable -Name DAPR_VERSION         -Value "1.1.1"                           -Option Constant
+Set-Variable -Name DAPR_VERSION         -Value "1.3.0"                           -Option Constant
 Set-Variable -Name KEDA_VERSION         -Value "2.2.0"                           -Option Constant
 Set-Variable -Name CERT_MGR_VERSION     -Value "v1.2.0"                          -Option Constant
 Set-Variable -Name APP_RG_NAME          -Value ("{0}_app_rg" -f $AppName)        -Option Constant
@@ -87,9 +87,6 @@ Write-Log -Message "Deploying Dapr"
 helm repo add dapr https://dapr.github.io/helm-charts
 helm repo update
 helm upgrade -i dapr dapr/dapr --namespace dapr-system --create-namespace --version $DAPR_VERSION --set global.mtls.enabled=true --set global.logAsJson=true --set global.ha.enabled=true --wait
-
-#Due to https://github.com/dapr/dapr/issues/1621#
-#kubectl -n dapr-system rollout restart deployment dapr-sidecar-injector
 
 # Install Pod Identity 
 Write-Log -Message "Deploying Pod Identity"
