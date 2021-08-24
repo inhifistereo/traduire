@@ -6,7 +6,7 @@ This is an application to demotratres various Azure services. It will transcribe
 ## Languages
 * C# and dotnet 5 
 * PowerShell
-* Hashicorp Terrfaform 
+* Hashicorp Terraform 
 
 ## Components
 Component | Usage
