@@ -106,6 +106,12 @@ helm repo add kedacore https://kedacore.github.io/charts
 helm repo update
 helm upgrade -i keda kedacore/keda --namespace keda --create-namespace --version $KEDA_VERSION --set podIdentity.activeDirectory.identity=$KEDA_POD_BINDING
 
+## Install Kured 
+Write-Log -Message "Deploying Kured"
+helm repo add kured https://weaveworks.github.io/kured
+helm repo update
+helm upgrade -i kured kured/kured --namespace kured --create-namespace
+
 # Install App
 Write-Log -Message "Deploying Traduire"
 helm upgrade -i `
