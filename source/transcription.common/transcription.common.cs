@@ -21,7 +21,7 @@ namespace transcription.common
                     statusMessage = message,
                     lastUpdated = DateTime.UtcNow
                 }
-            ));
+            ), ContentType.ApplicationJson);
         }
     }
 }
