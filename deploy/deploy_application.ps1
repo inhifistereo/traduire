@@ -15,9 +15,9 @@ param(
 
 . .\modules\traduire_functions.ps1
 
-Set-Variable -Name DAPR_VERSION         -Value "1.3.0"                           -Option Constant
-Set-Variable -Name KEDA_VERSION         -Value "2.2.0"                           -Option Constant
-Set-Variable -Name CERT_MGR_VERSION     -Value "v1.2.0"                          -Option Constant
+Set-Variable -Name DAPR_VERSION         -Value "1.5.0"                           -Option Constant
+Set-Variable -Name KEDA_VERSION         -Value "2.3.0"                           -Option Constant
+Set-Variable -Name CERT_MGR_VERSION     -Value "v1.6.0"                          -Option Constant
 Set-Variable -Name APP_RG_NAME          -Value ("{0}_app_rg" -f $AppName)        -Option Constant
 Set-Variable -Name CORE_RG_NAME         -Value ("{0}_core_rg" -f $AppName)       -Option Constant
 Set-Variable -Name APP_K8S_NAME         -Value ("{0}-aks01" -f $AppName)         -Option Constant
