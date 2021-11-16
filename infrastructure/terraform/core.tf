@@ -150,3 +150,39 @@ resource "azurerm_private_dns_zone_virtual_network_link" "privatelink_servicebus
   resource_group_name       = azurerm_resource_group.traduire_core.name
   virtual_network_id        = azurerm_virtual_network.traduire_core.id
 }
+
+resource "azurerm_container_registry" "traduire_acr" {
+  name                     = var.acr_account_name
+  resource_group_name      = azurerm_resource_group.traduire_core.name
+  location                 = azurerm_resource_group.traduire_core.location
+  sku                      = "Premium"
+  admin_enabled            = false
+
+  network_rule_set {
+    default_action = "Deny"
+    ip_rule {
+      action              = "Allow"
+      ip_range            =  var.api_server_authorized_ip_ranges
+    }
+  }
+  
+}
+
+resource "azurerm_private_endpoint" "acr_account" {
+  name                      = "${var.acr_account_name}-ep"
+  resource_group_name       = azurerm_resource_group.traduire_core.name
+  location                  = azurerm_resource_group.traduire_core.location
+  subnet_id                 = azurerm_subnet.private-endpoints.id
+
+  private_service_connection {
+    name                           = "${var.acr_account_name}-ep"
+    private_connection_resource_id = azurerm_container_registry.traduire_acr.id
+    subresource_names              = [ "registry" ]
+    is_manual_connection           = false
+  }
+
+  private_dns_zone_group {
+    name                          = azurerm_private_dns_zone.privatelink_azurecr_io.name
+    private_dns_zone_ids          = [ azurerm_private_dns_zone.privatelink_azurecr_io.id ]
+  }
+}
