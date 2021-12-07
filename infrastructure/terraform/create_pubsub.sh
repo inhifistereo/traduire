@@ -4,7 +4,8 @@ export pubsub_name=$1
 export pubsub_rg_name=$2
 export pubsub_secret_name=$3
 export keyvault_name=$4
+export location=$5
 
-az webpubsub create -n ${pubsub_name} -g ${pubsub_rg_name} --sku Free_F1 -l eastus
+az webpubsub create -n ${pubsub_name} -g ${pubsub_rg_name} --sku Free_F1 -l ${location}
 key=`az webpubsub key show -n ${pubsub_name} -g ${pubsub_rg_name} -o tsv --query primaryConnectionString`
 az keyvault secret set --name ${pubsub_secret_name} --vault-name ${keyvault_name} --value ${key}
