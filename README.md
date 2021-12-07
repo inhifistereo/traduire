@@ -72,7 +72,7 @@ _Manually_
 ### gRPC API 
 * cd sample\grpc.client
 * dotnet build 
-* dontet run /ApiServer api.bjd.tech /ApiServer {{apikey}}
+* dontet run /ApiServer https://api.bjd.tech /ApiKey {{apikey}}
     * API Key is stored as a Secret in Kubernetes
 
 ## Backlog 
