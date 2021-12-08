@@ -43,7 +43,7 @@ variable "postgresql_user_password" {
 variable "postgresql_database_name" {
   description = "PostgreSQL Database Name"
   type        = string
-  default     = "Transcriptsdb"
+  default     = "transcriptsdb"
 }
 
 variable "acr_account_name" {
