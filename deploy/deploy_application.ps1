@@ -34,7 +34,7 @@ $root   = (Get-Item $PWD.Path).Parent.FullName
 $source = Join-Path -Path $root -ChildPath "source"
 
 #Start-Docker
-Start-Docker
+#Start-Docker
 
 #Connect to Azure and Log into ACR
 #Connect-ToAzure -SubscriptionName $SubscriptionName
