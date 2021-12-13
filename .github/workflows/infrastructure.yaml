@@ -25,7 +25,7 @@ jobs:
         shell: pwsh
         run: |
           cd infrastructure
-          .\create_infrastructure.ps1 -AppName ${{ secrets.APP_NAME }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }} -Region ${{ env.LOCATION }} -AdminUser ${{ secrets.ADMIN_USER }}
+          .\create_infrastructure.ps1 -AppName ${{ secrets.APP_NAME }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }} -Region ${{ env.LOCATION }} -AdminUser ${{ secrets.ADMIN_USER }} -AdminID ${{ secrets.ADMIN_OBJ_ID}}
 
   deploy_api:
     needs: create_infrastructure

@@ -9,7 +9,10 @@ param(
   [string] $region,
 
   [Parameter(Mandatory=$true)]
-  [string] $AdminUser
+  [string] $AdminUser,
+
+  [Parameter(Mandatory=$true)]
+  [string] $AdminID
 )
 
 $today = (Get-Date).ToString("yyyyMMdd")
@@ -18,8 +21,6 @@ az account set -s $SubscriptionName
 
 #Azure Environment 
 $tenantId = (az account show --query "tenantId" -o tsv)
-$objectId = (az ad user show --id $AdminUser --query "objectId" -o tsv)
-$objectUPN = (az ad user show --id $AdminUser --query "mail" -o tsv)
 
 #Terraform Variables
 $tfVarFileName = "variables.tfvars"
@@ -44,8 +45,8 @@ $configuration=@"
 application_name = "$appName"
 region = "$region"
 tenant_id = "$tenantId"
-admin_user_object_id = "$objectId"
-admin_user_name = "$objectUPN"
+admin_user_object_id = "$AdminID"
+admin_user_name = "$AdminUser"
 postgresql_name = "$postgresqlAccountName"
 acr_account_name = "$acrAccountName"
 ai_account_name = "$appInsightsName"
