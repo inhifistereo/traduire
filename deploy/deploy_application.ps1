@@ -38,6 +38,7 @@ $source = Join-Path -Path $root -ChildPath "source"
 
 #Connect to Azure and Log into ACR
 #Connect-ToAzure -SubscriptionName $SubscriptionName
+Add-AzureCliExtensions
 Connect-ToAzureContainerRepo -ACRName $APP_ACR_NAME 
 
 #Build Source
