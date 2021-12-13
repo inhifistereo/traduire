@@ -10,6 +10,7 @@ jobs:
         ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+        STORAGE_ACCESS_KEY: ${{ secrets.storage_access_key }}
         LOCATION: centralus
     steps:
       - uses: actions/checkout@v2
@@ -25,7 +26,16 @@ jobs:
         shell: pwsh
         run: |
           cd infrastructure
-          .\create_infrastructure.ps1 -AppName ${{ secrets.APP_NAME }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }} -Region ${{ env.LOCATION }} -AdminUser ${{ secrets.ADMIN_USER }} -AdminID ${{ secrets.ADMIN_OBJ_ID}}
+
+          $opts = @{
+            AppName           = ${{ secrets.APP_NAME }}
+            SubscriptionName  = ${{ secrets.ARM_SUBSCRIPTION_ID }}
+            Region            = ${{ env.LOCATION }}
+            AdminUser         = ${{ secrets.ADMIN_USER }}
+            AdminID           = ${{ secrets.ADMIN_OBJ_ID}} 
+            StorageAccountKey = ${{ secrets.STORAGE_ACCESS_KEY}}
+          }
+          .\create_infrastructure.ps1 @opts
 
   deploy_api:
     needs: create_infrastructure

@@ -12,7 +12,10 @@ param(
   [string] $AdminUser,
 
   [Parameter(Mandatory=$true)]
-  [string] $AdminID
+  [string] $AdminID,
+
+  [Parameter(Mandatory=$true)]
+  [string] $StorageAccountKey
 )
 
 $today = (Get-Date).ToString("yyyyMMdd")
@@ -63,7 +66,7 @@ api_server_authorized_ip_ranges = "$public_ip/32"
 Set-Content -Value $configuration -Path ./terraform/$tfVarFileName -Encoding ascii
 
 Set-Location ./terraform
-terraform init 
+terraform init -backend=true -backend-config="access_key=$StorageAccountKey" -backend-config="key=traduire.terraform.tfstate"
 terraform plan -out="$tfPlanFileName" -var-file="$tfVarFileName"
 terraform apply -auto-approve $tfPlanFileName
 
