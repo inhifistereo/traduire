@@ -26,23 +26,7 @@ jobs:
         shell: pwsh
         run: |
           cd infrastructure
-
-          $AppName           = ${{ secrets.APP_NAME }}
-          $SubscriptionName  = ${{ secrets.ARM_SUBSCRIPTION_ID }}
-          $Region            = ${{ env.LOCATION }}
-          $AdminUser         = ${{ secrets.ADMIN_USER }}
-          $AdminID           = ${{ secrets.ADMIN_OBJ_ID}} 
-          $StorageAccountKey = ${{ secrets.STORAGE_ACCESS_KEY}}
-
-          $opts = @{
-            AppName           = $AppName
-            SubscriptionName  = $SubscriptionName
-            Region            = $Region
-            AdminUser         = $AdminUser
-            AdminID           = $AdminID
-            StorageAccountKey = $StorageAccountKey
-          }
-          .\create_infrastructure.ps1 @opts
+          .\create_infrastructure.ps1 -AppName ${{ secrets.APP_NAME }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }} -Region ${{ env.LOCATION }} -AdminUser ${{ secrets.ADMIN_USER }} -AdminID ${{ secrets.ADMIN_OBJ_ID}} -StorageAccountKey ${{ secrets.STORAGE_ACCESS_KEY }}
 
   deploy_api:
     needs: create_infrastructure
