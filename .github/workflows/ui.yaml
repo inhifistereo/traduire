@@ -1,0 +1,22 @@
+name: Deploy Traduire UI Code to Azure 
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy_ui:
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}  
+
+      - name: Deploy UI
+        shell: pwsh
+        run: |
+          cd deploy
+          .\deploy_ui.ps1 -AppName ${{ secrets.APP_NAME }} -ApiUri ${{ secrets.API_URI }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }}
