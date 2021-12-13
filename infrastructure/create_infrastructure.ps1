@@ -6,7 +6,10 @@ param(
   [string] $SubscriptionName,
 
   [Parameter(Mandatory=$true)]
-  [string] $region
+  [string] $region,
+
+  [Parameter(Mandatory=$true)]
+  [string] $AdminUser
 )
 
 $today = (Get-Date).ToString("yyyyMMdd")
@@ -15,8 +18,8 @@ az account set -s $SubscriptionName
 
 #Azure Environment 
 $tenantId = (az account show --query "tenantId" -o tsv)
-$objectId = (az ad signed-in-user show --query "objectId" -o tsv)
-$objectUPN = (az ad signed-in-user show --query "mail" -o tsv)
+$objectId = (az ad user show --id $AdminUser --query "objectId" -o tsv)
+$objectUPN = (az ad user show --id $AdminUser --query "mail" -o tsv)
 
 #Terraform Variables
 $tfVarFileName = "variables.tfvars"
