@@ -1,6 +1,14 @@
 name: Deploy Traduire UI Code to Azure 
 on:
   workflow_dispatch:
+    app_name:
+      description: 'The name of the application to deploy'
+      required: true
+      default: 'trad8b43xz'
+    api_uri:
+      description: 'The uri of the api server'
+      required: true
+      default: 'api.bjd.demo'
 
 jobs:
   deploy_ui:
@@ -19,4 +27,4 @@ jobs:
         shell: pwsh
         run: |
           cd deploy
-          .\deploy_ui.ps1 -AppName ${{ secrets.APP_NAME }} -ApiUri ${{ secrets.API_URI }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          .\deploy_ui.ps1 -AppName ${{ github.event.inputs.app_name }} -ApiUri ${{ github.event.inputs.api_uri }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }}
