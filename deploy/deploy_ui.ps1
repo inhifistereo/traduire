@@ -24,6 +24,7 @@ Set-Location -Path $ui_source_dir
 
 #Write-Log -Message "Logging into Azure"
 #Connect-ToAzure -SubscriptionName $SubscriptionName
+Add-AzureCliExtensions
 
 Write-Log -Message "Getting API Gateway Secret"
 $kong_api_key = Get-KubernetesSecret -secret ("{0}-apikey" -f $AppName) -value "key"
