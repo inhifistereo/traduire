@@ -1,11 +1,15 @@
+provider "azurerm" {
+  features  {}
+}
 
 terraform {
   required_version = ">= 1.0"
   required_providers {
-    azurerm = "~> 2.73"
+    azurerm = "~> 2.89"
+  }
+  backend "azurerm" {
+    storage_account_name = "bjdterraform001"
+    container_name       = "plans"
   }
 }
 
-provider "azurerm" {
-  features  {}
-}
