@@ -22,8 +22,8 @@ Set-Variable -Name ui_source_dir    -Value (Join-Path -Path $root -ChildPath "so
 
 Set-Location -Path $ui_source_dir
 
-Write-Log -Message "Logging into Azure"
-Connect-ToAzure -SubscriptionName $SubscriptionName
+#Write-Log -Message "Logging into Azure"
+#Connect-ToAzure -SubscriptionName $SubscriptionName
 
 Write-Log -Message "Getting API Gateway Secret"
 $kong_api_key = Get-KubernetesSecret -secret ("{0}-apikey" -f $AppName) -value "key"
