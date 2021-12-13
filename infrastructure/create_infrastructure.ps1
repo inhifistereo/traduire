@@ -11,7 +11,6 @@ param(
 
 $today = (Get-Date).ToString("yyyyMMdd")
 
-az login
 az account set -s $SubscriptionName
 
 #Azure Environment 
@@ -32,13 +31,11 @@ $aks = "{0}-aks01" -f $appName
 $mp3StorageAccountName = "{0}files01" -f $appName
 $uiStorageAccountName = "{0}ui01" -f $appName
 $postgresqlAccountName = "{0}-psql01" -f $appName
-$postgresqlPassword = New-Password -Length 25 -ExcludedSpecialCharacters
 $serviceBusAccountName = "{0}-sb01" -f $appName
 $keyVaultAccountName = "{0}-kv01" -f $appName
 $pubsubAccountName = "{0}-pubsub01" -f $appName
 
 $public_ip = (Invoke-RestMethod http://checkip.amazonaws.com/).Trim()
-$ssh_pub_key= (Get-Content -Path ~/.ssh/id_rsa.pub)
 
 $configuration=@"
 application_name = "$appName"
@@ -47,7 +44,6 @@ tenant_id = "$tenantId"
 admin_user_object_id = "$objectId"
 admin_user_name = "$objectUPN"
 postgresql_name = "$postgresqlAccountName"
-postgresql_user_password = "$postgresqlPassword"
 acr_account_name = "$acrAccountName"
 ai_account_name = "$appInsightsName"
 loganalytics_account_name = "$logAnalyticsWorkspace"
@@ -58,7 +54,6 @@ pubsub_name = "$pubsubAccountName"
 mp3_storage_name = "$mp3StorageAccountName"
 service_bus_namespace_name = "$serviceBusAccountName"
 keyvault_name = "$keyVaultAccountName"
-ssh_public_key = "$ssh_pub_key"
 api_server_authorized_ip_ranges = "$public_ip/32"
 "@
 Set-Content -Value $configuration -Path ./terraform/$tfVarFileName -Encoding ascii

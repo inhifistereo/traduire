@@ -9,6 +9,16 @@ resource "azurerm_resource_group" "traduire_app" {
 
 data "azurerm_client_config" "current" {}
 
+resource "random_password" "postgresql_user_password" {
+  length           = 25
+  special          = false
+}
+
+resource "tls_private_key" "k8s" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
 resource "azurerm_postgresql_server" "traduire_app" {
   name                = var.postgresql_name
   location            = azurerm_resource_group.traduire_app.location
@@ -20,7 +30,7 @@ resource "azurerm_postgresql_server" "traduire_app" {
   auto_grow_enabled                 = true
   
   administrator_login               = var.postgresql_user_name
-  administrator_login_password      = var.postgresql_user_password
+  administrator_login_password      = random_password.postgresql_user_password.result
   version                           = "11"
   
   public_network_access_enabled     = false
@@ -139,7 +149,7 @@ resource "azurerm_kubernetes_cluster" "traduire_app" {
     admin_username          = "manager"
 
     ssh_key {
-        key_data            = var.ssh_public_key
+        key_data            = tls_private_key.k8s.public_key_openssh
     }
   }
 

@@ -35,11 +35,6 @@ variable "postgresql_user_name" {
   default     = "manager"
 }
 
-variable "postgresql_user_password" {
-  description = "Azure PostgreSQL User Password"
-  type        = string
-}
-
 variable "postgresql_database_name" {
   description = "PostgreSQL Database Name"
   type        = string
@@ -88,11 +83,6 @@ variable "mp3_storage_name" {
 
 variable "keyvault_name" {
   description = "Azure Key Vault"
-  type        = string
-}
-
-variable "ssh_public_key" {
-  description = "SSH Public Key"
   type        = string
 }
 
