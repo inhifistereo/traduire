@@ -15,7 +15,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Build
+      - name: Deploy API
         shell: pwsh
         run: |
           cd deploy
@@ -35,7 +35,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}  
 
-      - name: Build
+      - name: Deploy UI
         shell: pwsh
         run: |
           cd deploy
