@@ -1,0 +1,42 @@
+name: Deploy Traduire Application Code to Azure 
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy_api:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Build
+        shell: pwsh
+        run: |
+          cd deploy
+          .\update_firewall.ps1 -AppName ${{ secrets.APP_NAME }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          .\deploy_application.ps1 -AppName ${{ secrets.APP_NAME }} -Uri ${{ secrets.API_URI }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+  deploy_ui:
+    needs: deploy_api
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}  
+
+      - name: Build
+        shell: pwsh
+        run: |
+          cd deploy
+          .\deploy_ui.ps1 -AppName ${{ secrets.APP_NAME }} -ApiUri ${{ secrets.API_URI }}
