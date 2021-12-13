@@ -1,18 +1,11 @@
 name: Create and Deploy Traduire to Azure 
 on:
   workflow_dispatch:
-    inputs:
-      tags:
-        description: 'Create and Deploy Traduire to Azure'
 
 jobs:
   create_infrastructure:
     runs-on: ubuntu-latest
     env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
         LOCATION: centralus
     steps:
       - uses: actions/checkout@v2
