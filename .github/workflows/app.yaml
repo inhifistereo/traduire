@@ -30,22 +30,3 @@ jobs:
           cd deploy
           .\update_firewall.ps1 -AppName ${{ github.event.inputs.app_name }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }}
           .\deploy_application.ps1 -AppName ${{ github.event.inputs.app_name }} -Uri ${{ github.event.inputs.api_uri }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }}
-
-  deploy_ui:
-    needs: deploy_api
-    runs-on: ubuntu-latest
-    steps: 
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}  
-
-      - name: Deploy UI
-        shell: pwsh
-        run: |
-          cd deploy
-          .\deploy_ui.ps1 -AppName ${{ github.event.inputs.app_name }} -ApiUri ${{ github.event.inputs.api_uri }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }}
