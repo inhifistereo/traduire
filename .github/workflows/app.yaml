@@ -10,7 +10,12 @@ on:
         description: 'The uri of the api server'
         required: true
         default: 'api.bjd.demo'
-
+      upgrade:
+        required: true
+        type: boolean
+        description: 'Upgrade the application'
+        default: "false"
+        
 jobs:
   deploy_api:
     runs-on: ubuntu-latest
@@ -24,9 +29,18 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Deploy API
+      - name: Deploy API Full
+        if: github.event.inputs.upgrade == 'false'
         shell: pwsh
         run: |
           cd deploy
           .\update_firewall.ps1 -AppName ${{ github.event.inputs.app_name }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }}
           .\deploy_application.ps1 -AppName ${{ github.event.inputs.app_name }} -Uri ${{ github.event.inputs.api_uri }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }}
+
+      - name: Upgrade API 
+        if: github.event.inputs.upgrade == 'true'
+        shell: pwsh
+        run: |
+          cd deploy
+          .\update_firewall.ps1 -AppName ${{ github.event.inputs.app_name }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          .\deploy_application.ps1 -AppName ${{ github.event.inputs.app_name }} -Uri ${{ github.event.inputs.api_uri }} -SubscriptionName ${{ secrets.ARM_SUBSCRIPTION_ID }} -Upgrade
