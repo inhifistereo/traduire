@@ -54,7 +54,7 @@ namespace transcription.Controllers
                     case HttpStatusCode.Created:
                         _logger.LogInformation($"{request.TranscriptionId}. Event was successfullly publish to Azure Cognitive Services");
                         var createdEvent = await UpdateStateRepository(TraduireTranscriptionStatus.SentToCognitiveServices, code, response.Self);
-                        await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionPendingTopicName, createdEvent, cancellationToken );
+                        await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionProcessingTopicName, createdEvent, cancellationToken );
                         
                         return Ok(request.TranscriptionId); 
                     
