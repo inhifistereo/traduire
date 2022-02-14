@@ -45,9 +45,8 @@ Connect-ToAzureContainerRepo -ACRName $APP_ACR_NAME
 $commit_version = Get-GitCommitVersion
 Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/api:${commit_version}" -DockerFile "$source/dockerfile.api" -SourcePath $source
 Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onstarted.handler:${commit_version}" -DockerFile "$source/dockerfile.onstarted" -SourcePath $source
-Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onpending.handler:${commit_version}" -DockerFile "$source/dockerfile.onpending" -SourcePath $source
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onprocessing.handler:${commit_version}" -DockerFile "$source/dockerfile.onprocessing" -SourcePath $source
 Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/oncompletion.handler:${commit_version}" -DockerFile "$source/dockerfile.oncompletion" -SourcePath $source
-Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onsleep.handler:${commit_version}" -DockerFile "$source/dockerfile.onsleep" -SourcePath $source
 
 if($Upgrade) {
     Write-Log -Message "Upgrading Traduire to ${commit_version}"

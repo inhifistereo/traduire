@@ -10,7 +10,7 @@ using Azure.Messaging.WebPubSub;
 using transcription.models;
 using transcription.common.cognitiveservices;
 
-namespace transcription.sleep
+namespace transcription.processing
 {
     public class Startup
     {
@@ -33,6 +33,11 @@ namespace transcription.sleep
             });
 
             services.AddControllers();
+
+            var region = Environment.GetEnvironmentVariable("AZURE_COGS_REGION");
+            var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecretName], region );
+            services.AddSingleton<AzureCognitiveServicesClient>(cogs);
+
             services.AddAzureClients(builder =>
             {
                 builder.AddWebPubSubServiceClient(Configuration[Components.PubSubSecretName], Components.PubSubHubName);

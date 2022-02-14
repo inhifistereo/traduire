@@ -17,7 +17,7 @@ using transcription.common.cognitiveservices;
 namespace transcription.Controllers
 { 
     [ApiController]
-    public class TranslationOnPending : ControllerBase
+    public class TranslationOnProcessing : ControllerBase
     {   
         private StateEntry<TraduireTranscription> state;
         private readonly TraduireNotificationService _serviceClient;
@@ -26,7 +26,7 @@ namespace transcription.Controllers
         private readonly AzureCognitiveServicesClient _cogsClient; 
         private readonly ILogger _logger;
                 
-        public TranslationOnPending(ILogger<TranslationOnPending> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient, WebPubSubServiceClient ServiceClient)
+        public TranslationOnProcessing(ILogger<TranslationOnProcessing> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient, WebPubSubServiceClient ServiceClient)
         {
             _client = Client;
             _logger = logger;
@@ -35,7 +35,7 @@ namespace transcription.Controllers
             _serviceClient = new TraduireNotificationService(ServiceClient);
         }
 
-        [Topic(Components.PubSubName, Topics.TranscriptionPendingTopicName)]
+        [Topic(Components.PubSubName, Topics.TranscriptiOnProcessingTopicName)]
         [HttpPost("status")]
         public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request,  CancellationToken cancellationToken)
         {
