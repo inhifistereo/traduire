@@ -38,15 +38,34 @@ namespace transcription.actors {
             _serviceClient = new TraduireNotificationService(ServiceClient);
         }
 
+        public Task SubmitAsync(string uri)
+        {
+            return Task.CompletedTask;
+
+            /*
+            await StateManager.SetStateAsync(OrderDetailsStateName, orderState);
+            await StateManager.SetStateAsync(OrderStatusStateName, OrderStatus.Submitted);
+
+            await RegisterReminderAsync(
+                GracePeriodElapsedReminder,
+                null,
+                TimeSpan.FromSeconds(_settings.Value.GracePeriodTime),
+                TimeSpan.FromMilliseconds(-1));
+
+            await _eventBus.PublishAsync(new OrderStatusChangedToSubmittedIntegrationEvent(
+                OrderId,
+                OrderStatus.Submitted.Name,
+                buyerId,
+                buyerEmail));
+            */
+        }
+
         public Task CheckTranscriptionStatus() 
         {
             return Task.CompletedTask;
         }
+
         public Task UnRegisterReoccuring(string uri)
-        {
-            return Task.CompletedTask;
-        }
-        public Task RegisterReoccuring(string uri)
         {
             return Task.CompletedTask;
         }

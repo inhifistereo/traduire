@@ -48,6 +48,12 @@ namespace transcription.Controllers
                 state.Value ??= new TraduireTranscription();
 
                 //Create Virtual Actor
+                /*var orderingProcess = GetOrderingProcessActor(integrationEvent.RequestId);
+
+                await orderingProcess.SubmitAsync(
+                    integrationEvent.UserId, integrationEvent.UserEmail, integrationEvent.Street, integrationEvent.City,
+                    integrationEvent.State, integrationEvent.Country, integrationEvent.Basket);*/
+
                 //Register Reminder
 
             }

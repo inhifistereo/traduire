@@ -5,7 +5,6 @@ namespace transcription.actors {
     public interface ITranscriptionActor : IActor
     {
         Task CheckTranscriptionStatus();
-        Task UnRegisterReoccuring(string uri);
-        Task RegisterReoccuring(string uri);
+        Task SubmitAsync(string uri);
     }
 }
