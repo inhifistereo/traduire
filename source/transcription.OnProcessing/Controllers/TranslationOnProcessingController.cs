@@ -6,11 +6,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Dapr;
+using Dapr.Actors;
 using Dapr.Client;
 using Azure.Messaging.WebPubSub;
 using Azure.Core;
 
 using transcription.models;
+using transcription.actors;
 using transcription.common;
 using transcription.common.cognitiveservices;
 
@@ -35,7 +37,7 @@ namespace transcription.Controllers
             _serviceClient = new TraduireNotificationService(ServiceClient);
         }
 
-        [Topic(Components.PubSubName, Topics.TranscriptiOnProcessingTopicName)]
+        [Topic(Components.PubSubName, Topics.TranscriptionProcessingTopicName)]
         [HttpPost("status")]
         public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request,  CancellationToken cancellationToken)
         {
@@ -45,31 +47,8 @@ namespace transcription.Controllers
                 state = await _client.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, request.TranscriptionId.ToString());
                 state.Value ??= new TraduireTranscription();
 
-                (Transcription response, HttpStatusCode code) = await _cogsClient.CheckTranscriptionRequestAsync(new Uri(request.BlobUri));
-
-                await _serviceClient.PublishNotification(request.TranscriptionId.ToString(), response.Status);
-
-                switch(code)
-                {
-                    case HttpStatusCode.OK when response.Status == "Succeeded":
-                        _logger.LogInformation($"{request.TranscriptionId}. Azure Cognitive Services has completed processing transcription");
-                        var completionEvent = await UpdateStateRepository(TraduireTranscriptionStatus.Completed, code, response.Links.Files); 
-                        await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionCompletedTopicName, completionEvent, cancellationToken);  
-
-                       return Ok(request.TranscriptionId);
-
-                    case HttpStatusCode.OK:
-                        _logger.LogInformation($"{request.TranscriptionId}. Azure Cognitive Services is still progressing request");
-                        var pendingEvent = await UpdateStateRepository(TraduireTranscriptionStatus.Pending, code, response.Self );
-                        await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionSleepTopicName, pendingEvent, cancellationToken);
-                        return Ok(request.TranscriptionId);
-
-                    default:
-                        _logger.LogInformation($"{request.TranscriptionId}. Transcription Failed for an unexpected reason. Added to Failed Queue for review");
-                        var failedEvent = await UpdateStateRepository(TraduireTranscriptionStatus.Failed, code, response.Self);
-                        await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionFailedTopicName, failedEvent, cancellationToken);
-                        break;
-                }
+                //Create Virtual Actor
+                //Register Reminder
 
             }
             catch ( Exception ex )  

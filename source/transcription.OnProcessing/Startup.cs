@@ -8,6 +8,7 @@ using Microsoft.Extensions.Azure;
 using Azure.Messaging.WebPubSub; 
 
 using transcription.models;
+using transcription.actors;
 using transcription.common.cognitiveservices;
 
 namespace transcription.processing
@@ -32,11 +33,17 @@ namespace transcription.processing
                     });
             });
 
+
             services.AddControllers();
 
             var region = Environment.GetEnvironmentVariable("AZURE_COGS_REGION");
             var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecretName], region );
             services.AddSingleton<AzureCognitiveServicesClient>(cogs);
+
+            services.AddActors(options =>
+            {
+                options.Actors.RegisterActor<TranscriptionActor>();
+            });
 
             services.AddAzureClients(builder =>
             {
@@ -44,7 +51,6 @@ namespace transcription.processing
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
@@ -60,6 +66,7 @@ namespace transcription.processing
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapSubscribeHandler();
+                endpoints.MapActorsHandlers();
                 endpoints.MapControllers();
             });
         }
