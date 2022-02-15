@@ -34,8 +34,7 @@ namespace transcription.Controllers
             try
             {
                 _logger.LogInformation($"{request.TranscriptionId}. {request.BlobUri} was successfullly received by Dapr PubSub");
-
-                _logger.LogInformation($"{request.TranscriptionId}. Invoking a Transcription Actor to handle saga");
+                _logger.LogInformation($"{request.TranscriptionId}. Instantiating a Transcription Actor to handle saga");
                 var transcriptionActor = this.GetTranscriptionActor(request.TranscriptionId);
                 await transcriptionActor.SubmitAsync(request.TranscriptionId.ToString(), request.BlobUri);
 
