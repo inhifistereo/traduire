@@ -1,55 +1,54 @@
 using System; 
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Dapr;
+using Dapr.Actors;
+using Dapr.Actors.Client;
 using Dapr.Client;
 using Azure.Messaging.WebPubSub;
-using Azure.Core;
 
 using transcription.models;
+using transcription.actors;
 using transcription.common;
 using transcription.common.cognitiveservices;
 
 namespace transcription.Controllers
 { 
     [ApiController]
-    public class TranslationOnSleep : ControllerBase
+    public class TranslationOnProcessing : ControllerBase
     {   
         private readonly TraduireNotificationService _serviceClient;
         private readonly IConfiguration _configuration;
         private readonly DaprClient _client;
+        private readonly AzureCognitiveServicesClient _cogsClient; 
         private readonly ILogger _logger;
-
-        private int _sleepTimeInSeconds; 
                 
-        public TranslationOnSleep(ILogger<TranslationOnSleep> logger, IConfiguration configuration, DaprClient Client,  WebPubSubServiceClient ServiceClient)
+        public TranslationOnProcessing(ILogger<TranslationOnProcessing> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient, WebPubSubServiceClient ServiceClient)
         {
             _client = Client;
             _logger = logger;
             _configuration = configuration;
+            _cogsClient = CogsClient;
             _serviceClient = new TraduireNotificationService(ServiceClient);
-
-            if(! int.TryParse(_configuration["TRADUIRE_SLEEP_TIME"], out _sleepTimeInSeconds)) {
-                _sleepTimeInSeconds = 15; 
-            }
         }
 
-        [Topic(Components.PubSubName, Topics.TranscriptionSleepTopicName)]
-        [HttpPost("sleep")]
+        [Topic(Components.PubSubName, Topics.TranscriptionProcessingTopicName)]
+        [HttpPost("status")]
         public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request,  CancellationToken cancellationToken)
         {
-            
             try
             {
                 _logger.LogInformation($"{request.TranscriptionId}. {request.BlobUri} was successfullly received by Dapr PubSub");
-                //await _serviceClient.PublishNotification(request.TranscriptionId.ToString(), $"Sleeping for {sleepTimeInSeconds} s");
-                await Task.Delay(new TimeSpan(0, 0, _sleepTimeInSeconds));
-                await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionPendingTopicName, request, cancellationToken);                      
-                return Ok(request.TranscriptionId);
+
+                _logger.LogInformation($"{request.TranscriptionId}. Invoking a Transcription Actor to handle saga");
+                var transcriptionActor = this.GetTranscriptionActor(request.TranscriptionId);
+                await transcriptionActor.SubmitAsync(request.TranscriptionId.ToString(), request.BlobUri);
+
+                return Ok(); 
+
             }
             catch ( Exception ex )  
             {
@@ -58,5 +57,12 @@ namespace transcription.Controllers
 
             return BadRequest(); 
         }
+
+        private ITranscriptionActor GetTranscriptionActor(Guid transcriptId)
+        {
+            var actorId = new ActorId(transcriptId.ToString());
+            return ActorProxy.Create<ITranscriptionActor>(actorId, nameof(TranscriptionActor));
+        }
+
     }
 }
