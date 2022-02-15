@@ -1,5 +1,4 @@
 using System; 
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -7,9 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc;
 using Dapr;
 using Dapr.Actors;
+using Dapr.Actors.Client;
 using Dapr.Client;
 using Azure.Messaging.WebPubSub;
-using Azure.Core;
 
 using transcription.models;
 using transcription.actors;
@@ -21,7 +20,6 @@ namespace transcription.Controllers
     [ApiController]
     public class TranslationOnProcessing : ControllerBase
     {   
-        private StateEntry<TraduireTranscription> state;
         private readonly TraduireNotificationService _serviceClient;
         private readonly IConfiguration _configuration;
         private readonly DaprClient _client;
@@ -44,17 +42,12 @@ namespace transcription.Controllers
             try
             {
                 _logger.LogInformation($"{request.TranscriptionId}. {request.BlobUri} was successfullly received by Dapr PubSub");
-                state = await _client.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, request.TranscriptionId.ToString());
-                state.Value ??= new TraduireTranscription();
 
-                //Create Virtual Actor
-                /*var orderingProcess = GetOrderingProcessActor(integrationEvent.RequestId);
+                _logger.LogInformation($"{request.TranscriptionId}. Invoking a Transcription Actor to handle saga");
+                var transcriptionActor = this.GetTranscriptionActor(request.TranscriptionId);
+                await transcriptionActor.SubmitAsync(request.TranscriptionId.ToString(), request.BlobUri);
 
-                await orderingProcess.SubmitAsync(
-                    integrationEvent.UserId, integrationEvent.UserEmail, integrationEvent.Street, integrationEvent.City,
-                    integrationEvent.State, integrationEvent.Country, integrationEvent.Basket);*/
-
-                //Register Reminder
+                return Ok(); 
 
             }
             catch ( Exception ex )  
@@ -65,18 +58,10 @@ namespace transcription.Controllers
             return BadRequest(); 
         }
 
-        private async Task<TradiureTranscriptionRequest> UpdateStateRepository(TraduireTranscriptionStatus status, HttpStatusCode code, string uri)
+        private ITranscriptionActor GetTranscriptionActor(Guid transcriptId)
         {
-            state.Value.LastUpdateTime = DateTime.UtcNow;
-            state.Value.Status = status;
-            state.Value.StatusDetails = code.ToString();
-            state.Value.TranscriptionStatusUri = uri;
-            await state.SaveAsync();
-
-            return new TradiureTranscriptionRequest() {
-                TranscriptionId = state.Value.TranscriptionId,
-                BlobUri = uri
-            };
+            var actorId = new ActorId(transcriptId.ToString());
+            return ActorProxy.Create<ITranscriptionActor>(actorId, nameof(TranscriptionActor));
         }
 
     }
