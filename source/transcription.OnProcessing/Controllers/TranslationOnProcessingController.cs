@@ -20,19 +20,11 @@ namespace transcription.Controllers
     [ApiController]
     public class TranslationOnProcessing : ControllerBase
     {   
-        private readonly TraduireNotificationService _serviceClient;
-        private readonly IConfiguration _configuration;
-        private readonly DaprClient _client;
-        private readonly AzureCognitiveServicesClient _cogsClient; 
         private readonly ILogger _logger;
                 
-        public TranslationOnProcessing(ILogger<TranslationOnProcessing> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient, WebPubSubServiceClient ServiceClient)
+        public TranslationOnProcessing(ILogger<TranslationOnProcessing> logger)
         {
-            _client = Client;
             _logger = logger;
-            _configuration = configuration;
-            _cogsClient = CogsClient;
-            _serviceClient = new TraduireNotificationService(ServiceClient);
         }
 
         [Topic(Components.PubSubName, Topics.TranscriptionProcessingTopicName)]
