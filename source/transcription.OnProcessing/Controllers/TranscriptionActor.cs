@@ -58,7 +58,7 @@ namespace transcription.actors {
 
         }
 
-        private async Task<(Transcription response, HttpStatusCode code)> CheckCogntiveServicesTranscriptionStatusAsync() 
+        private async Task<(Transcription response, HttpStatusCode code)> CheckCognitiveServicesTranscriptionStatusAsync() 
         {
             (Transcription response, HttpStatusCode code) = await _cogsClient.CheckTranscriptionRequestAsync(new Uri(transcriptionRequest.BlobUri));
             await _serviceClient.PublishNotification(transcriptionRequest.TranscriptionId.ToString(), response.Status);
@@ -113,7 +113,7 @@ namespace transcription.actors {
 
         private async Task CheckProcessingStatus()
         {
-            (Transcription response, HttpStatusCode code) = await CheckCogntiveServicesTranscriptionStatusAsync();
+            (Transcription response, HttpStatusCode code) = await CheckCognitiveServicesTranscriptionStatusAsync();
 
             switch(code)
             {
