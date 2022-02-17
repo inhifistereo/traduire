@@ -11,7 +11,7 @@ resource "azurerm_resource_group" "traduire_ui" {
 resource "azurerm_static_site" "traduire_ui" {
   name                  = var.ui_storage_name
   resource_group_name   = azurerm_resource_group.traduire_ui.name
-  location              = "centralus"
+  location              = azurerm_resource_group.traduire_ui.name
 }
 
 resource "azurerm_web_pubsub" "traduire_app" {
