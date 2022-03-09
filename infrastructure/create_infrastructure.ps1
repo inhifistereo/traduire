@@ -6,18 +6,24 @@ param(
   [string] $SubscriptionName,
 
   [Parameter(Mandatory=$true)]
-  [string] $region
+  [string] $region,
+
+  [Parameter(Mandatory=$true)]
+  [string] $AdminUser,
+
+  [Parameter(Mandatory=$true)]
+  [string] $AdminID,
+
+  [Parameter(Mandatory=$true)]
+  [string] $StorageAccountKey
 )
 
 $today = (Get-Date).ToString("yyyyMMdd")
 
-az login
 az account set -s $SubscriptionName
 
 #Azure Environment 
 $tenantId = (az account show --query "tenantId" -o tsv)
-$objectId = (az ad signed-in-user show --query "objectId" -o tsv)
-$objectUPN = (az ad signed-in-user show --query "mail" -o tsv)
 
 #Terraform Variables
 $tfVarFileName = "variables.tfvars"
@@ -32,22 +38,19 @@ $aks = "{0}-aks01" -f $appName
 $mp3StorageAccountName = "{0}files01" -f $appName
 $uiStorageAccountName = "{0}ui01" -f $appName
 $postgresqlAccountName = "{0}-psql01" -f $appName
-$postgresqlPassword = New-Password -Length 25 -ExcludedSpecialCharacters
 $serviceBusAccountName = "{0}-sb01" -f $appName
 $keyVaultAccountName = "{0}-kv01" -f $appName
 $pubsubAccountName = "{0}-pubsub01" -f $appName
 
 $public_ip = (Invoke-RestMethod http://checkip.amazonaws.com/).Trim()
-$ssh_pub_key= (Get-Content -Path ~/.ssh/id_rsa.pub)
 
 $configuration=@"
 application_name = "$appName"
 region = "$region"
 tenant_id = "$tenantId"
-admin_user_object_id = "$objectId"
-admin_user_name = "$objectUPN"
+admin_user_object_id = "$AdminID"
+admin_user_name = "$AdminUser"
 postgresql_name = "$postgresqlAccountName"
-postgresql_user_password = "$postgresqlPassword"
 acr_account_name = "$acrAccountName"
 ai_account_name = "$appInsightsName"
 loganalytics_account_name = "$logAnalyticsWorkspace"
@@ -58,13 +61,12 @@ pubsub_name = "$pubsubAccountName"
 mp3_storage_name = "$mp3StorageAccountName"
 service_bus_namespace_name = "$serviceBusAccountName"
 keyvault_name = "$keyVaultAccountName"
-ssh_public_key = "$ssh_pub_key"
 api_server_authorized_ip_ranges = "$public_ip/32"
 "@
 Set-Content -Value $configuration -Path ./terraform/$tfVarFileName -Encoding ascii
 
 Set-Location ./terraform
-terraform init 
+terraform init -backend=true -backend-config="access_key=$StorageAccountKey" -backend-config="key=traduire.terraform.tfstate"
 terraform plan -out="$tfPlanFileName" -var-file="$tfVarFileName"
 terraform apply -auto-approve $tfPlanFileName
 

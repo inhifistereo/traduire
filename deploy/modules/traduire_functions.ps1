@@ -9,6 +9,22 @@ function ConvertFrom-Base64String($Text)
     return [Text.Encoding]::ASCII.GetString([convert]::FromBase64String($Text))
 }
 
+function ConvertTo-Base64EncodedString {
+    param( 
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [string] $Text 
+    )
+    begin {
+        $encodedString = [string]::Empty
+    }
+    process {
+        $encodedString = [convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($Text))
+    }
+    end{
+        return $encodedString
+    }
+}
+
 function Get-KubernetesSecret
 {
     param(
@@ -49,6 +65,12 @@ function Copy-BuildToStorage
     $source = ("{0}/*" -f $LocalPath) | Add-Quotes 
     az storage copy --source $source --account-name $StorageAccount --destination-container $Container --recursive --put-md5
 
+}
+
+function Add-AzureCliExtensions
+{
+    az extension add --name application-insights -y
+    az extension add --name aks-preview -y
 }
 
 function Get-AzStaticWebAppSecret

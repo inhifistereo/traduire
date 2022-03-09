@@ -15,9 +15,9 @@ param(
 
 . .\modules\traduire_functions.ps1
 
-Set-Variable -Name DAPR_VERSION         -Value "1.1.1"                           -Option Constant
-Set-Variable -Name KEDA_VERSION         -Value "2.2.0"                           -Option Constant
-Set-Variable -Name CERT_MGR_VERSION     -Value "v1.2.0"                          -Option Constant
+Set-Variable -Name DAPR_VERSION         -Value "1.6.0"                           -Option Constant
+Set-Variable -Name KEDA_VERSION         -Value "2.6.1"                           -Option Constant
+Set-Variable -Name CERT_MGR_VERSION     -Value "v1.6.1"                          -Option Constant
 Set-Variable -Name APP_RG_NAME          -Value ("{0}_app_rg" -f $AppName)        -Option Constant
 Set-Variable -Name CORE_RG_NAME         -Value ("{0}_core_rg" -f $AppName)       -Option Constant
 Set-Variable -Name APP_K8S_NAME         -Value ("{0}-aks01" -f $AppName)         -Option Constant
@@ -34,19 +34,19 @@ $root   = (Get-Item $PWD.Path).Parent.FullName
 $source = Join-Path -Path $root -ChildPath "source"
 
 #Start-Docker
-Start-Docker
+#Start-Docker
 
 #Connect to Azure and Log into ACR
-Connect-ToAzure -SubscriptionName $SubscriptionName
+#Connect-ToAzure -SubscriptionName $SubscriptionName
+Add-AzureCliExtensions
 Connect-ToAzureContainerRepo -ACRName $APP_ACR_NAME 
 
 #Build Source
 $commit_version = Get-GitCommitVersion
 Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/api:${commit_version}" -DockerFile "$source/dockerfile.api" -SourcePath $source
 Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onstarted.handler:${commit_version}" -DockerFile "$source/dockerfile.onstarted" -SourcePath $source
-Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onpending.handler:${commit_version}" -DockerFile "$source/dockerfile.onpending" -SourcePath $source
+Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onprocessing.handler:${commit_version}" -DockerFile "$source/dockerfile.onprocessing" -SourcePath $source
 Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/oncompletion.handler:${commit_version}" -DockerFile "$source/dockerfile.oncompletion" -SourcePath $source
-Build-DockerContainers -ContainerName "${APP_ACR_NAME}.azurecr.io/traduire/onsleep.handler:${commit_version}" -DockerFile "$source/dockerfile.onsleep" -SourcePath $source
 
 if($Upgrade) {
     Write-Log -Message "Upgrading Traduire to ${commit_version}"
@@ -88,9 +88,6 @@ helm repo add dapr https://dapr.github.io/helm-charts
 helm repo update
 helm upgrade -i dapr dapr/dapr --namespace dapr-system --create-namespace --version $DAPR_VERSION --set global.mtls.enabled=true --set global.logAsJson=true --set global.ha.enabled=true --wait
 
-#Due to https://github.com/dapr/dapr/issues/1621#
-#kubectl -n dapr-system rollout restart deployment dapr-sidecar-injector
-
 # Install Pod Identity 
 Write-Log -Message "Deploying Pod Identity"
 helm repo add aad-pod-identity https://raw.githubusercontent.com/Azure/aad-pod-identity/master/charts
@@ -108,6 +105,12 @@ Write-Log -Message "Deploying Keda"
 helm repo add kedacore https://kedacore.github.io/charts
 helm repo update
 helm upgrade -i keda kedacore/keda --namespace keda --create-namespace --version $KEDA_VERSION --set podIdentity.activeDirectory.identity=$KEDA_POD_BINDING
+
+## Install Kured 
+Write-Log -Message "Deploying Kured"
+helm repo add kured https://weaveworks.github.io/kured
+helm repo update
+helm upgrade -i kured kured/kured --namespace kured --create-namespace
 
 # Install App
 Write-Log -Message "Deploying Traduire"

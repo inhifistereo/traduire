@@ -49,6 +49,9 @@ namespace transcription.Controllers
             catch( Exception ex ) 
             {
                 _logger.LogWarning($"Failed to create {file.FileName} - {ex.Message}");    
+
+                if (ex.InnerException != null)
+                    _logger.LogWarning("Inner exception: {0}", ex.InnerException);
             }
 
             return BadRequest();

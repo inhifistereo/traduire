@@ -14,7 +14,7 @@ Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks01" -f $AppName)         -Op
 Set-Variable -Name APP_ACR_NAME     -Value ("{0}acr01" -f $AppName)          -Option Constant
 
 #Connect to Azure and Log into ACR
-Connect-ToAzure -SubscriptionName $SubscriptionName
+#Connect-ToAzure -SubscriptionName $SubscriptionName
 
 $public_ip = (Invoke-RestMethod http://checkip.amazonaws.com/).Trim()
 

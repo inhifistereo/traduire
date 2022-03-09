@@ -20,6 +20,8 @@ namespace GrpcTraduireClient
             var address = config["ApiServer"]; //"https://api.bjdazure.tech";
             var apikey = config["ApiKey"];
 
+            Console.WriteLine($"Connecting to {address}");
+
             var credentials = CallCredentials.FromInterceptor((context, metadata) =>
             {
                 metadata.Add("apikey", apikey);

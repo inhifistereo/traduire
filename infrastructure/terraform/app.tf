@@ -9,6 +9,16 @@ resource "azurerm_resource_group" "traduire_app" {
 
 data "azurerm_client_config" "current" {}
 
+resource "random_password" "postgresql_user_password" {
+  length           = 25
+  special          = false
+}
+
+resource "tls_private_key" "k8s" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
 resource "azurerm_postgresql_server" "traduire_app" {
   name                = var.postgresql_name
   location            = azurerm_resource_group.traduire_app.location
@@ -20,7 +30,7 @@ resource "azurerm_postgresql_server" "traduire_app" {
   auto_grow_enabled                 = true
   
   administrator_login               = var.postgresql_user_name
-  administrator_login_password      = var.postgresql_user_password
+  administrator_login_password      = random_password.postgresql_user_password.result
   version                           = "11"
   
   public_network_access_enabled     = false
@@ -98,14 +108,14 @@ resource "azurerm_storage_account" "traduire_app" {
   account_replication_type  = "LRS"
   account_kind              = "StorageV2"
   enable_https_traffic_only = true
-  allow_blob_public_access  = true
+  allow_blob_public_access  = false
   min_tls_version           = "TLS1_2"
 }
 
 resource "azurerm_storage_container" "mp3" {
   name                  = "mp3files"
   storage_account_name  = azurerm_storage_account.traduire_app.name
-  container_access_type = "blob"
+  container_access_type = "private"
 }
 
 resource "azurerm_private_endpoint" "storage_account" {
@@ -139,7 +149,7 @@ resource "azurerm_kubernetes_cluster" "traduire_app" {
     admin_username          = "manager"
 
     ssh_key {
-        key_data            = var.ssh_public_key
+        key_data            = tls_private_key.k8s.public_key_openssh
     }
   }
 
@@ -232,42 +242,6 @@ resource "azurerm_role_assignment" "vm_contributor_cluster" {
   role_definition_name      = "Virtual Machine Contributor" 
   principal_id              = azurerm_kubernetes_cluster.traduire_app.kubelet_identity.0.object_id
   skip_service_principal_aad_check = true
-}
-
-resource "azurerm_container_registry" "traduire_acr" {
-  name                     = var.acr_account_name
-  resource_group_name      = azurerm_resource_group.traduire_app.name
-  location                 = azurerm_resource_group.traduire_app.location
-  sku                      = "Premium"
-  admin_enabled            = false
-
-  network_rule_set {
-    default_action = "Deny"
-    ip_rule {
-      action              = "Allow"
-      ip_range            =  var.api_server_authorized_ip_ranges
-    }
-  }
-  
-}
-
-resource "azurerm_private_endpoint" "acr_account" {
-  name                      = "${var.acr_account_name}-ep"
-  resource_group_name       = azurerm_resource_group.traduire_app.name
-  location                  = azurerm_resource_group.traduire_app.location
-  subnet_id                 = azurerm_subnet.private-endpoints.id
-
-  private_service_connection {
-    name                           = "${var.acr_account_name}-ep"
-    private_connection_resource_id = azurerm_container_registry.traduire_acr.id
-    subresource_names              = [ "registry" ]
-    is_manual_connection           = false
-  }
-
-  private_dns_zone_group {
-    name                          = azurerm_private_dns_zone.privatelink_azurecr_io.name
-    private_dns_zone_ids          = [ azurerm_private_dns_zone.privatelink_azurecr_io.id ]
-  }
 }
 
 resource "azurerm_cognitive_account" "traduire_app" {

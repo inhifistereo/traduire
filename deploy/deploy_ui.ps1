@@ -15,6 +15,8 @@ param(
 Set-Variable -Name APP_UI_NAME      -Value ("{0}ui01" -f $AppName)         -Option Constant
 Set-Variable -Name APP_UI_RG        -Value ("{0}_ui_rg" -f $AppName)       -Option Constant
 Set-Variable -Name APP_PUBSUB_NAME  -Value ("{0}-pubsub01" -f $AppName)    -Option Constant
+Set-Variable -Name APP_RG_NAME      -Value ("{0}_app_rg" -f $AppName)      -Option Constant
+Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks01" -f $AppName)       -Option Constant
 
 Set-Variable -Name cwd              -Value $PWD.Path
 Set-Variable -Name root             -Value (Get-Item $PWD.Path).Parent.FullName
@@ -22,8 +24,12 @@ Set-Variable -Name ui_source_dir    -Value (Join-Path -Path $root -ChildPath "so
 
 Set-Location -Path $ui_source_dir
 
-Write-Log -Message "Logging into Azure"
-Connect-ToAzure -SubscriptionName $SubscriptionName
+#Write-Log -Message "Logging into Azure"
+#Connect-ToAzure -SubscriptionName $SubscriptionName
+Add-AzureCliExtensions
+
+#Get AKS Credential file
+Get-AKSCredentials -AKSName $APP_K8S_NAME -AKSResourceGroup $APP_RG_NAME
 
 Write-Log -Message "Getting API Gateway Secret"
 $kong_api_key = Get-KubernetesSecret -secret ("{0}-apikey" -f $AppName) -value "key"
