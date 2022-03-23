@@ -34,17 +34,11 @@ namespace transcription.api.dapr
 
         private async Task<string> ConvertFileToBase64Encoding()
         {          
-            try
+            using (var memoryStream = new MemoryStream())
             {
-                using (var memoryStream = new MemoryStream())
-                {
-                    await _file.CopyToAsync(memoryStream);
-                    return Convert.ToBase64String(memoryStream.ToArray());
-                }            
-            }
-            catch{}
-
-            return String.Empty;
+                await _file.CopyToAsync(memoryStream);
+                return Convert.ToBase64String(memoryStream.ToArray());
+            }            
         }
 
         public async Task<BlobBindingResponse> UploadFile (CancellationToken cancellationToken) 
