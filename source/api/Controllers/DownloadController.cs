@@ -44,7 +44,6 @@ namespace transcription.Controllers
             }
             catch( Exception ex ) 
             {
-                //Add Compensating tranasaction to undo error
                 _logger.LogWarning($"Failed to transctionId {TranscriptionId} - {ex.Message}");    
             }
 
