@@ -35,7 +35,7 @@ namespace transcription.Controllers
                 var response = await dapr.UploadFile(cancellationToken);
                 _logger.LogInformation($"{TranscriptionId}. File was successfullly saved to {Components.BlobStoreName} blob storage"); 
                 
-                var sasUrl = await dapr.GetBlobSasToken(response.blobURL, Environment.GetEnvironmentVariable("MSI_CLIENT_ID"));
+                var sasUrl = dapr.GetBlobSasToken(response.blobURL, Environment.GetEnvironmentVariable("MSI_CLIENT_ID")).GetAwaiter().GetResult().ToString();
                 _logger.LogInformation($"{TranscriptionId}. File was successfullly saved to {Components.BlobStoreName} blob storage"); 
 
                 var state = await dapr.UpdateState(TranscriptionId, sasUrl);

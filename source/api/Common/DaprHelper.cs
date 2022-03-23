@@ -59,7 +59,7 @@ namespace transcription.api.dapr
             ));   
         }
 
-        public async Task<string> GetBlobSasToken(string url, string userAssignedClientId) 
+        public async Task<Uri> GetBlobSasToken(string url, string userAssignedClientId) 
         {
             var uri = new Uri(url);
             var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = userAssignedClientId });
@@ -87,7 +87,7 @@ namespace transcription.api.dapr
                 Query = sasQueryParams
             };
 
-            return sasUri.ToString();
+            return sasUri.Uri;
         }
 
         public async Task<StateEntry<TraduireTranscription>> UpdateState(Guid id, string url)
