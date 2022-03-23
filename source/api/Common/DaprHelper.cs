@@ -65,9 +65,7 @@ namespace transcription.api.dapr
             var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = userAssignedClientId });
             var blobClient = new BlobServiceClient(new Uri($"https://{uri.Host}"), credential);
             var accountName = blobClient.AccountName;
-
-            Console.WriteLine(uri.Segments[1].Trim('/'));
-            
+          
             var delegationKey = await blobClient.GetUserDelegationKeyAsync(DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(7));
             BlobSasBuilder sasBuilder = new BlobSasBuilder()
             {
@@ -79,7 +77,6 @@ namespace transcription.api.dapr
             };
 
             sasBuilder.SetPermissions(BlobSasPermissions.Read);
-            Console.WriteLine(sasBuilder.Permissions);
             var sasQueryParams = sasBuilder.ToSasQueryParameters(delegationKey, accountName).ToString();
 
             UriBuilder sasUri = new UriBuilder()
