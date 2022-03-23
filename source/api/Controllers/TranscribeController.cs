@@ -16,25 +16,26 @@ namespace transcription.Controllers
     public class TranscribeController : ControllerBase
     {
         private readonly ILogger _logger;
+        private static DaprTranscription _client; 
         
-        public TranscribeController(ILogger<TranscribeController> logger)
+        public TranscribeController(ILogger<TranscribeController> logger, DaprTranscription client )
         {
             _logger = logger;
+            _client = client;
         }
         
         [HttpPost]
-        public async Task<ActionResult> Post( TranscriptionReferenceRequest reference, [FromServices] DaprClient daprClient, CancellationToken cancellationToken)
+        public async Task<ActionResult> Post( TranscriptionReferenceRequest reference, CancellationToken cancellationToken)
         {
-            var dapr = new DaprHelper( daprClient );
-            var TranscriptionId = Guid.NewGuid();
+            var TranscriptionId = Guid.NewGuid().ToString();
 
             try{
                 _logger.LogInformation($"{TranscriptionId}. Request to transcribe {reference.blobURL} was received");
 
-                var state = await dapr.UpdateState(TranscriptionId, reference.blobURL);
+                var state = await _client.UpdateState(TranscriptionId, reference.blobURL);
                 _logger.LogInformation($"{TranscriptionId}. Record was successfullly saved as to {Components.StateStoreName} State Store");
 
-                await dapr.PublishEvent( TranscriptionId, reference.blobURL, cancellationToken);
+                await _client.PublishEvent( TranscriptionId, reference.blobURL, cancellationToken);
                 _logger.LogInformation($"{TranscriptionId}. {reference.blobURL} was successfullly published to {Components.PubSubName} pubsub store");
                 
                 return Ok( new { TranscriptionId = TranscriptionId, StatusMessage = state.Value.Status, LastUpdated = state.Value.LastUpdateTime }  ); 

@@ -16,32 +16,33 @@ namespace transcription.Controllers
     public class UploadController : ControllerBase
     {
         private readonly ILogger _logger;
+        private static DaprTranscription _client; 
         
-        public UploadController(ILogger<UploadController> logger)
+        public UploadController(ILogger<UploadController> logger, DaprTranscription client)
         {
             _logger = logger;
+            _client = client; 
         }
 
         [HttpPost, DisableRequestSizeLimit]
-        public async Task<ActionResult> Post([FromForm] IFormFile file, [FromServices] DaprClient daprClient, CancellationToken cancellationToken)
+        public async Task<ActionResult> Post([FromForm] IFormFile file, CancellationToken cancellationToken)
         {
-            var dapr = new DaprHelper( daprClient, file );
-            var TranscriptionId = Guid.NewGuid();
+            var TranscriptionId = Guid.NewGuid().ToString();
 
             _logger.LogInformation($"File upload request was received.");
             try{
                 _logger.LogInformation($"{TranscriptionId}. Base64 encoding file and uploading via Dapr to {Components.BlobStoreName}.");
                 
-                var response = await dapr.UploadFile(cancellationToken);
+                var response = await _client.UploadFile(file, cancellationToken);
                 _logger.LogInformation($"{TranscriptionId}. File was successfullly saved to {Components.BlobStoreName} blob storage"); 
                 
-                var sasUrl = dapr.GetBlobSasToken(response.blobURL, Environment.GetEnvironmentVariable("MSI_CLIENT_ID")).GetAwaiter().GetResult().ToString();
+                var sasUrl = (await _client.GetBlobSasToken(response.blobURL, Environment.GetEnvironmentVariable("MSI_CLIENT_ID"))).ToString();
                 _logger.LogInformation($"{TranscriptionId}. File was successfullly saved to {Components.BlobStoreName} blob storage"); 
 
-                var state = await dapr.UpdateState(TranscriptionId, sasUrl);
+                var state = await _client.UpdateState(TranscriptionId, sasUrl);
                 _logger.LogInformation($"{TranscriptionId}. Record was successfullly saved as to {Components.StateStoreName} State Store");
 
-                await dapr.PublishEvent( TranscriptionId, sasUrl, cancellationToken);
+                await _client.PublishEvent( TranscriptionId, sasUrl, cancellationToken);
                 _logger.LogInformation($"{TranscriptionId}. {sasUrl} was successfullly published to {Components.PubSubName} pubsub store");
 
                 return Ok( new { TranscriptionId = TranscriptionId, StatusMessage = state.Value.Status, LastUpdated = state.Value.LastUpdateTime }  ); 
