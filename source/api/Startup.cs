@@ -15,6 +15,8 @@ using Microsoft.OpenApi.Models;
 using Dapr;
 using Grpc.AspNetCore.Server;
 
+using transcription.api.dapr;
+
 namespace traduire.webapi
 {
     public class Startup
@@ -40,6 +42,7 @@ namespace traduire.webapi
             });
 
             services.AddControllers().AddDapr();
+            services.AddScoped<IDaprTranscription, DaprTranscription>();
             services.AddGrpc();
             services.AddGrpcReflection();
             services.AddSwaggerGen();

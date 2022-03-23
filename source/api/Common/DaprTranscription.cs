@@ -15,40 +15,34 @@ using transcription.models;
 
 namespace transcription.api.dapr
 {
-    public class DaprHelper 
+    public class DaprTranscription : IDaprTranscription 
     {
         private string safeFileName;
-        private static IFormFile _file;
         private static DaprClient _client; 
 
-        public DaprHelper(DaprClient client, IFormFile file) 
-        {
-            _file = file;
-            _client = client;
-        }
 
-        public DaprHelper(DaprClient client) 
+        public DaprTranscription(DaprClient client) 
         {
             _client = client;
         }
 
-        private async Task<string> ConvertFileToBase64Encoding()
+        private async Task<string> ConvertFileToBase64Encoding(IFormFile file)
         {          
             using (var memoryStream = new MemoryStream())
             {
-                await _file.CopyToAsync(memoryStream);
+                await file.CopyToAsync(memoryStream);
                 return Convert.ToBase64String(memoryStream.ToArray());
             }            
         }
 
-        public async Task<BlobBindingResponse> UploadFile (CancellationToken cancellationToken) 
+        public async Task<BlobBindingResponse> UploadFile (IFormFile file, CancellationToken cancellationToken) 
         {
-            safeFileName = WebUtility.HtmlEncode(_file.FileName); 
+            safeFileName = WebUtility.HtmlEncode(file.FileName); 
 
             var metadata = new Dictionary<string, string>();
             metadata.Add("blobName", safeFileName);
 
-            var encodedFile = await ConvertFileToBase64Encoding();
+            var encodedFile = await ConvertFileToBase64Encoding(file);
 
             return( await _client.InvokeBindingAsync<string,BlobBindingResponse>(
                     Components.BlobStoreName, 
@@ -90,12 +84,12 @@ namespace transcription.api.dapr
             return sasUri.Uri;
         }
 
-        public async Task<StateEntry<TraduireTranscription>> UpdateState(Guid id, string url)
+        public async Task<StateEntry<TraduireTranscription>> UpdateState(String id, string url)
         {
-            var state = await _client.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, id.ToString());
+            var state = await _client.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, id);
 
             state.Value ??= new TraduireTranscription() { 
-                TranscriptionId     = id,
+                TranscriptionId     = new Guid(id),
                 CreateTime          = DateTime.UtcNow,
                 LastUpdateTime      = DateTime.UtcNow,
                 Status              = TraduireTranscriptionStatus.Started,
@@ -107,16 +101,16 @@ namespace transcription.api.dapr
             return state;
         }
 
-        public async Task<TraduireTranscription> GetState(Guid id)
+        public async Task<TraduireTranscription> GetState(string id)
         {
-            var state = await _client.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, id.ToString());
+            var state = await _client.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, id);
             return state.Value;
         }
 
-        public async Task PublishEvent(Guid id, string url, CancellationToken cancellationToken)
+        public async Task PublishEvent(String id, string url, CancellationToken cancellationToken)
         {
             var eventdata = new TradiureTranscriptionRequest() { 
-                TranscriptionId = id, 
+                TranscriptionId = new Guid(id), 
                 BlobUri = url
             };
 
