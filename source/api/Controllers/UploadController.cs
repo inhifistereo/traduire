@@ -37,16 +37,15 @@ namespace transcription.Controllers
                 _logger.LogInformation($"{TranscriptionId}. Base64 encoding file and uploading via Dapr to {Components.BlobStoreName}.");
                 
                 var response = await _client.UploadFile(file, cancellationToken);
-                _logger.LogInformation($"{TranscriptionId}. File was successfullly saved to {Components.BlobStoreName} blob storage"); 
+                _logger.LogInformation($"{TranscriptionId}. File was saved to {Components.BlobStoreName} blob storage"); 
                                 
                 var sasUrl = _client.GetBlobSasToken(response.blobURL, msiClientID).GetAwaiter().GetResult().ToString();
-                _logger.LogInformation($"{TranscriptionId}. File was successfullly saved to {Components.BlobStoreName} blob storage"); 
-
+                
                 var state = await _client.UpdateState(TranscriptionId, sasUrl);
-                _logger.LogInformation($"{TranscriptionId}. Record was successfullly saved as to {Components.StateStoreName} State Store");
+                _logger.LogInformation($"{TranscriptionId}. Record was saved as to {Components.StateStoreName} State Store");
 
                 await _client.PublishEvent( TranscriptionId, sasUrl, cancellationToken);
-                _logger.LogInformation($"{TranscriptionId}. {sasUrl} was successfullly published to {Components.PubSubName} pubsub store");
+                _logger.LogInformation($"{TranscriptionId}. {sasUrl} was published to {Components.PubSubName} pubsub store");
 
                 return Ok( new { TranscriptionId = TranscriptionId, StatusMessage = state.Value.Status, LastUpdated = state.Value.LastUpdateTime }  ); 
             }

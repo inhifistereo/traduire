@@ -33,10 +33,10 @@ namespace transcription.Controllers
                 _logger.LogInformation($"{TranscriptionId}. Request to transcribe {reference.blobURL} was received");
 
                 var state = await _client.UpdateState(TranscriptionId, reference.blobURL);
-                _logger.LogInformation($"{TranscriptionId}. Record was successfullly saved as to {Components.StateStoreName} State Store");
+                _logger.LogInformation($"{TranscriptionId}. Record was successfully saved as to {Components.StateStoreName} State Store");
 
                 await _client.PublishEvent( TranscriptionId, reference.blobURL, cancellationToken);
-                _logger.LogInformation($"{TranscriptionId}. {reference.blobURL} was successfullly published to {Components.PubSubName} pubsub store");
+                _logger.LogInformation($"{TranscriptionId}. {reference.blobURL} was successfully published to {Components.PubSubName} pubsub store");
                 
                 return Ok( new { TranscriptionId = TranscriptionId, StatusMessage = state.Value.Status, LastUpdated = state.Value.LastUpdateTime }  ); 
             }
