@@ -15,11 +15,14 @@ namespace transcription.Controllers
     [ApiController]
     public class UploadController : ControllerBase
     {
+        private readonly string msiClientID;
         private readonly ILogger _logger;
         private static DaprTranscription _client; 
         
         public UploadController(ILogger<UploadController> logger, DaprTranscription client)
         {
+            msiClientID = Environment.GetEnvironmentVariable("MSI_CLIENT_ID");
+
             _logger = logger;
             _client = client; 
         }
@@ -28,15 +31,15 @@ namespace transcription.Controllers
         public async Task<ActionResult> Post([FromForm] IFormFile file, CancellationToken cancellationToken)
         {
             var TranscriptionId = Guid.NewGuid().ToString();
-
+            
             _logger.LogInformation($"File upload request was received.");
             try{
                 _logger.LogInformation($"{TranscriptionId}. Base64 encoding file and uploading via Dapr to {Components.BlobStoreName}.");
                 
                 var response = await _client.UploadFile(file, cancellationToken);
                 _logger.LogInformation($"{TranscriptionId}. File was successfullly saved to {Components.BlobStoreName} blob storage"); 
-                
-                var sasUrl = (await _client.GetBlobSasToken(response.blobURL, Environment.GetEnvironmentVariable("MSI_CLIENT_ID"))).ToString();
+                                
+                var sasUrl = _client.GetBlobSasToken(response.blobURL, msiClientID).GetAwaiter().GetResult().ToString();
                 _logger.LogInformation($"{TranscriptionId}. File was successfullly saved to {Components.BlobStoreName} blob storage"); 
 
                 var state = await _client.UpdateState(TranscriptionId, sasUrl);
