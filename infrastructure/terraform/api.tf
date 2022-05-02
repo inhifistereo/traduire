@@ -1,22 +1,8 @@
-resource "azurerm_resource_group" "traduire_app" {
-  name                  = "${var.application_name}_app_rg"
-  location              = var.region
-  tags                  = {
-    Application         = var.application_name
-    Tier                = "App Components"
-  }
-}
-
 data "azurerm_client_config" "current" {}
 
 resource "random_password" "postgresql_user_password" {
   length           = 25
   special          = false
-}
-
-resource "tls_private_key" "k8s" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
 }
 
 resource "azurerm_postgresql_server" "traduire_app" {
@@ -108,7 +94,6 @@ resource "azurerm_storage_account" "traduire_app" {
   account_replication_type  = "LRS"
   account_kind              = "StorageV2"
   enable_https_traffic_only = true
-  allow_blob_public_access  = false
   min_tls_version           = "TLS1_2"
 }
 
@@ -145,13 +130,6 @@ resource "azurerm_kubernetes_cluster" "traduire_app" {
   dns_prefix                = var.aks_name
   sku_tier                  = "Paid"
   api_server_authorized_ip_ranges = [ var.api_server_authorized_ip_ranges ]
-  linux_profile {
-    admin_username          = "manager"
-
-    ssh_key {
-        key_data            = tls_private_key.k8s.public_key_openssh
-    }
-  }
 
   identity {
     type                    = "SystemAssigned"
@@ -170,10 +148,6 @@ resource "azurerm_kubernetes_cluster" "traduire_app" {
     max_pods                = 40
   }
 
-  role_based_access_control {
-    enabled                 = "true"
-  }
-
   network_profile {
     dns_service_ip          = "10.190.0.10"
     service_cidr            = "10.190.0.0/16"
@@ -182,11 +156,12 @@ resource "azurerm_kubernetes_cluster" "traduire_app" {
     load_balancer_sku       = "standard"
   }
 
-  addon_profile {
-    oms_agent {
-      enabled                    = true
-      log_analytics_workspace_id = azurerm_log_analytics_workspace.traduire_logs.id
-    }
+  oms_agent {
+    log_analytics_workspace_id = azurerm_log_analytics_workspace.traduire_logs.id
+  }
+
+  microsoft_defender {
+    log_analytics_workspace_id = azurerm_log_analytics_workspace.traduire_logs.id
   }
 }
 
