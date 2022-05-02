@@ -19,12 +19,12 @@ namespace transcription.Controllers
         private readonly ILogger _logger;
         private static DaprTranscriptionService _client; 
         
-        public UploadController(ILogger<UploadController> logger, DaprTranscriptionService client)
+        public UploadController(ILogger<UploadController> logger, DaprClient client)
         {
             msiClientID = Environment.GetEnvironmentVariable("MSI_CLIENT_ID");
 
             _logger = logger;
-            _client = client; 
+            _client = new DaprTranscriptionService(client); 
         }
 
         [HttpPost, DisableRequestSizeLimit]

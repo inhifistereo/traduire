@@ -18,10 +18,10 @@ namespace transcription.Controllers
         private readonly ILogger _logger;
         private static DaprTranscriptionService _client; 
         
-        public TranscribeController(ILogger<TranscribeController> logger, DaprTranscriptionService client )
+        public TranscribeController(ILogger<TranscribeController> logger, DaprClient client )
         {
             _logger = logger;
-            _client = client;
+            _client = new DaprTranscriptionService(client); 
         }
         
         [HttpPost]
