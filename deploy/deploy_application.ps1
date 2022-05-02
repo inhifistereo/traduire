@@ -17,6 +17,7 @@ param(
 
 Set-Variable -Name DAPR_VERSION         -Value "1.6.0"                           -Option Constant
 Set-Variable -Name KEDA_VERSION         -Value "2.6.1"                           -Option Constant
+Set-Variable -Name KONG_VERSION         -Value "2.8"                             -Option Constant
 Set-Variable -Name CERT_MGR_VERSION     -Value "v1.6.1"                          -Option Constant
 Set-Variable -Name APP_RG_NAME          -Value ("{0}_app_rg" -f $AppName)        -Option Constant
 Set-Variable -Name CORE_RG_NAME         -Value ("{0}_core_rg" -f $AppName)       -Option Constant
@@ -80,7 +81,7 @@ $cogs = New-CognitiveServicesAccount -CogsAccountName $APP_COGS_NAME -CogsResour
 Write-Log -Message "Deploying Kong API Gateway"
 helm repo add kong https://charts.konghq.com
 helm repo update
-helm upgrade -i kong kong/kong --namespace kong-gateway --create-namespace --set ingressController.installCRDs=false
+helm upgrade -i kong kong/kong --namespace kong-gateway --create-namespace --version $KONG_VERSION --set ingressController.installCRDs=false
 
 # Install Dapr
 Write-Log -Message "Deploying Dapr"
