@@ -132,7 +132,7 @@ helm upgrade -i `
    --set kong_api_uri=$Uri `
    --set keda_msi_client_id=$($keda_msi.client_id) `
    --set keda_msi_resource_id=$($keda_msi.resource_id) `
-   --set frontend_uri=$FrontEndUri `
+   --set frontend_uri=("https://{0}" -f $FrontEndUri) `
    traduire helm/. 
 
 if($?){
