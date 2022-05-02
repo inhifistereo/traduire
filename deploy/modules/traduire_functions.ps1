@@ -108,7 +108,7 @@ function Deploy-toAzStaticWebApp
         mcr.microsoft.com/appsvc/staticappsclient:stable `
         upload `
         --skipAppBuild true `
-        --app /root/build `
+        --appArtifactLocation /root/build `
         --apiToken $token
 }
 
