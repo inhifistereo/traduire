@@ -9,12 +9,6 @@ param(
   [string] $region,
 
   [Parameter(Mandatory=$true)]
-  [string] $AdminUser,
-
-  [Parameter(Mandatory=$true)]
-  [string] $AdminID,
-
-  [Parameter(Mandatory=$true)]
   [string] $StorageAccountKey
 )
 
@@ -48,8 +42,6 @@ $configuration=@"
 application_name = "$appName"
 region = "$region"
 tenant_id = "$tenantId"
-admin_user_object_id = "$AdminID"
-admin_user_name = "$AdminUser"
 postgresql_name = "$postgresqlAccountName"
 acr_account_name = "$acrAccountName"
 ai_account_name = "$appInsightsName"
