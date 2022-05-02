@@ -43,9 +43,6 @@ Set-ReactEnvironmentFile -Path "src\config.json.template" -OutPath "src\config.j
 Write-Log -Message "Building UI Code"
 Start-UiBuild
 
-Write-Log -Message "Uploading Files to ${APP_UI_NAME}"
-Copy-BuildToStorage -StorageAccount $APP_UI_NAME -LocalPath (Join-Path -Path $ui_source_dir -ChildPath "build")
-
 Write-Log -Message "Deploying to Azure Static Web Site"
 Deploy-toAzStaticWebApp -Name $APP_UI_NAME -ResourceGroup $APP_UI_RG -LocalPath (Join-Path -Path $ui_source_dir -ChildPath "build")
 
