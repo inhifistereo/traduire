@@ -48,11 +48,11 @@ config:
   origins:
   - {{ print .Values.frontend_uri }}
   methods:
-  - *
+  - "*"
   headers:
-  - *
+  - "*"
   exposed_headers:
-  - *
+  - "*"
   credentials: true
   max_age: 3600
   preflight_continue: false
