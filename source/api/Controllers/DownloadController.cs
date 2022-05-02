@@ -15,9 +15,9 @@ namespace transcription.Controllers
     public class DownloadController : ControllerBase
     {
         private readonly ILogger _logger;
-        private static DaprTranscription _client; 
+        private static DaprTranscriptionService _client; 
 
-        public DownloadController(ILogger<DownloadController> logger, DaprTranscription client )
+        public DownloadController(ILogger<DownloadController> logger, DaprTranscriptionService client )
         {
             _logger = logger;
             _client = client;

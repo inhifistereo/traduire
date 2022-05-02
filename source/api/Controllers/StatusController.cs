@@ -23,9 +23,9 @@ namespace transcription.Controllers
     public class StatusController : ControllerBase
     {
         private readonly ILogger _logger;
-        private static DaprTranscription _client; 
+        private static DaprTranscriptionService _client; 
 
-        public StatusController(ILogger<StatusController> logger, DaprTranscription client )
+        public StatusController(ILogger<StatusController> logger, DaprTranscriptionService client )
         {
             _logger = logger;
             _client = client;

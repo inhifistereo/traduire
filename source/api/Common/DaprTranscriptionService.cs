@@ -15,13 +15,13 @@ using transcription.models;
 
 namespace transcription.api.dapr
 {
-    public class DaprTranscription : IDaprTranscription 
+    public class DaprTranscriptionService : IDaprTranscriptionService
     {
         private string safeFileName;
         private static DaprClient _client; 
 
 
-        public DaprTranscription(DaprClient client) 
+        public DaprTranscriptionService(DaprClient client) 
         {
             _client = client;
         }

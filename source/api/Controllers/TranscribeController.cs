@@ -16,9 +16,9 @@ namespace transcription.Controllers
     public class TranscribeController : ControllerBase
     {
         private readonly ILogger _logger;
-        private static DaprTranscription _client; 
+        private static DaprTranscriptionService _client; 
         
-        public TranscribeController(ILogger<TranscribeController> logger, DaprTranscription client )
+        public TranscribeController(ILogger<TranscribeController> logger, DaprTranscriptionService client )
         {
             _logger = logger;
             _client = client;

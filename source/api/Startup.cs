@@ -42,7 +42,7 @@ namespace traduire.webapi
             });
 
             services.AddControllers().AddDapr();
-            services.AddScoped<IDaprTranscription, DaprTranscription>();
+            services.AddSingleton<IDaprTranscriptionService, DaprTranscriptionService>();
             services.AddGrpc();
             services.AddGrpcReflection();
             services.AddSwaggerGen();

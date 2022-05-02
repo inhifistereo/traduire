@@ -15,7 +15,7 @@ using transcription.models;
 
 namespace transcription.api.dapr
 {
-    public interface IDaprTranscription
+    public interface IDaprTranscriptionService
     {
         public Task<BlobBindingResponse> UploadFile (IFormFile file, CancellationToken cancellationToken) ;
 

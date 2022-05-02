@@ -13,9 +13,9 @@ namespace traduire.webapi
     {
         private readonly int waitTime = 15;
         private readonly ILogger<TranscriberService> _logger;
-        private static DaprTranscription _client; 
+        private static DaprTranscriptionService _client; 
 
-        public TranscriberService(ILogger<TranscriberService> logger, DaprTranscription client )
+        public TranscriberService(ILogger<TranscriberService> logger, DaprTranscriptionService client )
         {
             _client = client;
             _logger = logger;

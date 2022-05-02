@@ -17,9 +17,9 @@ namespace transcription.Controllers
     {
         private readonly string msiClientID;
         private readonly ILogger _logger;
-        private static DaprTranscription _client; 
+        private static DaprTranscriptionService _client; 
         
-        public UploadController(ILogger<UploadController> logger, DaprTranscription client)
+        public UploadController(ILogger<UploadController> logger, DaprTranscriptionService client)
         {
             msiClientID = Environment.GetEnvironmentVariable("MSI_CLIENT_ID");
 
