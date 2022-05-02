@@ -1,7 +1,7 @@
 resource "azurerm_static_site" "traduire_ui" {
   name                  = var.ui_storage_name
   resource_group_name   = azurerm_resource_group.traduire_ui.name
-  location              = azurerm_resource_group.traduire_ui.name
+  location              = azurerm_resource_group.traduire_ui.location
 }
 
 resource "azurerm_web_pubsub" "traduire_app" {
