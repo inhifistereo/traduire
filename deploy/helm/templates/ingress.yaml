@@ -15,6 +15,7 @@ metadata:
     kubernetes.io/ingress.class: kong
     konghq.com/protocols : "grpc,grpcs,https"
     konghq.com/plugins: httpbin-auth
+    konghq.com/plugins: {{ print .Values.app_name "-cors" }}
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
@@ -39,6 +40,24 @@ kind: KongPlugin
 metadata:
   name: httpbin-auth
 plugin: key-auth
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: {{ print .Values.app_name "-cors" }}
+config: 
+  origins:
+  - {{ print .Values.frontend_uri }}
+  methods:
+  - *
+  headers:
+  - *
+  exposed_headers:
+  - *
+  credentials: true
+  max_age: 3600
+  preflight_continue: false
+plugin: cors
 ---
 apiVersion: configuration.konghq.com/v1
 kind: KongConsumer
