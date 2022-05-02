@@ -77,6 +77,23 @@ resource "azurerm_subnet" "kubernetes" {
   address_prefixes      = ["10.50.4.0/22"]
 }
 
+resource "azurerm_subnet" "sql" {
+  name                  = "sql"
+  resource_group_name   = azurerm_virtual_network.traduire_core.resource_group_name
+  virtual_network_name  = azurerm_virtual_network.traduire_core.name
+  address_prefixes      = ["10.50.2.0/24"]
+  service_endpoints    = ["Microsoft.Storage"]
+  delegation {
+    name = "fs"
+    service_delegation {
+      name = "Microsoft.DBforPostgreSQL/flexibleServers"
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/join/action",
+      ]
+    }
+  }
+}
+
 resource "azurerm_subnet_network_security_group_association" "kubernetes" {
   subnet_id                 = azurerm_subnet.kubernetes.id
   network_security_group_id = azurerm_network_security_group.traduire-internet.id

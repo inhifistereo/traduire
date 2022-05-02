@@ -3,16 +3,6 @@ variable "tenant_id" {
   type        = string 
 }
 
-variable "admin_user_object_id" {
-  description = "Azure AD Object ID of PostgreSQL Admin User"
-  type        = string 
-}
-
-variable "admin_user_name" {
-  description = "Azure AD UPN of PostgreSQL Admin User"
-  type        = string 
-}
-
 variable "application_name" {
   description = "Unique Name for this deployment"
   type        = string 

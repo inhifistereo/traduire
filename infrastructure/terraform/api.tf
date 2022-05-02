@@ -5,58 +5,24 @@ resource "random_password" "postgresql_user_password" {
   special          = false
 }
 
-resource "azurerm_postgresql_server" "traduire_app" {
-  name                = var.postgresql_name
-  location            = azurerm_resource_group.traduire_app.location
-  resource_group_name = azurerm_resource_group.traduire_app.name
-
-  sku_name = "GP_Gen5_2"
-
-  geo_redundant_backup_enabled      = false
-  auto_grow_enabled                 = true
-  
-  administrator_login               = var.postgresql_user_name
-  administrator_login_password      = random_password.postgresql_user_password.result
-  version                           = "11"
-  
-  public_network_access_enabled     = false
-  ssl_enforcement_enabled           = true
-  ssl_minimal_tls_version_enforced  = "TLS1_2"
+resource "azurerm_postgresql_flexible_server" "traduire_app" {
+  name                   = var.postgresql_name
+  resource_group_name    = azurerm_resource_group.traduire_app.name
+  location               = azurerm_resource_group.traduire_app.location
+  delegated_subnet_id    = azurerm_subnet.sql.id
+  private_dns_zone_id    = azurerm_private_dns_zone.privatelink_postgres_database_azure_com.id
+  version                = "12"
+  administrator_login    = var.postgresql_user_name
+  administrator_password = random_password.postgresql_user_password.result
+  storage_mb             = 32768
+  sku_name               = "GP_Standard_D2ds_v4"
 }
 
-resource "azurerm_postgresql_database" "transcription" {
+resource "azurerm_postgresql_flexible_server_database" "transcription" {
   name                = var.postgresql_database_name
-  resource_group_name = azurerm_resource_group.traduire_app.name
-  server_name         = azurerm_postgresql_server.traduire_app.name
-  charset             = "UTF8"
-  collation           = "English_United States.1252"
-}
-
-resource "azurerm_postgresql_active_directory_administrator" "transcription" {
-  server_name         = azurerm_postgresql_server.traduire_app.name
-  resource_group_name = azurerm_resource_group.traduire_app.name
-  login               = var.admin_user_name
-  tenant_id           = var.tenant_id
-  object_id           = var.admin_user_object_id
-}
-
-resource "azurerm_private_endpoint" "postgresql_database" {
-  name                      = "${var.postgresql_name}-ep"
-  resource_group_name       = azurerm_resource_group.traduire_app.name
-  location                  = azurerm_resource_group.traduire_app.location
-  subnet_id                 = azurerm_subnet.private-endpoints.id
-
-  private_service_connection {
-    name                           = "${var.postgresql_name}-ep"
-    private_connection_resource_id = azurerm_postgresql_server.traduire_app.id
-    subresource_names              = [ "postgresqlServer" ]
-    is_manual_connection           = false
-  }
-
-  private_dns_zone_group { 
-    name                          = azurerm_private_dns_zone.privatelink_postgres_database_azure_com.name
-    private_dns_zone_ids          = [ azurerm_private_dns_zone.privatelink_postgres_database_azure_com.id ]
-  }
+  server_id           = azurerm_postgresql_flexible_server.traduire_app.id
+  collation           = "en_US.utf8"
+  charset             = "utf8"
 }
 
 resource "azurerm_servicebus_namespace" "traduire_app" {
@@ -313,7 +279,7 @@ resource "azurerm_key_vault_secret" "storage_secret_name" {
  
 resource "azurerm_key_vault_secret" "postgresql_connection_string" {
   name         = var.postgresql_secret_name
-  value        = "host=${azurerm_postgresql_server.traduire_app.name}.postgres.database.azure.com user=${azurerm_postgresql_server.traduire_app.administrator_login}@${azurerm_postgresql_server.traduire_app.name} password=${azurerm_postgresql_server.traduire_app.administrator_login_password} port=5432 dbname=${var.postgresql_database_name} sslmode=require"
+  value        = "host=${var.postgresql_name}.postgres.database.azure.com user=${var.postgresql_user_name} password=${random_password.postgresql_user_password.result} port=5432 dbname=${var.postgresql_database_name} sslmode=require"
   key_vault_id = azurerm_key_vault.traduire_app.id
 }
 
