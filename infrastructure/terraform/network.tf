@@ -1,17 +1,8 @@
-resource "azurerm_resource_group" "traduire_core" {
-  name                  = "${var.application_name}_core_rg"
-  location              = var.region
-  tags                  = {
-    Application         = var.application_name
-    Tier                = "Core Components"
-  }
-}
-
 resource "azurerm_log_analytics_workspace" "traduire_logs" {
   name                     = var.loganalytics_account_name
   resource_group_name      = azurerm_resource_group.traduire_core.name
   location                 = azurerm_resource_group.traduire_core.location
-  sku                      = "pergb2018"
+  sku                      = "PerGB2018"
 }
 
 resource "azurerm_application_insights" "traduire_ai" {
