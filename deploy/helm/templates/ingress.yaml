@@ -48,11 +48,22 @@ config:
   origins:
   - {{ print .Values.frontend_uri }}
   methods:
-  - "*"
+  - GET
+  - POST
+  - PUT
+  - PATCH
+  - OPTIONS
+  - CONNECT
   headers:
-  - "*"
+  - Accept
+  - Accept-Version
+  - Content-Length
+  - Content-MD5
+  - Content-Type
+  - Date
+  - X-Auth-Token
   exposed_headers:
-  - "*"
+  - X-Auth-Token
   credentials: true
   max_age: 3600
   preflight_continue: false
