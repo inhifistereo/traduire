@@ -64,8 +64,7 @@ class Transcription extends Component<Props,State>
 	private configWSConnection = async () => 
 	{
 		var userId = this.state.transcriptionId;
-		var token = await this.state.serviceClient.getAuthenticationToken({userId: userId});
-
+		var token = await this.state.serviceClient.getClientAccessToken({userId: userId});
 		ws = new WebSocket(token.url);
 		ws.onmessage = (event:MessageEvent) => {
 			let msg = JSON.parse(event.data);
