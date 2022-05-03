@@ -25,10 +25,10 @@ namespace transcription.Controllers
         private readonly ILogger _logger;
         private static DaprTranscriptionService _client; 
 
-        public StatusController(ILogger<StatusController> logger, DaprClient client )
+        public StatusController(ILogger<StatusController> logger, DaprTranscriptionService client )
         {
             _logger = logger;
-            _client = new DaprTranscriptionService(client); 
+            _client = client;
         }
 
         [HttpGet("{TranscriptionId}")]

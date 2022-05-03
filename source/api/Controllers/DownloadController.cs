@@ -17,10 +17,10 @@ namespace transcription.Controllers
         private readonly ILogger _logger;
         private static DaprTranscriptionService _client; 
 
-        public DownloadController(ILogger<DownloadController> logger, DaprClient client )
+        public DownloadController(ILogger<DownloadController> logger, DaprTranscriptionService client )
         {
             _logger = logger;
-            _client = new DaprTranscriptionService(client); 
+            _client = client;
         }
 
         [HttpGet("{TranscriptionId}")]
