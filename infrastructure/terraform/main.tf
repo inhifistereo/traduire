@@ -8,7 +8,7 @@ terraform {
     azurerm = "~> 3.3"
   }
   backend "azurerm" {
-    storage_account_name = "bjdterraform002"
+    storage_account_name = "bjdterraform003"
     container_name       = "plans"
   }
 }
