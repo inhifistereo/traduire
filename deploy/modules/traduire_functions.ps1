@@ -102,14 +102,15 @@ function Deploy-toAzStaticWebApp
     )
 
     $token = Get-AzStaticWebAppSecret -Name $Name -ResourceGroup $ResourceGroup
+    swa deploy --app-location $LocalPath --deployment-token $token
 
-    docker run --entrypoint "/bin/staticsites/StaticSitesClient" `
-        --volume ${LocalPath}:/root/build `
-        mcr.microsoft.com/appsvc/staticappsclient:stable `
-        upload `
-        --skipAppBuild true `
-        --appArtifactLocation /root/build `
-        --apiToken $token
+    #docker run --entrypoint "/bin/staticsites/StaticSitesClient" `
+    #    --volume ${LocalPath}:/root/build `
+    #    mcr.microsoft.com/appsvc/staticappsclient:stable `
+    #    upload `
+    #    --skipAppBuild true `
+    #    --appArtifactLocation /root/build `
+    #    --apiToken $token
 }
 
 function Set-ReactEnvironmentFile
