@@ -6,6 +6,9 @@ resource "random_password" "postgresql_user_password" {
 }
 
 resource "azurerm_postgresql_flexible_server" "traduire_app" {
+  depends_on = [
+    azurerm_private_dns_zone_virtual_network_link.privatelink_postgres_database_azure_com
+  ]
   name                   = var.postgresql_name
   resource_group_name    = azurerm_resource_group.traduire_app.name
   location               = azurerm_resource_group.traduire_app.location
