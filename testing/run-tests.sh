@@ -23,22 +23,8 @@ while (( "$#" )); do
   esac
 done
 
-cat << EOF > playwright.config.ts
-    import { PlaywrightTestConfig } from '@playwright/test';
-
-    const config: PlaywrightTestConfig = {
-        timeout: 90000,
-        globalTimeout: 600000,
-        baseURL: '${uri}'
-        reporter: [
-            ['list'],
-        ]
-    };
-    export default config;
-EOF
-
 echo `date "+%F %T"` - Running Tests against ${uri}
-npx playwright test
+URI=${uri} npx playwright test
 npx playwright show-trace trace.zip
 
 echo `date "+%F %T"` - Cleaning up
