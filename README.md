@@ -57,7 +57,7 @@ Keda | Autoscaler for saga components
 
 ### Web Application
 * Install [Playwright](https://playwright.dev)
-* cd testing
+* cd tests
 * ./run-tests.sh traduire.bjd.tech #Or whatever your default Url from Azure Static Web Apps 
 
 _Manually_
