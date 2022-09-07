@@ -26,6 +26,3 @@ done
 echo `date "+%F %T"` - Running Tests against ${uri}
 URI=${uri} npx playwright test
 npx playwright show-trace trace.zip
-
-echo `date "+%F %T"` - Cleaning up
-rm -f playwright.config.ts
