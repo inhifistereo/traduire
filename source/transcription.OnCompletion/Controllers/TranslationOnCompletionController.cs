@@ -1,4 +1,4 @@
-using System; 
+using System;
 using System.Linq;
 using System.Net;
 using System.Threading;
@@ -8,7 +8,7 @@ using Dapr.Client;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
-using Azure.Messaging.WebPubSub; 
+using Azure.Messaging.WebPubSub;
 using Azure.Core;
 
 using transcription.models;
@@ -16,7 +16,7 @@ using transcription.common;
 using transcription.common.cognitiveservices;
 
 namespace transcription.Controllers
-{ 
+{
     [ApiController]
     public class TranslationOnCompletion : ControllerBase
     {
@@ -25,21 +25,21 @@ namespace transcription.Controllers
         private readonly TraduireNotificationService _serviceClient;
         private readonly IConfiguration _configuration;
         private readonly DaprClient _client;
-        private readonly AzureCognitiveServicesClient _cogsClient; 
+        private readonly AzureCognitiveServicesClient _cogsClient;
         private readonly ILogger _logger;
-                
+
         public TranslationOnCompletion(ILogger<TranslationOnCompletion> logger, IConfiguration configuration, DaprClient Client, AzureCognitiveServicesClient CogsClient, WebPubSubServiceClient ServiceClient)
         {
             _client = Client;
             _logger = logger;
             _configuration = configuration;
             _cogsClient = CogsClient;
-			_serviceClient = new TraduireNotificationService(ServiceClient);
+            _serviceClient = new TraduireNotificationService(ServiceClient);
         }
 
         [Topic(Components.PubSubName, Topics.TranscriptionCompletedTopicName)]
         [HttpPost("completed")]
-        public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request,  CancellationToken cancellationToken)
+        public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request, CancellationToken cancellationToken)
         {
             try
             {
@@ -47,11 +47,11 @@ namespace transcription.Controllers
                 state = await _client.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, request.TranscriptionId.ToString());
                 state.Value ??= new TraduireTranscription();
 
-                (TranscriptionResults result, HttpStatusCode code)  = await _cogsClient.DownloadTranscriptionResultAsync(new Uri(request.BlobUri)); 
+                (TranscriptionResults result, HttpStatusCode code) = await _cogsClient.DownloadTranscriptionResultAsync(new Uri(request.BlobUri));
 
-                switch(code)
+                switch (code)
                 {
-                    case HttpStatusCode.OK:                  
+                    case HttpStatusCode.OK:
                         _logger.LogInformation($"{request.TranscriptionId}. Transcription from '{request.BlobUri}' was saved to state store ");
                         var firstChannel = result.CombinedRecognizedPhrases.FirstOrDefault();
 
@@ -59,8 +59,8 @@ namespace transcription.Controllers
                         await UpdateStateRepository(TraduireTranscriptionStatus.Completed, firstChannel.Display);
 
                         _logger.LogInformation($"{request.TranscriptionId}. All working completed on request");
-                        return Ok(request.TranscriptionId); 
-                    
+                        return Ok(request.TranscriptionId);
+
                     default:
                         _logger.LogInformation($"{request.TranscriptionId}. Transcription Failed for an unexpected reason. Added to Failed Queue for review");
                         var failedEvent = await UpdateStateRepository(TraduireTranscriptionStatus.Failed, code, request.BlobUri);
@@ -68,12 +68,12 @@ namespace transcription.Controllers
                         break;
                 }
             }
-            catch( Exception ex )  
+            catch (Exception ex)
             {
-                _logger.LogWarning($"Nuts. Something really bad happened processing {request.BlobUri} - {ex.Message}"); 
+                _logger.LogWarning($"Nuts. Something really bad happened processing {request.BlobUri} - {ex.Message}");
             }
 
-            return BadRequest(); 
+            return BadRequest();
         }
 
         private async Task<TradiureTranscriptionRequest> UpdateStateRepository(TraduireTranscriptionStatus status, HttpStatusCode code, string uri)
@@ -84,7 +84,8 @@ namespace transcription.Controllers
             state.Value.TranscriptionStatusUri = uri;
             await state.SaveAsync();
 
-            return new TradiureTranscriptionRequest() {
+            return new TradiureTranscriptionRequest()
+            {
                 TranscriptionId = state.Value.TranscriptionId,
                 BlobUri = uri
             };

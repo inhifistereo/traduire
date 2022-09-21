@@ -8,16 +8,17 @@ using System.Text.Json.Serialization;
 using System.Linq;
 
 namespace transcription.common.cognitiveservices
-{  
-    public class AzureCognitiveServicesClient 
+{
+    public class AzureCognitiveServicesClient
     {
         private const int Port = 443;
 
         private const string SpeechToTextBasePath = "speechtotext/v3.0/";
         private HttpClient client;
-        private string _azCognitiveServicesUri; 
+        private string _azCognitiveServicesUri;
 
-        JsonSerializerOptions options = new JsonSerializerOptions{
+        JsonSerializerOptions options = new JsonSerializerOptions
+        {
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             Converters ={
                 new JsonStringEnumConverter( JsonNamingPolicy.CamelCase)
@@ -38,7 +39,7 @@ namespace transcription.common.cognitiveservices
             };
         }
 
-        public async Task<(Transcription,HttpStatusCode)> SubmitTranscriptionRequestAsync( Uri blob )
+        public async Task<(Transcription, HttpStatusCode)> SubmitTranscriptionRequestAsync(Uri blob)
         {
             var request = new AzureCognitiveServicesTextToSpeechRequest();
             request.ContentUrls.Add(blob.AbsoluteUri);
@@ -58,7 +59,7 @@ namespace transcription.common.cognitiveservices
                 return (null, response.StatusCode);
             }
         }
-        public async Task<(Transcription,HttpStatusCode)> CheckTranscriptionRequestAsync( Uri location )
+        public async Task<(Transcription, HttpStatusCode)> CheckTranscriptionRequestAsync(Uri location)
         {
             if (location == null)
             {
@@ -76,9 +77,9 @@ namespace transcription.common.cognitiveservices
             return (null, response.StatusCode);
         }
 
-        public async Task<(TranscriptionResults,HttpStatusCode)> DownloadTranscriptionResultAsync( Uri location )
-        {           
-            TranscriptionFiles files; 
+        public async Task<(TranscriptionResults, HttpStatusCode)> DownloadTranscriptionResultAsync(Uri location)
+        {
+            TranscriptionFiles files;
             TranscriptionResults results;
 
             using (var response = await client.GetAsync(location))
@@ -91,10 +92,10 @@ namespace transcription.common.cognitiveservices
                 files = JsonSerializer.Deserialize<TranscriptionFiles>(json, options);
             }
 
-            string contentUri = (from TranscriptionFilesValues file in files.Values 
-                      where file.Kind == TranscriptionFileType.Transcription
-                      select file.Links.ContentUrl).FirstOrDefault();
-                      
+            string contentUri = (from TranscriptionFilesValues file in files.Values
+                                 where file.Kind == TranscriptionFileType.Transcription
+                                 select file.Links.ContentUrl).FirstOrDefault();
+
             using (var response = await client.GetAsync(contentUri))
             {
                 if (!response.IsSuccessStatusCode)
@@ -102,7 +103,7 @@ namespace transcription.common.cognitiveservices
                     return (null, HttpStatusCode.BadRequest);
                 }
                 var json = await response.Content.ReadAsStringAsync();
-                results = JsonSerializer.Deserialize<TranscriptionResults>(json, options);  
+                results = JsonSerializer.Deserialize<TranscriptionResults>(json, options);
 
                 return (results, HttpStatusCode.OK);
             }

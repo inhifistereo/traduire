@@ -10,10 +10,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Azure; 
+using Microsoft.Extensions.Azure;
 
 using Dapr;
-using Azure.Messaging.WebPubSub; 
+using Azure.Messaging.WebPubSub;
 
 using transcription.models;
 using transcription.common.cognitiveservices;
@@ -44,7 +44,7 @@ namespace transcription.downloader
             services.AddControllers();
 
             var region = Environment.GetEnvironmentVariable("AZURE_COGS_REGION");
-            var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecretName], region);
+            var cogs = new AzureCognitiveServicesClient(Configuration[Components.SecretName], region);
             services.AddSingleton<AzureCognitiveServicesClient>(cogs);
 
             services.AddAzureClients(builder =>

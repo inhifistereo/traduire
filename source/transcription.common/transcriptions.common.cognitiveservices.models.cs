@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Text.Json.Serialization;
 using System.Collections.Generic;
 
-namespace transcription.common.cognitiveservices 
+namespace transcription.common.cognitiveservices
 {
     public enum ProfanityFilterMode
     {
@@ -27,7 +27,7 @@ namespace transcription.common.cognitiveservices
         public string DisplayName { get; set; } = "Transcription of file using default model for en-US";
         public AzureCognitiveServicesTextToSpeechProperties Properties { get; set; }
         public string Locale { get; set; } = "en-US";
-        
+
         public AzureCognitiveServicesTextToSpeechRequest()
         {
             ContentUrls = new List<string>();
@@ -35,18 +35,19 @@ namespace transcription.common.cognitiveservices
         }
     }
 
-    public class AzureCognitiveServicesTextToSpeechProperties 
+    public class AzureCognitiveServicesTextToSpeechProperties
     {
-        public AzureCognitiveServicesTextToSpeechProperties() {
+        public AzureCognitiveServicesTextToSpeechProperties()
+        {
             this.PunctuationMode = PunctuationMode.DictatedAndAutomatic;
-            this.ProfanityFilterMode = ProfanityFilterMode.Masked; 
-            WordLevelTimestampsEnabled =  DiarizationEnabled = false;
+            this.ProfanityFilterMode = ProfanityFilterMode.Masked;
+            WordLevelTimestampsEnabled = DiarizationEnabled = false;
         }
 
         public bool DiarizationEnabled { get; set; }
         public bool WordLevelTimestampsEnabled { get; set; }
-        public PunctuationMode PunctuationMode { get; set; } 
-        public ProfanityFilterMode ProfanityFilterMode { get; set; } 
+        public PunctuationMode PunctuationMode { get; set; }
+        public ProfanityFilterMode ProfanityFilterMode { get; set; }
     }
 
     //Reference - https://westus.dev.cognitive.microsoft.com/docs/services/speech-to-text-api-v3-0/operations/GetTranscription
@@ -55,7 +56,7 @@ namespace transcription.common.cognitiveservices
         public string Self { get; set; }
         public TranscriptionModel Model { get; set; }
         public TranscriptionLinks Links { get; set; }
-        public TranscriptionProperties Properties { get; set; }   
+        public TranscriptionProperties Properties { get; set; }
         public DateTime LastActionDateTime { get; set; }
         public string Status { get; set; }
         public DateTime CreatedDateTime { get; set; }
@@ -63,14 +64,14 @@ namespace transcription.common.cognitiveservices
         public string DisplayName { get; }
     }
 
-    public class TranscriptionLinks 
+    public class TranscriptionLinks
     {
         public string Files { get; set; }
     }
 
-    public class TranscriptionModel 
+    public class TranscriptionModel
     {
-        public string Self { get; set;}
+        public string Self { get; set; }
     }
     public class TranscriptionProperties
     {
@@ -82,11 +83,12 @@ namespace transcription.common.cognitiveservices
     }
 
     //Reference - https://westus.dev.cognitive.microsoft.com/docs/services/speech-to-text-api-v3-0/operations/GetTranscriptionFiles
-    public class TranscriptionFiles {
+    public class TranscriptionFiles
+    {
         public IList<TranscriptionFilesValues> Values { get; set; }
     }
 
-    public class TranscriptionFilesValues 
+    public class TranscriptionFilesValues
     {
         public string Self { get; set; }
         public string Name { get; set; }
@@ -96,7 +98,7 @@ namespace transcription.common.cognitiveservices
         public TranscriptionFileType Kind { get; set; }
     }
 
-    public enum TranscriptionFileType 
+    public enum TranscriptionFileType
     {
         DatasetReport,
         Audio,
@@ -109,13 +111,13 @@ namespace transcription.common.cognitiveservices
         EvaluationDetails
     }
 
-    public class TranscriptionFilesLink 
+    public class TranscriptionFilesLink
     {
-        public string ContentUrl { get; set; } 
+        public string ContentUrl { get; set; }
     }
 
-    public class TranscriptionFilesProperties 
-    { 
+    public class TranscriptionFilesProperties
+    {
         public long Size { get; set; }
     }
 

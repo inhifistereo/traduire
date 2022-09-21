@@ -1,4 +1,4 @@
-using System; 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -16,12 +16,12 @@ using transcription.common;
 using transcription.common.cognitiveservices;
 
 namespace transcription.Controllers
-{ 
+{
     [ApiController]
     public class TranslationOnProcessing : ControllerBase
-    {   
+    {
         private readonly ILogger _logger;
-                
+
         public TranslationOnProcessing(ILogger<TranslationOnProcessing> logger)
         {
             _logger = logger;
@@ -29,7 +29,7 @@ namespace transcription.Controllers
 
         [Topic(Components.PubSubName, Topics.TranscriptionProcessingTopicName)]
         [HttpPost("status")]
-        public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request,  CancellationToken cancellationToken)
+        public async Task<ActionResult> Transcribe(TradiureTranscriptionRequest request, CancellationToken cancellationToken)
         {
             try
             {
@@ -38,15 +38,15 @@ namespace transcription.Controllers
                 var transcriptionActor = this.GetTranscriptionActor(request.TranscriptionId);
                 await transcriptionActor.SubmitAsync(request.TranscriptionId.ToString(), request.BlobUri);
 
-                return Ok(); 
+                return Ok();
 
             }
-            catch ( Exception ex )  
+            catch (Exception ex)
             {
-                _logger.LogWarning($"Nuts. Something really bad happened processing {request.BlobUri} - {ex.Message}"); 
+                _logger.LogWarning($"Nuts. Something really bad happened processing {request.BlobUri} - {ex.Message}");
             }
 
-            return BadRequest(); 
+            return BadRequest();
         }
 
         private ITranscriptionActor GetTranscriptionActor(Guid transcriptId)

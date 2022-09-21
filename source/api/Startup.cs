@@ -44,7 +44,7 @@ namespace traduire.webapi
 
             services.AddControllers().AddDapr();
 
-            var client = new DaprTranscriptionService (new DaprClientBuilder().Build());
+            var client = new DaprTranscriptionService(new DaprClientBuilder().Build());
             services.AddSingleton<DaprTranscriptionService>(client);
             services.AddGrpc();
             services.AddGrpcReflection();
@@ -62,7 +62,7 @@ namespace traduire.webapi
             app.UseCors();
             app.UseRouting();
             app.UseAuthorization();
-            
+
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Traduie Api v1");
@@ -72,7 +72,7 @@ namespace traduire.webapi
             {
                 endpoints.MapHealthChecks("/healthz");
                 endpoints.MapControllers();
-                endpoints.MapGrpcService<TranscriberService>();  
+                endpoints.MapGrpcService<TranscriberService>();
                 endpoints.MapGrpcReflectionService();
             });
         }

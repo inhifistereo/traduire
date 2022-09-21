@@ -23,10 +23,10 @@ namespace transcription.processing
             CreateHostBuilder(args).Build().Run();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) 
+        public static IHostBuilder CreateHostBuilder(string[] args)
         {
             var client = new DaprClientBuilder().Build();
-            
+
             return Host.CreateDefaultBuilder(args)
                .ConfigureServices((services) =>
                 {

@@ -1,4 +1,4 @@
-using System; 
+using System;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -18,48 +18,48 @@ namespace transcription.api.dapr
     public class DaprTranscriptionService : IDaprTranscriptionService
     {
         private string safeFileName;
-        private static DaprClient _client; 
+        private static DaprClient _client;
 
 
-        public DaprTranscriptionService(DaprClient client) 
+        public DaprTranscriptionService(DaprClient client)
         {
             _client = client;
         }
 
         private async Task<string> ConvertFileToBase64Encoding(IFormFile file)
-        {          
+        {
             using (var memoryStream = new MemoryStream())
             {
                 await file.CopyToAsync(memoryStream);
                 return Convert.ToBase64String(memoryStream.ToArray());
-            }            
+            }
         }
 
-        public async Task<BlobBindingResponse> UploadFile (IFormFile file, CancellationToken cancellationToken) 
+        public async Task<BlobBindingResponse> UploadFile(IFormFile file, CancellationToken cancellationToken)
         {
-            safeFileName = WebUtility.HtmlEncode(file.FileName); 
+            safeFileName = WebUtility.HtmlEncode(file.FileName);
 
             var metadata = new Dictionary<string, string>();
             metadata.Add("blobName", safeFileName);
 
             var encodedFile = await ConvertFileToBase64Encoding(file);
 
-            return( await _client.InvokeBindingAsync<string,BlobBindingResponse>(
-                    Components.BlobStoreName, 
-                    Components.CreateOperation, 
-                    encodedFile, 
+            return (await _client.InvokeBindingAsync<string, BlobBindingResponse>(
+                    Components.BlobStoreName,
+                    Components.CreateOperation,
+                    encodedFile,
                     metadata,
                     cancellationToken
-            ));   
+            ));
         }
 
-        public async Task<Uri> GetBlobSasToken(string url, string userAssignedClientId) 
+        public async Task<Uri> GetBlobSasToken(string url, string userAssignedClientId)
         {
             var uri = new Uri(url);
             var credential = new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = userAssignedClientId });
             var blobClient = new BlobServiceClient(new Uri($"https://{uri.Host}"), credential);
             var accountName = blobClient.AccountName;
-          
+
             var delegationKey = await blobClient.GetUserDelegationKeyAsync(DateTimeOffset.UtcNow, DateTimeOffset.UtcNow.AddDays(7));
             BlobSasBuilder sasBuilder = new BlobSasBuilder()
             {
@@ -88,13 +88,14 @@ namespace transcription.api.dapr
         {
             var state = await _client.GetStateEntryAsync<TraduireTranscription>(Components.StateStoreName, id);
 
-            state.Value ??= new TraduireTranscription() { 
-                TranscriptionId     = new Guid(id),
-                CreateTime          = DateTime.UtcNow,
-                LastUpdateTime      = DateTime.UtcNow,
-                Status              = TraduireTranscriptionStatus.Started,
-                FileName            = safeFileName,
-                BlobUri             = url
+            state.Value ??= new TraduireTranscription()
+            {
+                TranscriptionId = new Guid(id),
+                CreateTime = DateTime.UtcNow,
+                LastUpdateTime = DateTime.UtcNow,
+                Status = TraduireTranscriptionStatus.Started,
+                FileName = safeFileName,
+                BlobUri = url
             };
             await state.SaveAsync();
 
@@ -109,12 +110,13 @@ namespace transcription.api.dapr
 
         public async Task PublishEvent(String id, string url, CancellationToken cancellationToken)
         {
-            var eventdata = new TradiureTranscriptionRequest() { 
-                TranscriptionId = new Guid(id), 
+            var eventdata = new TradiureTranscriptionRequest()
+            {
+                TranscriptionId = new Guid(id),
                 BlobUri = url
             };
 
-            await _client.PublishEventAsync( Components.PubSubName, Topics.TranscriptionSubmittedTopicName, eventdata, cancellationToken );
+            await _client.PublishEventAsync(Components.PubSubName, Topics.TranscriptionSubmittedTopicName, eventdata, cancellationToken);
         }
     }
 }

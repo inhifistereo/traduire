@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Azure; 
-using Azure.Messaging.WebPubSub; 
+using Microsoft.Extensions.Azure;
+using Azure.Messaging.WebPubSub;
 
 using transcription.models;
 using transcription.actors;
@@ -37,7 +37,7 @@ namespace transcription.processing
             services.AddControllers();
 
             var region = Environment.GetEnvironmentVariable("AZURE_COGS_REGION");
-            var cogs = new AzureCognitiveServicesClient( Configuration[Components.SecretName], region );
+            var cogs = new AzureCognitiveServicesClient(Configuration[Components.SecretName], region);
             services.AddSingleton<AzureCognitiveServicesClient>(cogs);
 
             services.AddActors(options =>

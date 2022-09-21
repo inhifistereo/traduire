@@ -1,7 +1,7 @@
 using System;
 
 namespace transcription.models
-{ 
+{
     public class TradiureTranscriptionRequest
     {
         public Guid TranscriptionId { get; set; }

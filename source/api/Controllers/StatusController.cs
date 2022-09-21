@@ -1,4 +1,4 @@
-using System; 
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -17,15 +17,15 @@ using transcription.models;
 using transcription.api.dapr;
 
 namespace transcription.Controllers
-{ 
+{
     [Route("api/status")]
     [ApiController]
     public class StatusController : ControllerBase
     {
         private readonly ILogger _logger;
-        private static DaprTranscriptionService _client; 
+        private static DaprTranscriptionService _client;
 
-        public StatusController(ILogger<StatusController> logger, DaprTranscriptionService client )
+        public StatusController(ILogger<StatusController> logger, DaprTranscriptionService client)
         {
             _logger = logger;
             _client = client;
@@ -34,21 +34,23 @@ namespace transcription.Controllers
         [HttpGet("{TranscriptionId}")]
         public async Task<ActionResult> Get(string TranscriptionId, CancellationToken cancellationToken)
         {
-            try{
+            try
+            {
                 _logger.LogInformation($"{TranscriptionId}. Status API Called");
 
                 var state = await _client.GetState(TranscriptionId);
-                
-                if( state == null ) {
+
+                if (state == null)
+                {
                     return NotFound();
                 }
 
                 _logger.LogInformation($"{TranscriptionId}. Current status is {state.Status}");
-                return Ok( new { TranscriptionId = TranscriptionId, StatusMessage = state.Status, LastUpdated = state.LastUpdateTime }  ); 
+                return Ok(new { TranscriptionId = TranscriptionId, StatusMessage = state.Status, LastUpdated = state.LastUpdateTime });
             }
-            catch( Exception ex ) 
+            catch (Exception ex)
             {
-                _logger.LogWarning($"Failed to transctionId {TranscriptionId} - {ex.Message}");    
+                _logger.LogWarning($"Failed to transctionId {TranscriptionId} - {ex.Message}");
             }
 
             return BadRequest();

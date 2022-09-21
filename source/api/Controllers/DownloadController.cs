@@ -1,4 +1,4 @@
-using System; 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -9,15 +9,15 @@ using transcription.models;
 using transcription.api.dapr;
 
 namespace transcription.Controllers
-{ 
+{
     [Route("api/download")]
     [ApiController]
     public class DownloadController : ControllerBase
     {
         private readonly ILogger _logger;
-        private static DaprTranscriptionService _client; 
+        private static DaprTranscriptionService _client;
 
-        public DownloadController(ILogger<DownloadController> logger, DaprTranscriptionService client )
+        public DownloadController(ILogger<DownloadController> logger, DaprTranscriptionService client)
         {
             _logger = logger;
             _client = client;
@@ -26,29 +26,32 @@ namespace transcription.Controllers
         [HttpGet("{TranscriptionId}")]
         public async Task<ActionResult> Get(string TranscriptionId, CancellationToken cancellationToken)
         {
-            try{
+            try
+            {
                 _logger.LogInformation($"{TranscriptionId}. Attempting to download completed transcription");
 
                 var state = await _client.GetState(TranscriptionId);
-                
-                if( state == null ) {
+
+                if (state == null)
+                {
                     return NotFound();
                 }
 
-                if( state.Status == TraduireTranscriptionStatus.Completed ) {
+                if (state.Status == TraduireTranscriptionStatus.Completed)
+                {
                     _logger.LogInformation($"{TranscriptionId}. Current status is {TraduireTranscriptionStatus.Completed}. Returning transcription");
-                    return Ok( new { TranscriptionId = TranscriptionId, StatusMessage = state.Status, Transcription = state.TranscriptionText }  ); 
-                }    
+                    return Ok(new { TranscriptionId = TranscriptionId, StatusMessage = state.Status, Transcription = state.TranscriptionText });
+                }
 
                 _logger.LogInformation($"{TranscriptionId}. Transcription status is not {TraduireTranscriptionStatus.Completed}");
             }
-            catch( Exception ex ) 
+            catch (Exception ex)
             {
-                _logger.LogWarning($"Failed to transctionId {TranscriptionId} - {ex.Message}");    
+                _logger.LogWarning($"Failed to transctionId {TranscriptionId} - {ex.Message}");
             }
 
-            
-            return BadRequest(); 
+
+            return BadRequest();
         }
     }
 }

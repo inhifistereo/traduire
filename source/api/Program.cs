@@ -30,7 +30,7 @@ namespace traduire.webapi
                     {
                         options.ListenAnyIP(80, o => o.Protocols = HttpProtocols.Http2);
                     });
-                    
+
                     webBuilder.UseStartup<Startup>();
                 });
     }

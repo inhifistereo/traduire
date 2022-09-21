@@ -1,4 +1,4 @@
-using System; 
+using System;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -17,7 +17,7 @@ namespace transcription.api.dapr
 {
     public interface IDaprTranscriptionService
     {
-        public Task<BlobBindingResponse> UploadFile (IFormFile file, CancellationToken cancellationToken) ;
+        public Task<BlobBindingResponse> UploadFile(IFormFile file, CancellationToken cancellationToken);
 
         public Task<Uri> GetBlobSasToken(string url, string userAssignedClientId);
 
