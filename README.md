@@ -76,12 +76,8 @@ _Manually_
     * API Key is stored as a Secret in Kubernetes
 
 ## Backlog 
-- [X] API exposed via Kong
-- [X] Tracing with Dapr / OpenTelemetry / App Insights
-- [X] Migrate Cognitive Services to Dapr Secure Store
-- [X] API to display transcribed text
-- [X] Additional Node Pool for AKS
-- [X] Let's Encrypt 
-- [X] UX re-written in React 
-- [X] Update API to use SAS tokens
-- [ ] ~~Port AKS, KeyVault, PostgreSQL, and Service Bus to GCP equivalents~~
+- [ ] Add null_resource to bin Keda's identity to cluster
+- [ ] Test Cluster creation with new Terraform and Flux extension
+- [ ] Update Helm Chart - Service Accounts/Deployments 
+- [ ] Test applciation deployment
+- [ ] Validate application functionality
