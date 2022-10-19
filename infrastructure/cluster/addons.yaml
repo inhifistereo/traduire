@@ -1,12 +1,24 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
 kind: Kustomization
 metadata:
+  name: kong
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./infrastructure/cluster/kong
+  prune: true
+  validation: client
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
   name: keda
   namespace: flux-system
 spec:
   interval: 10m0s
-  dependsOn:
-    - name: istio-system
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -21,8 +33,6 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m0s
-  dependsOn:
-    - name: istio-system
   sourceRef:
     kind: GitRepository
     name: flux-system
@@ -43,5 +53,18 @@ spec:
   path: ./infrastructure/cluster/kured
   prune: true
   validation: client
-
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
+kind: Kustomization
+metadata:
+  name: cert-manager
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  path: ./infrastructure/cluster/cert-manager
+  prune: true
+  validation: client
 

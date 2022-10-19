@@ -30,6 +30,9 @@ spec:
         namespace: flux-system
       interval: 1m
   values:
-    global.mtls.enabled: true
-    global.logAsJson: true
-    global.ha.enabled: true
+    global:
+      logAsJson: true
+      ha:
+        enabled: true
+      mtls:
+        enabled: true
