@@ -20,13 +20,13 @@ param(
 
 Set-Variable -Name APP_RG_NAME          -Value ("{0}_app_rg" -f $AppName)        -Option Constant
 Set-Variable -Name CORE_RG_NAME         -Value ("{0}_core_rg" -f $AppName)       -Option Constant
-Set-Variable -Name APP_K8S_NAME         -Value ("{0}-aks01" -f $AppName)         -Option Constant
-Set-Variable -Name APP_ACR_NAME         -Value ("{0}acr01" -f $AppName)          -Option Constant
-Set-Variable -Name APP_KV_NAME          -Value ("{0}-kv01" -f $AppName)          -Option Constant
-Set-Variable -Name APP_SA_NAME          -Value ("{0}files01" -f $AppName)        -Option Constant
+Set-Variable -Name APP_K8S_NAME         -Value ("{0}-aks" -f $AppName)         -Option Constant
+Set-Variable -Name APP_ACR_NAME         -Value ("{0}acr" -f $AppName)          -Option Constant
+Set-Variable -Name APP_KV_NAME          -Value ("{0}-kv" -f $AppName)          -Option Constant
+Set-Variable -Name APP_SA_NAME          -Value ("{0}files" -f $AppName)        -Option Constant
 Set-Variable -Name APP_MSI_NAME         -Value ("{0}-dapr-reader" -f $AppName)   -Option Constant
-Set-Variable -Name APP_COGS_NAME        -Value ("{0}-cogs01" -f $AppName)        -Option Constant
-Set-Variable -Name APP_AI_NAME          -Value ("{0}-ai01" -f $AppName)          -Option Constant
+Set-Variable -Name APP_COGS_NAME        -Value ("{0}-cogs" -f $AppName)        -Option Constant
+Set-Variable -Name APP_AI_NAME          -Value ("{0}-ai" -f $AppName)          -Option Constant
 Set-Variable -Name KEDA_MSI_NAME        -Value ("{0}-keda-sb-owner" -f $AppName) -Option Constant
 Set-Variable -Name KEDA_POD_BINDING     -Value "keda-podidentity"                -Option Constant
 
@@ -97,6 +97,15 @@ helm upgrade -i `
 
 ## TODO 
 #* Federate K8S Service Accounts with AAD Identities
+#
+#SUBJECT="system:serviceaccount:${NAMESPACE}:${SERVICE_ACCOUNT_NAME}"
+#az identity federated-credential create \
+#  --name ${SERVICE_ACCOUNT_NAME} \
+#  --identity-name ${SERVICE_ACCOUNT_NAME} \
+#  --resource-group ${RG} \
+#  --issuer ${SERVICE_ACCOUNT_ISSUER} \
+#  --subject ${SUBJECT}
+#
 
 if($?){
     Write-Log ("Manually create DNS (A) Record: {0} - {1}" -f $uri, (Get-APIGatewayIP))
