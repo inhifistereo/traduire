@@ -1,6 +1,6 @@
 resource "azapi_resource" "flux_install" {
   depends_on = [
-    azapi_update_resource.traduire_app
+    null_resource.post_config_setup
   ]
 
   type      = "Microsoft.KubernetesConfiguration/extensions@2021-09-01"
