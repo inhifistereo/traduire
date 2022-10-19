@@ -18,10 +18,6 @@ param(
 
 . .\modules\traduire_functions.ps1
 
-Set-Variable -Name DAPR_VERSION         -Value "1.8.3"                           -Option Constant
-Set-Variable -Name KEDA_VERSION         -Value "2.7.1"                           -Option Constant
-Set-Variable -Name KONG_VERSION         -Value "2.6"                             -Option Constant
-Set-Variable -Name CERT_MGR_VERSION     -Value "v1.9.1"                          -Option Constant
 Set-Variable -Name APP_RG_NAME          -Value ("{0}_app_rg" -f $AppName)        -Option Constant
 Set-Variable -Name CORE_RG_NAME         -Value ("{0}_core_rg" -f $AppName)       -Option Constant
 Set-Variable -Name APP_K8S_NAME         -Value ("{0}-aks01" -f $AppName)         -Option Constant
@@ -80,42 +76,6 @@ $keda_msi = New-MSIAccount -MSIName $KEDA_MSI_NAME -MSIResourceGroup $APP_RG_NAM
 #Get Cognitive Services Info
 $cogs = New-CognitiveServicesAccount -CogsAccountName $APP_COGS_NAME -CogsResourceGroup $APP_RG_NAME
 
-# Install Kong API Gateway 
-Write-Log -Message "Deploying Kong API Gateway"
-helm repo add kong https://charts.konghq.com
-helm repo update
-helm upgrade -i kong kong/kong --namespace default --version $KONG_VERSION --set ingressController.installCRDs=false
-
-# Install Dapr
-Write-Log -Message "Deploying Dapr"
-helm repo add dapr https://dapr.github.io/helm-charts
-helm repo update
-helm upgrade -i dapr dapr/dapr --namespace dapr-system --create-namespace --version $DAPR_VERSION --set global.mtls.enabled=true --set global.logAsJson=true --set global.ha.enabled=true --wait
-
-# Install Pod Identity 
-Write-Log -Message "Deploying Pod Identity"
-helm repo add aad-pod-identity https://raw.githubusercontent.com/Azure/aad-pod-identity/master/charts
-helm repo update
-helm upgrade -i aad-pod-identity aad-pod-identity/aad-pod-identity
-
-# Install Cert Manager
-Write-Log -Message "Deploying Let's Encrypt Cert Manager"
-helm repo add jetstack https://charts.jetstack.io
-helm repo update
-helm upgrade -i cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --version $CERT_MGR_VERSION  --set installCRDs=true
-
-# Install Keda
-Write-Log -Message "Deploying Keda"
-helm repo add kedacore https://kedacore.github.io/charts
-helm repo update
-helm upgrade -i keda kedacore/keda --namespace keda --create-namespace --version $KEDA_VERSION --set podIdentity.activeDirectory.identity=$KEDA_POD_BINDING
-
-## Install Kured 
-Write-Log -Message "Deploying Kured"
-helm repo add kured https://weaveworks.github.io/kured
-helm repo update
-helm upgrade -i kured kured/kured --namespace kured --create-namespace
-
 # Install App
 Write-Log -Message "Deploying Traduire"
 helm upgrade -i `
@@ -134,6 +94,9 @@ helm upgrade -i `
    --set keda_msi_resource_id=$($keda_msi.resource_id) `
    --set frontend_uri=("https://{0}" -f $FrontEndUri) `
    traduire helm/. 
+
+## TODO 
+#* Federate K8S Service Accounts with AAD Identities
 
 if($?){
     Write-Log ("Manually create DNS (A) Record: {0} - {1}" -f $uri, (Get-APIGatewayIP))
