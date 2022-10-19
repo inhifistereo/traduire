@@ -16,8 +16,8 @@ spec:
         dapr.io/log-level: "info"
       labels:
         app: {{ .Values.app_name }}
-        aadpodidbinding: {{.Values.msi_selector }}
     spec:
+      serviceAccountName: {{ print .Values.app_name "-dapr-reader" }}
       containers:
       - name: utils
         image: {{ .Values.utils_container }}
