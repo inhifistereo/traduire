@@ -1,41 +1,48 @@
-provider "azurerm" {
-  features  {}
+data "http" "myip" {
+  url = "http://checkip.amazonaws.com/"
 }
 
-terraform {
-  required_version = ">= 1.0"
-  required_providers {
-    azurerm = "~> 3.3"
-  }
-  backend "azurerm" {
-    storage_account_name = "bjdterraform003"
-    container_name       = "plans"
-  }
+resource "random_id" "this" {
+  byte_length = 2
 }
 
-resource "azurerm_resource_group" "traduire_core" {
-  name                  = "${var.application_name}_core_rg"
-  location              = var.region
-  tags                  = {
-    Application         = var.application_name
-    Tier                = "Core Components"
-  }
+resource "random_pet" "this" {
+  length    = 1
+  separator = ""
 }
 
-resource "azurerm_resource_group" "traduire_app" {
-  name                  = "${var.application_name}_app_rg"
-  location              = var.region
-  tags                  = {
-    Application         = var.application_name
-    Tier                = "App Components"
-  }
+resource "random_password" "password" {
+  length  = 25
+  special = true
 }
 
-resource "azurerm_resource_group" "traduire_ui" {
-  name                  = "${var.application_name}_ui_rg"
-  location              = var.region
-  tags                  = {
-    Application         = var.application_name
-    Tier                = "UI"
-  }
+resource "random_integer" "vnet_cidr" {
+  min = 10
+  max = 250
+}
+
+resource "random_integer" "services_cidr" {
+  min = 64
+  max = 127
+}
+
+locals {
+  resource_name         = "${random_pet.this.id}-${random_id.this.dec}"
+  aks_name              = "${local.resource_name}-aks"
+  acr_name              = "${local.resource_name}acr"
+  kv_name               = "${local.resource_name}-kv"
+  ai_name               = "${local.resource_name}-ai"
+  la_name               = "${local.resource_name}-logs"
+  vnet_name             = "${local.resource_name}-vnet"
+  mp3sa_name            = "${local.resource_name}files"
+  uisa_name             = "${local.resource_name}-ui"
+  sql_name              = "${local.resource_name}-sql"
+  sb_name               = "${local.resource_name}-sb"
+  pubsub_name           = "${local.resource_name}-pubsub"
+  app_path              = "./infrastructure/cluster/"
+  flux_repository       = "https://github.com/briandenicola/traduire"
+  vnet_cidr           = cidrsubnet("10.0.0.0/8", 8, random_integer.vnet_cidr.result)
+  pe_subnet_cidr      = cidrsubnet(local.vnet_cidr, 1, 2)
+  sql_subnet_cidr     = cidrsubnet(local.vnet_cidr, 2, 2)
+  k8s_subnet_cidr     = cidrsubnet(local.vnet_cidr, 7, 2)
 }
