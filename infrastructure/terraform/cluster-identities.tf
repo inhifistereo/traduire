@@ -19,3 +19,6 @@ resource "azapi_update_resource" "traduire_app" {
     }
   })
 }
+
+#Add null_resource to add Keda Service Bus identity to cluster for Pod Identies - known name: aks-keda-identity
+#az aks pod-identity add --resource-group ${CLUSTER_RG} --cluster-name ${CLUSTER_NAME} --namespace ${NAMESPACE} --name ${IDENTITY_NAME} --identity-resource-id ${RESOURCEID}

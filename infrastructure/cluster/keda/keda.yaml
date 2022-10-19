@@ -32,4 +32,4 @@ spec:
   values:
     podIdentity:
       activeDirectory:
-        identity: TBD
+        identity: aks-keda-identity
