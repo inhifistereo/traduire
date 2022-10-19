@@ -8,6 +8,9 @@ resource "azapi_update_resource" "traduire_app" {
 
   body = jsonencode({
     properties = {
+      podIdentityProfile = {
+        enabled = true
+      }
       securityProfile = {
         workloadIdentity = {
           enabled = true
