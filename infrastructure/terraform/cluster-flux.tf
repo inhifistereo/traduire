@@ -35,8 +35,8 @@ resource "azapi_resource" "flux_config" {
         timeoutInSeconds      = 300
         syncIntervalInSeconds = 120
         repositoryRef = {
-          #branch = "main"
-          branch  = "workloadid"
+          branch = "main"
+          #branch  = "workloadid"
         }
       }
       kustomizations : {
