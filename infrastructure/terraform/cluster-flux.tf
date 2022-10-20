@@ -39,7 +39,7 @@ resource "azapi_resource" "flux_config" {
         }
       }
       kustomizations : {
-        istio-crd = {
+        cluster_config = {
           path                   = local.app_path
           dependsOn              = []
           timeoutInSeconds       = 600
