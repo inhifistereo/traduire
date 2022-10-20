@@ -7,7 +7,7 @@ spec:
   interval: 10m0s
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: aks-flux-extension
   path: ./infrastructure/cluster/kong
   prune: true
   validation: client
@@ -21,7 +21,7 @@ spec:
   interval: 10m0s
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: aks-flux-extension
   path: ./infrastructure/cluster/keda
   prune: true
   validation: client
@@ -35,7 +35,7 @@ spec:
   interval: 10m0s
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: aks-flux-extension
   path: ./infrastructure/cluster/dapr
   prune: true
   validation: client
@@ -49,7 +49,7 @@ spec:
   interval: 10m0s
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: aks-flux-extension
   path: ./infrastructure/cluster/kured
   prune: true
   validation: client
@@ -63,7 +63,7 @@ spec:
   interval: 10m0s
   sourceRef:
     kind: GitRepository
-    name: flux-system
+    name: aks-flux-extension
   path: ./infrastructure/cluster/cert-manager
   prune: true
   validation: client
