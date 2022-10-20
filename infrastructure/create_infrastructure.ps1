@@ -14,12 +14,18 @@ terraform -chdir=terraform init
 terraform -chdir=terraform plan -out="$tfPlanFileName" -var "location=$region"
 terraform -chdir=terraform apply -auto-approve $tfPlanFileName
 
-$NAMESPACE="keda-system"
 $AKS_RESOURCE_GROUP=$(terraform -chdir=terraform output -raw AKS_RESOURCE_GROUP)
 $CLUSTER_NAME=$(terraform -chdir=terraform output -raw CLUSTER_NAME)
-$IDENTITY_NAME=$(terraform -chdir=terraform output -raw KEDA_MI_NAME)
-$RESOURCEID=$(terraform -chdir=terraform output -raw KEDA_RESOURCE_ID)
-az aks pod-identity add --resource-group $AKS_RESOURCE_GROUP --cluster-name $CLUSTER_NAME --namespace $NAMESPACE --name $IDENTITY_NAME --identity-resource-id $RESOURCEID
+
+$KEDA_NAMESPACE="keda-system"
+$KEDA_IDENTITY_NAME=$(terraform -chdir=terraform output -raw KEDA_MI_NAME)
+$KEDA_RESOURCEID=$(terraform -chdir=terraform output -raw KEDA_RESOURCE_ID)
+az aks pod-identity add --resource-group $AKS_RESOURCE_GROUP --cluster-name $CLUSTER_NAME --namespace $KEDA_NAMESPACE --name $KEDA_IDENTITY_NAME --identity-resource-id $KEDA_RESOURCEID
+
+$DEFAULT_NAMESPACE="default"
+$KEDA_IDENTITY_NAME=$(terraform -chdir=terraform output -raw DAPR_MI_NAME)
+$KEDA_RESOURCEID=$(terraform -chdir=terraform output -raw DAPR_RESOURCE_ID)
+az aks pod-identity add --resource-group $AKS_RESOURCE_GROUP --cluster-name $CLUSTER_NAME --namespace $DEFAULT_NAMESPACE --name $DAPR_IDENTITY_NAME --identity-resource-id $DAPR_RESOURCEID
 
 # echo Application name
 if($?){

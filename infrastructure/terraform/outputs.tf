@@ -27,3 +27,13 @@ output "KEDA_RESOURCE_ID" {
   value     = azurerm_user_assigned_identity.keda_sb_user.id
   sensitive = false
 }
+
+output "DAPR_MI_NAME" {
+  value     = azurerm_user_assigned_identity.dapr_reader.name
+  sensitive = false
+}
+
+output "DAPR_RESOURCE_ID" {
+  value     = azurerm_user_assigned_identity.dapr_reader.id
+  sensitive = false
+}
