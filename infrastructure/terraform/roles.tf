@@ -33,6 +33,13 @@ resource "azurerm_role_assignment" "acr_pullrole_node" {
   skip_service_principal_aad_check = true
 }
 
+resource "azurerm_role_assignment" "acr_pullrole_cluster" {
+  scope                     = azurerm_container_registry.traduire_acr.id
+  role_definition_name      = "AcrPull"
+  principal_id              = azurerm_user_assigned_identity.aks_identity.principal_id
+  skip_service_principal_aad_check = true
+}
+
 resource "azurerm_role_assignment" "keda_sb_data_owner" {
   scope                     = azurerm_servicebus_namespace.traduire_app.id
   role_definition_name      = "Azure Service Bus Data Owner" 
