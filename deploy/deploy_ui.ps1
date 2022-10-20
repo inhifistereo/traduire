@@ -12,11 +12,11 @@ param(
 
 . .\modules\traduire_functions.ps1
 
-Set-Variable -Name APP_UI_NAME      -Value ("{0}ui01" -f $AppName)         -Option Constant
+Set-Variable -Name APP_UI_NAME      -Value ("{0}-ui" -f $AppName)         -Option Constant
 Set-Variable -Name APP_UI_RG        -Value ("{0}_ui_rg" -f $AppName)       -Option Constant
-Set-Variable -Name APP_PUBSUB_NAME  -Value ("{0}-pubsub01" -f $AppName)    -Option Constant
+Set-Variable -Name APP_PUBSUB_NAME  -Value ("{0}-pubsub" -f $AppName)    -Option Constant
 Set-Variable -Name APP_RG_NAME      -Value ("{0}_app_rg" -f $AppName)      -Option Constant
-Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks01" -f $AppName)       -Option Constant
+Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks" -f $AppName)       -Option Constant
 
 Set-Variable -Name cwd              -Value $PWD.Path
 Set-Variable -Name root             -Value (Get-Item $PWD.Path).Parent.FullName

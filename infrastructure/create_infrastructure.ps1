@@ -1,76 +1,40 @@
 param(
   [Parameter(Mandatory=$true)]
-  [string] $AppName,
-
-  [Parameter(Mandatory=$true)]
   [string] $SubscriptionName,
 
   [Parameter(Mandatory=$true)]
-  [string] $region,
-
-  [Parameter(Mandatory=$true)]
-  [string] $StorageAccountKey
+  [string] $region
 )
 
 $today = (Get-Date).ToString("yyyyMMdd")
+$tfPlanFileName = "traduire.plan.{0}" -f $today
 
 az account set -s $SubscriptionName
+terraform -chdir=terraform init
+terraform -chdir=terraform plan -out="$tfPlanFileName" -var "location=$region"
+terraform -chdir=terraform apply -auto-approve $tfPlanFileName
 
-#Azure Environment 
-$tenantId = (az account show --query "tenantId" -o tsv)
+$AKS_RESOURCE_GROUP=$(terraform -chdir=terraform output -raw AKS_RESOURCE_GROUP)
+$CLUSTER_NAME=$(terraform -chdir=terraform output -raw CLUSTER_NAME)
 
-#Terraform Variables
-$tfVarFileName = "variables.tfvars"
-$tfPlanFileName = "{0}.plan.{1}" -f $AppName, $today
+$KEDA_NAMESPACE="keda-system"
+$KEDA_IDENTITY_NAME=$(terraform -chdir=terraform output -raw KEDA_MI_NAME)
+$KEDA_RESOURCEID=$(terraform -chdir=terraform output -raw KEDA_RESOURCE_ID)
+az aks pod-identity add --resource-group $AKS_RESOURCE_GROUP --cluster-name $CLUSTER_NAME --namespace $KEDA_NAMESPACE --name $KEDA_IDENTITY_NAME --identity-resource-id $KEDA_RESOURCEID
 
-#Resource Names
-$acrAccountName = "{0}acr01" -f $appName
-$appInsightsName = "{0}-ai01" -f $appName
-$logAnalyticsWorkspace = "{0}-logs01" -f $appName
-$vnetName = "{0}-vnet01" -f $appName 
-$aks = "{0}-aks01" -f $appName
-$mp3StorageAccountName = "{0}files01" -f $appName
-$uiStorageAccountName = "{0}ui01" -f $appName
-$postgresqlAccountName = "{0}-psql01" -f $appName
-$serviceBusAccountName = "{0}-sb01" -f $appName
-$keyVaultAccountName = "{0}-kv01" -f $appName
-$pubsubAccountName = "{0}-pubsub01" -f $appName
-
-$public_ip = (Invoke-RestMethod http://checkip.amazonaws.com/).Trim()
-
-$configuration=@"
-application_name = "$appName"
-region = "$region"
-tenant_id = "$tenantId"
-postgresql_name = "$postgresqlAccountName"
-acr_account_name = "$acrAccountName"
-ai_account_name = "$appInsightsName"
-loganalytics_account_name = "$logAnalyticsWorkspace"
-vnet_name = "$vnetName"
-aks_name = "$aks"
-ui_storage_name = "$uiStorageAccountName"
-pubsub_name = "$pubsubAccountName"
-mp3_storage_name = "$mp3StorageAccountName"
-service_bus_namespace_name = "$serviceBusAccountName"
-keyvault_name = "$keyVaultAccountName"
-api_server_authorized_ip_ranges = "$public_ip/32"
-"@
-Set-Content -Value $configuration -Path ./terraform/$tfVarFileName -Encoding ascii
-
-Set-Location ./terraform
-terraform init -backend=true -backend-config="access_key=$StorageAccountKey" -backend-config="key=traduire.terraform.tfstate"
-terraform plan -out="$tfPlanFileName" -var-file="$tfVarFileName"
-terraform apply -auto-approve $tfPlanFileName
+$DEFAULT_NAMESPACE="default"
+$DAPR_IDENTITY_NAME=$(terraform -chdir=terraform output -raw DAPR_MI_NAME)
+$DAPR_RESOURCEID=$(terraform -chdir=terraform output -raw DAPR_RESOURCE_ID)
+az aks pod-identity add --resource-group $AKS_RESOURCE_GROUP --cluster-name $CLUSTER_NAME --namespace $DEFAULT_NAMESPACE --name $DAPR_IDENTITY_NAME --identity-resource-id $DAPR_RESOURCEID
 
 # echo Application name
 if($?){
   Write-Host "------------------------------------"
-  Write-Host ("Infrastructure built successfully. Application Name: {0}" -f $AppName)
+  Write-Host "Infrastructure built successfully. Application Name: traduire"
   Write-Host "------------------------------------"
 }
 else {
   Write-Host "------------------------------------"
-  Write-Host ("Errors encountered while building infrastructure. Please review. Application Name: {0}" -f $AppName )
+  Write-Host ("Errors encountered while building infrastructure. Please review. Application Name: traduire" )
   Write-Host "------------------------------------"
 }
-Set-Location ..

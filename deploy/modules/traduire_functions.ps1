@@ -214,6 +214,7 @@ function New-MSIAccount
     return (New-Object psobject -Property @{
         client_id = (az identity show -n $MSIName -g $MSIResourceGroup --query clientId -o tsv)
         resource_id = (az identity show -n $MSIName -g $MSIResourceGroup --query id -o tsv)
+        tenant_id = (az identity show -n $MSIName -g $MSIResourceGroup --query tenantId -o tsv)
     })
 }
 
@@ -229,6 +230,37 @@ function New-CognitiveServicesAccount
         region = (az cognitiveservices account show -n $CogsAccountName -g $CogsResourceGroup -o tsv --query location)
         key = (ConvertTo-Base64EncodedString (az cognitiveservices account keys list -n $CogsAccountName -g $CogsResourceGroup -o tsv --query key1))
     })
+}
+
+function New-FederatedCredentials 
+{
+    param(
+        [string] $AKSNAME,
+        [string] $AKSResourceGroup,
+        [string] $Namespace,
+        [string] $ServiceAccountName
+    )
+    
+    function Get-OIDCIssuer 
+    {
+        param(
+            [string] $cluster,
+            [string] $rg
+        )
+        return (az aks show --resource-group $rg --name $cluster --query "oidcIssuerProfile.issuerUrl" -o tsv)
+    }
+
+    $federation_subject = "system:serviceaccount:${Namespace}:${ServiceAccountName}"
+    $OIDCIssuer = Get-OIDCIssuer -cluster $AKSNAME -rg $AKSResourceGroup
+
+    Write-Log -Message "Federate ${ServiceAccountName} with ${federation_subject}"
+    az identity federated-credential create `
+      --name $ServiceAccountName `
+      --identity-name $ServiceAccountName `
+      --resource-group $AKSResourceGroup `
+      --issuer $OIDCIssuer `
+      --subject $federation_subject
+
 }
 
 function Get-GitCommitVersion

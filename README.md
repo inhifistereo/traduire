@@ -39,13 +39,12 @@ Keda | Autoscaler for saga components
 ### Infrastructure 
 * pwsh
 * cd ./Infrastructure
-* $AppName = "trad{0}" -f (New-Guid).ToString('N').Substring(0,4)
-* ./create_infrastructure.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -Region southcentralus
+* ./create_infrastructure.ps1 -Subscription BJD_AZ_SUB01 -Region southcentralus
 
 ### Application Deployment 
 * pwsh
 * cd ./Deploy
-* ./deploy_application.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -Uri api.bjd.tech [-upgrade] -verbose
+* ./deploy_application.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -Uri api.bjd.tech -FrontEndUri traduire.bjd.tech [-upgrade] -verbose
 * Update the DNS record of Uri to the IP Address returned by the script
 
 ### UI Deployment 
@@ -76,12 +75,9 @@ _Manually_
     * API Key is stored as a Secret in Kubernetes
 
 ## Backlog 
-- [X] API exposed via Kong
-- [X] Tracing with Dapr / OpenTelemetry / App Insights
-- [X] Migrate Cognitive Services to Dapr Secure Store
-- [X] API to display transcribed text
-- [X] Additional Node Pool for AKS
-- [X] Let's Encrypt 
-- [X] UX re-written in React 
-- [X] Update API to use SAS tokens
-- [ ] ~~Port AKS, KeyVault, PostgreSQL, and Service Bus to GCP equivalents~~
+- [X] Add null_resource to bin Keda's identity to cluster
+- [X] Test Cluster creation with new Terraform and Flux extension
+- [X] Update Helm Chart - Service Accounts/Deployments 
+- [X] Test applciation deployment
+- [X] Validate application functionality
+- [ ] Update to Workload Identity when support comes to Dapr
