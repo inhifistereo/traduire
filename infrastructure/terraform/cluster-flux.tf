@@ -32,8 +32,8 @@ resource "azapi_resource" "flux_config" {
       suspend    = false
       gitRepository = {
         url                   = local.flux_repository
-        timeoutInSeconds      = 600
-        syncIntervalInSeconds = 300
+        timeoutInSeconds      = 300
+        syncIntervalInSeconds = 120
         repositoryRef = {
           #branch = "main"
           branch  = "workloadid"
@@ -43,9 +43,9 @@ resource "azapi_resource" "flux_config" {
         cluster-config = {
           path                   = local.app_path
           dependsOn              = []
-          timeoutInSeconds       = 600
+          timeoutInSeconds       = 300
           syncIntervalInSeconds  = 120
-          retryIntervalInSeconds = 300
+          retryIntervalInSeconds = 600
           prune                  = true
         }
       }
