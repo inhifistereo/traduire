@@ -45,7 +45,7 @@ Keda | Autoscaler for saga components
 ### Application Deployment 
 * pwsh
 * cd ./Deploy
-* ./deploy_application.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -Uri api.bjd.tech [-upgrade] -verbose
+* ./deploy_application.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -Uri api.bjd.tech -FrontEndUri traduire.bjd.tech [-upgrade] -verbose
 * Update the DNS record of Uri to the IP Address returned by the script
 
 ### UI Deployment 
