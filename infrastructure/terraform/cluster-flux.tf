@@ -1,6 +1,6 @@
 resource "azapi_resource" "flux_install" {
   depends_on = [
-    azapi_update_resource.traduire_app
+    azurerm_kubernetes_cluster_node_pool.traduire_app_node_pool
   ]
 
   type      = "Microsoft.KubernetesConfiguration/extensions@2021-09-01"
@@ -35,11 +35,12 @@ resource "azapi_resource" "flux_config" {
         timeoutInSeconds      = 600
         syncIntervalInSeconds = 300
         repositoryRef = {
-          branch = "main"
+          #branch = "main"
+          branch  = "workloadid"
         }
       }
       kustomizations : {
-        cluster_config = {
+        cluster-config = {
           path                   = local.app_path
           dependsOn              = []
           timeoutInSeconds       = 600

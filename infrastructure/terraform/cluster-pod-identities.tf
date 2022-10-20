@@ -1,6 +1,6 @@
 resource "azapi_update_resource" "traduire_app" {
   depends_on = [
-    azurerm_kubernetes_cluster_node_pool.traduire_app_node_pool
+   azapi_resource.flux_config
   ]
 
   type        = "Microsoft.ContainerService/managedClusters@2022-09-02-preview"
@@ -10,11 +10,6 @@ resource "azapi_update_resource" "traduire_app" {
     properties = {
       podIdentityProfile = {
         enabled = true
-      }
-      securityProfile = {
-        workloadIdentity = {
-          enabled = true
-        }
       }
     }
   })

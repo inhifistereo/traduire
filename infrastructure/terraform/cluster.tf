@@ -13,11 +13,12 @@ resource "azurerm_kubernetes_cluster" "traduire_app" {
   dns_prefix                      = local.aks_name
   sku_tier                        = "Paid"
   oidc_issuer_enabled             = true
+  workload_identity_enabled       = true
   azure_policy_enabled            = true
-  local_account_disabled          = true 
+  local_account_disabled          = false 
   automatic_channel_upgrade       = "patch"
   api_server_authorized_ip_ranges = ["${chomp(data.http.myip.response_body)}/32"]
-
+  
   identity {
     type         = "UserAssigned"
     identity_ids = [azurerm_user_assigned_identity.aks_identity.id]
