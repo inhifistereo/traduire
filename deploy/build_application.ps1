@@ -13,7 +13,7 @@ param(
 . .\modules\traduire_functions.ps1
 
 $root   = (Get-Item $PWD.Path).Parent.FullName
-$source = Join-Path -Path $root -ChildPath "source"
+$source = Join-Path -Path $root -ChildPath "src"
 
 #Start-Docker
 Start-Docker
