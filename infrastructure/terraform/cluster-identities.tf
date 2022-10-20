@@ -19,21 +19,3 @@ resource "azapi_update_resource" "traduire_app" {
     }
   })
 }
-
-resource "null_resource" "post_config_setup" {
-  depends_on = [
-    azapi_update_resource.traduire_app
-  ]
-  provisioner "local-exec" {
-    command = "az aks pod-identity add --resource-group ${CLUSTER_RG} --cluster-name ${CLUSTER_NAME} --namespace ${NAMESPACE} --name ${IDENTITY_NAME} --identity-resource-id ${RESOURCEID}"
-    interpreter = ["bash"]
-
-    environment = {
-      CLUSTER_NAME        = "${var.cluster_name}"
-      CLUSTER_RG          = "${azurerm_resource_group.traduire_app.name}"
-      NAMESPACE           = "keda-system"
-      IDENTITY_NAME       = "aks-keda-identity"
-      RESOURCEID          = "${azurerm_user_assigned_identity.keda_sb_user.id}"
-    }
-  }
-}

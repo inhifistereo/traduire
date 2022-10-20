@@ -1,5 +1,5 @@
 resource "azurerm_static_site" "traduire_ui" {
-  name                  = local.uisa_name
+  name                  = local.static_webapp_name
   resource_group_name   = azurerm_resource_group.traduire_ui.name
   location              = "centralus"
 }

@@ -45,3 +45,8 @@ resource "azurerm_subnet_network_security_group_association" "private-endpoints"
   subnet_id                 = azurerm_subnet.private-endpoints.id
   network_security_group_id = azurerm_network_security_group.traduire-default.id
 }
+
+resource "azurerm_subnet_network_security_group_association" "sql" {
+  subnet_id                 = azurerm_subnet.sql.id
+  network_security_group_id = azurerm_network_security_group.traduire-default.id
+}

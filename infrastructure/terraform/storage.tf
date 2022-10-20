@@ -1,5 +1,5 @@
 resource "azurerm_storage_account" "traduire_app" {
-  name                      = local.sb_name
+  name                      = local.mp3sa_name
   resource_group_name       = azurerm_resource_group.traduire_app.name
   location                  = azurerm_resource_group.traduire_app.location
   account_tier              = "Standard"
@@ -16,13 +16,13 @@ resource "azurerm_storage_container" "mp3" {
 }
 
 resource "azurerm_private_endpoint" "storage_account" {
-  name                      = "${local.sb_name}-ep"
+  name                      = "${local.mp3sa_name}-ep"
   resource_group_name       = azurerm_resource_group.traduire_app.name
   location                  = azurerm_resource_group.traduire_app.location
   subnet_id                 = azurerm_subnet.private-endpoints.id
 
   private_service_connection {
-    name                           = "${local.sb_name}-ep"
+    name                           = "${local.mp3sa_name}-ep"
     private_connection_resource_id = azurerm_storage_account.traduire_app.id
     subresource_names              = [ "blob" ]
     is_manual_connection           = false

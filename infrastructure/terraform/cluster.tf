@@ -53,6 +53,6 @@ resource "azurerm_kubernetes_cluster_node_pool" "traduire_app_node_pool" {
   node_count            = 3
   min_count             = 3
   max_count             = 10
-
+  vnet_subnet_id        = azurerm_subnet.kubernetes.id
   node_taints           = [ "app=traduire:NoSchedule" ]
 }
