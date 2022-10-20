@@ -1,8 +1,4 @@
 app_name                                : ""
-msi_client_id                           : ""
-msi_resource_id                         : ""
-keda_msi_client_id                      : ""
-keda_msi_resource_id                    : ""
 keyvault_name                           : ""
 storage_name                            : ""
 acr_name                                : ""

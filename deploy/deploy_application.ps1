@@ -18,26 +18,26 @@ param(
 
 . .\modules\traduire_functions.ps1
 
-Set-Variable -Name APP_RG_NAME          -Value ("{0}_app_rg" -f $AppName)        -Option Constant
-Set-Variable -Name CORE_RG_NAME         -Value ("{0}_core_rg" -f $AppName)       -Option Constant
-Set-Variable -Name APP_K8S_NAME         -Value ("{0}-aks" -f $AppName)         -Option Constant
-Set-Variable -Name APP_ACR_NAME         -Value ("{0}acr" -f $AppName)          -Option Constant
-Set-Variable -Name APP_KV_NAME          -Value ("{0}-kv" -f $AppName)          -Option Constant
-Set-Variable -Name APP_SA_NAME          -Value ("{0}files" -f $AppName)        -Option Constant
-Set-Variable -Name APP_MSI_NAME         -Value ("{0}-dapr-reader" -f $AppName)   -Option Constant
-Set-Variable -Name APP_COGS_NAME        -Value ("{0}-cogs" -f $AppName)        -Option Constant
-Set-Variable -Name APP_AI_NAME          -Value ("{0}-ai" -f $AppName)          -Option Constant
-Set-Variable -Name KEDA_MSI_NAME        -Value ("{0}-keda-sb-owner" -f $AppName) -Option Constant
-Set-Variable -Name KEDA_POD_BINDING     -Value "keda-podidentity"                -Option Constant
+$UriFriendlyAppName = $AppName.Replace("-","")
+
+Set-Variable -Name APP_RG_NAME          -Value ("{0}_app_rg" -f $AppName)           -Option Constant
+Set-Variable -Name CORE_RG_NAME         -Value ("{0}_core_rg" -f $AppName)          -Option Constant
+Set-Variable -Name APP_K8S_NAME         -Value ("{0}-aks" -f $AppName)              -Option Constant
+Set-Variable -Name APP_ACR_NAME         -Value ("{0}acr" -f $UriFriendlyAppName)    -Option Constant
+Set-Variable -Name APP_KV_NAME          -Value ("{0}-kv" -f $AppName)               -Option Constant
+Set-Variable -Name APP_SA_NAME          -Value ("{0}files" -f $UriFriendlyAppName)  -Option Constant
+Set-Variable -Name APP_SERVICE_ACCT     -Value ("{0}-dapr-reader" -f $AppName)      -Option Constant
+Set-Variable -Name APP_COGS_NAME        -Value ("{0}-cogs01" -f $AppName)           -Option Constant
+Set-Variable -Name APP_AI_NAME          -Value ("{0}-ai" -f $AppName)               -Option Constant
+Set-Variable -Name APP_NAMESPACE        -Value "default"                            -Option Constant
 
 $root   = (Get-Item $PWD.Path).Parent.FullName
 $source = Join-Path -Path $root -ChildPath "source"
 
 #Start-Docker
-#Start-Docker
+Start-Docker
 
 #Connect to Azure and Log into ACR
-#Connect-ToAzure -SubscriptionName $SubscriptionName
 Add-AzureCliExtensions
 Connect-ToAzureContainerRepo -ACRName $APP_ACR_NAME 
 
@@ -70,18 +70,17 @@ $kong_api_secret = New-APISecret -Length 25
 $app_insights_key = (az monitor app-insights component show --app $APP_AI_NAME -g $CORE_RG_NAME --query instrumentationKey -o tsv)
 
 #Get MSI Account Info
-$app_msi  = New-MSIAccount -MSIName $APP_MSI_NAME -MSIResourceGroup $APP_RG_NAME
-$keda_msi = New-MSIAccount -MSIName $KEDA_MSI_NAME -MSIResourceGroup $APP_RG_NAME
+$app_msi  = New-MSIAccount -MSIName $APP_SERVICE_ACCT -MSIResourceGroup $APP_RG_NAME
 
 #Get Cognitive Services Info
 $cogs = New-CognitiveServicesAccount -CogsAccountName $APP_COGS_NAME -CogsResourceGroup $APP_RG_NAME
 
 # Install App
 Write-Log -Message "Deploying Traduire"
-helm upgrade -i `
+helm upgrade -i traduire helm/. `
    --set app_name=$AppName `
-   --set msi_client_id=$($app_msi.client_id) `
-   --set msi_resource_id=$($app_msi.resource_id) `
+   --set ARM_WORKLOAD_APP_ID=$($app_msi.client_id) `
+   --set ARM_TENANT_ID=$($app_msi.tenant_id) `
    --set keyvault_name=$APP_KV_NAME `
    --set storage_name=$APP_SA_NAME `
    --set acr_name=$APP_ACR_NAME `
@@ -90,22 +89,11 @@ helm upgrade -i `
    --set app_insights_key=$app_insights_key `
    --set kong_api_secret=$kong_api_secret `
    --set kong_api_uri=$Uri `
-   --set keda_msi_client_id=$($keda_msi.client_id) `
-   --set keda_msi_resource_id=$($keda_msi.resource_id) `
-   --set frontend_uri=("https://{0}" -f $FrontEndUri) `
-   traduire helm/. 
+   --set namespace=$APP_NAMESPACE `
+   --set frontend_uri="https://$FrontEndUri" --debug
 
-## TODO 
-#* Federate K8S Service Accounts with AAD Identities
-#
-#SUBJECT="system:serviceaccount:${NAMESPACE}:${SERVICE_ACCOUNT_NAME}"
-#az identity federated-credential create \
-#  --name ${SERVICE_ACCOUNT_NAME} \
-#  --identity-name ${SERVICE_ACCOUNT_NAME} \
-#  --resource-group ${RG} \
-#  --issuer ${SERVICE_ACCOUNT_ISSUER} \
-#  --subject ${SUBJECT}
-#
+#Federate AKS Service Account with Traduire Dapr User Assigned Managed Identity
+New-FederatedCredentials -AKSName $APP_K8S_NAME -AKSResourceGroup $APP_RG_NAME -Namespace $APP_NAMESPACE -ServiceAccountName $APP_SERVICE_ACCT
 
 if($?){
     Write-Log ("Manually create DNS (A) Record: {0} - {1}" -f $uri, (Get-APIGatewayIP))
