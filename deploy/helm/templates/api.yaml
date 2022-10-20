@@ -18,8 +18,8 @@ spec:
         {{ print .Values.app_name "/config-hash" }}: {{ include (print $.Template.BasePath "/components.yaml") . | sha256sum }}
       labels:
         app: {{ print .Values.app_name "-api" }}
+        aadpodidbinding: {{ .Values.msi_selector }} 
     spec:
-      serviceAccountName: {{ print .Values.app_name "-dapr-reader" }}
       containers:
       - name: api
         image: {{ print .Values.acr_name ".azurecr.io/traduire/api:" .Values.commit_version }}
@@ -37,7 +37,7 @@ spec:
         - name: AZURE_COGS_REGION
           value: {{ .Values.cogs_region }}
         - name: MSI_CLIENT_ID
-          value: {{ .Values.ARM_WORKLOAD_APP_ID }}
+          value: {{ .Values.msi_client_id }}
       tolerations:
       - key: "app"
         operator: "Equal"

@@ -79,8 +79,8 @@ $cogs = New-CognitiveServicesAccount -CogsAccountName $APP_COGS_NAME -CogsResour
 Write-Log -Message "Deploying Traduire"
 helm upgrade -i traduire helm/. `
    --set app_name=$AppName `
-   --set ARM_WORKLOAD_APP_ID=$($app_msi.client_id) `
-   --set ARM_TENANT_ID=$($app_msi.tenant_id) `
+   --set msi_client_id=$($app_msi.client_id) `
+   --set msi_selector=$APP_SERVICE_ACCT `
    --set keyvault_name=$APP_KV_NAME `
    --set storage_name=$APP_SA_NAME `
    --set acr_name=$APP_ACR_NAME `
@@ -90,10 +90,12 @@ helm upgrade -i traduire helm/. `
    --set kong_api_secret=$kong_api_secret `
    --set kong_api_uri=$Uri `
    --set namespace=$APP_NAMESPACE `
-   --set frontend_uri="https://$FrontEndUri" --debug
+   --set frontend_uri="https://$FrontEndUri"
 
+#...Dapr does not support Workload Identities yet....
 #Federate AKS Service Account with Traduire Dapr User Assigned Managed Identity
-New-FederatedCredentials -AKSName $APP_K8S_NAME -AKSResourceGroup $APP_RG_NAME -Namespace $APP_NAMESPACE -ServiceAccountName $APP_SERVICE_ACCT
+#New-FederatedCredentials -AKSName $APP_K8S_NAME -AKSResourceGroup $APP_RG_NAME -Namespace $APP_NAMESPACE -ServiceAccountName $APP_SERVICE_ACCT
+#
 
 if($?){
     Write-Log ("Manually create DNS (A) Record: {0} - {1}" -f $uri, (Get-APIGatewayIP))

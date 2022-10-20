@@ -9,7 +9,7 @@ spec:
   - name: vaultName
     value: {{ .Values.keyvault_name }} 
   - name: spnClientId
-    value: {{ .Values.ARM_WORKLOAD_APP_ID }} 
+    value: {{ .Values.msi_client_id }} 
 ---
 apiVersion: dapr.io/v1alpha1
 kind: Component
