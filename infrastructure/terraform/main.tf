@@ -39,6 +39,7 @@ locals {
   sql_name              = "${local.resource_name}-sql"
   sb_name               = "${local.resource_name}-sbns"
   pubsub_name           = "${local.resource_name}-pubsub"
+  cogs_name             = "${local.resource_name}-cogs"
   app_path              = "./infrastructure/cluster/"
   flux_repository       = "https://github.com/briandenicola/traduire"
   vnet_cidr             = cidrsubnet("10.0.0.0/8", 8, random_integer.vnet_cidr.result)

@@ -27,7 +27,7 @@ Set-Variable -Name APP_ACR_NAME         -Value ("{0}acr" -f $UriFriendlyAppName)
 Set-Variable -Name APP_KV_NAME          -Value ("{0}-kv" -f $AppName)               -Option Constant
 Set-Variable -Name APP_SA_NAME          -Value ("{0}files" -f $UriFriendlyAppName)  -Option Constant
 Set-Variable -Name APP_SERVICE_ACCT     -Value ("{0}-dapr-reader" -f $AppName)      -Option Constant
-Set-Variable -Name APP_COGS_NAME        -Value ("{0}-cogs01" -f $AppName)           -Option Constant
+Set-Variable -Name APP_COGS_NAME        -Value ("{0}-cogs" -f $AppName)             -Option Constant
 Set-Variable -Name APP_AI_NAME          -Value ("{0}-ai" -f $AppName)               -Option Constant
 Set-Variable -Name APP_NAMESPACE        -Value "default"                            -Option Constant
 
