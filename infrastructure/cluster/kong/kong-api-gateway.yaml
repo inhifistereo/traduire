@@ -10,10 +10,11 @@ spec:
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: kong
-  namespace: default
+  name: kong-release
+  namespace: flux-system
 spec:
   interval: 5m
+  targetNamespace: default
   chart:
     spec:
       chart: kong
