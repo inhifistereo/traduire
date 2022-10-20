@@ -1,14 +1,21 @@
 data "azurerm_client_config" "current" {}
 
+data "azurerm_kubernetes_service_versions" "current" {
+  location = azurerm_resource_group.traduire_app.location
+}
+
 resource "azurerm_kubernetes_cluster" "traduire_app" {
   name                            = local.aks_name
   resource_group_name             = azurerm_resource_group.traduire_app.name
   location                        = azurerm_resource_group.traduire_app.location
   node_resource_group             = "${azurerm_resource_group.traduire_app.name}_k8s_nodes"
+  kubernetes_version              = data.azurerm_kubernetes_service_versions.current.latest_version
   dns_prefix                      = local.aks_name
   sku_tier                        = "Paid"
   oidc_issuer_enabled             = true
   azure_policy_enabled            = true
+  local_account_disabled          = true 
+  automatic_channel_upgrade       = "patch"
   api_server_authorized_ip_ranges = ["${chomp(data.http.myip.response_body)}/32"]
 
   identity {
