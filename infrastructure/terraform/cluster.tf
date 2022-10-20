@@ -12,7 +12,14 @@ resource "azurerm_kubernetes_cluster" "traduire_app" {
   api_server_authorized_ip_ranges = ["${chomp(data.http.myip.response_body)}/32"]
 
   identity {
-    type                    = "SystemAssigned"
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.aks_identity.id]
+  }
+
+  kubelet_identity {
+    client_id                 = azurerm_user_assigned_identity.aks_kubelet_identity.client_id
+    object_id                 = azurerm_user_assigned_identity.aks_kubelet_identity.principal_id
+    user_assigned_identity_id = azurerm_user_assigned_identity.aks_kubelet_identity.id
   }
 
   default_node_pool  {
