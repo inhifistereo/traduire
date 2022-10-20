@@ -39,8 +39,7 @@ Keda | Autoscaler for saga components
 ### Infrastructure 
 * pwsh
 * cd ./Infrastructure
-* $AppName = "trad{0}" -f (New-Guid).ToString('N').Substring(0,4)
-* ./create_infrastructure.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -Region southcentralus
+* ./create_infrastructure.ps1 -Subscription BJD_AZ_SUB01 -Region southcentralus
 
 ### Application Deployment 
 * pwsh
@@ -76,8 +75,9 @@ _Manually_
     * API Key is stored as a Secret in Kubernetes
 
 ## Backlog 
-- [ ] Add null_resource to bin Keda's identity to cluster
-- [ ] Test Cluster creation with new Terraform and Flux extension
-- [ ] Update Helm Chart - Service Accounts/Deployments 
-- [ ] Test applciation deployment
-- [ ] Validate application functionality
+- [X] Add null_resource to bin Keda's identity to cluster
+- [X] Test Cluster creation with new Terraform and Flux extension
+- [X] Update Helm Chart - Service Accounts/Deployments 
+- [X] Test applciation deployment
+- [X] Validate application functionality
+- [ ] Update to Workload Identity when support comes to Dapr
