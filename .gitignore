@@ -358,6 +358,6 @@ infrastructure/terraform/terraform.tfstate
 infrastructure/terraform/terraform.tfstate.backup
 infrastructure/terraform/variables.tfvars
 infrastructure/terraform/.terraform/
-source/ui/.env
-source/ui/build
-source/ui/src/config.json
+src/ui/.env
+src/ui/build
+src/ui/src/config.json
