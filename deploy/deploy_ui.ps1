@@ -20,7 +20,7 @@ Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks" -f $AppName)       -Option
 
 Set-Variable -Name cwd              -Value $PWD.Path
 Set-Variable -Name root             -Value (Get-Item $PWD.Path).Parent.FullName
-Set-Variable -Name ui_source_dir    -Value (Join-Path -Path $root -ChildPath "source\ui")
+Set-Variable -Name ui_source_dir    -Value (Join-Path -Path $root -ChildPath "src\ui")
 
 Set-Location -Path $ui_source_dir
 

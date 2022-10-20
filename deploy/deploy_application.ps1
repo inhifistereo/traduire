@@ -32,7 +32,7 @@ Set-Variable -Name APP_AI_NAME          -Value ("{0}-ai" -f $AppName)           
 Set-Variable -Name APP_NAMESPACE        -Value "default"                            -Option Constant
 
 $root   = (Get-Item $PWD.Path).Parent.FullName
-$source = Join-Path -Path $root -ChildPath "source"
+$source = Join-Path -Path $root -ChildPath "src"
 
 #Start-Docker
 Start-Docker
