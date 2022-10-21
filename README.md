@@ -27,7 +27,8 @@ Keda | Autoscaler for saga components
 
 ## Deployment
 
-### Prerequisite
+### Prerequisite 
+__Or use DevContainer__
 * A Linux machine or Windows Subsytem for Linux or Docker for Windows 
 * PowerShell 7
 * Azure Cli and an Azure Subscription
