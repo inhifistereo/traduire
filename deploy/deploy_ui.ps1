@@ -12,15 +12,15 @@ param(
 
 . .\modules\traduire_functions.ps1
 
-Set-Variable -Name APP_UI_NAME      -Value ("{0}ui01" -f $AppName)         -Option Constant
+Set-Variable -Name APP_UI_NAME      -Value ("{0}-ui" -f $AppName)         -Option Constant
 Set-Variable -Name APP_UI_RG        -Value ("{0}_ui_rg" -f $AppName)       -Option Constant
-Set-Variable -Name APP_PUBSUB_NAME  -Value ("{0}-pubsub01" -f $AppName)    -Option Constant
+Set-Variable -Name APP_PUBSUB_NAME  -Value ("{0}-pubsub" -f $AppName)    -Option Constant
 Set-Variable -Name APP_RG_NAME      -Value ("{0}_app_rg" -f $AppName)      -Option Constant
-Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks01" -f $AppName)       -Option Constant
+Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks" -f $AppName)       -Option Constant
 
 Set-Variable -Name cwd              -Value $PWD.Path
 Set-Variable -Name root             -Value (Get-Item $PWD.Path).Parent.FullName
-Set-Variable -Name ui_source_dir    -Value (Join-Path -Path $root -ChildPath "source\ui")
+Set-Variable -Name ui_source_dir    -Value (Join-Path -Path $root -ChildPath "src\ui")
 
 Set-Location -Path $ui_source_dir
 
@@ -42,9 +42,6 @@ Set-ReactEnvironmentFile -Path "src\config.json.template" -OutPath "src\config.j
 
 Write-Log -Message "Building UI Code"
 Start-UiBuild
-
-Write-Log -Message "Uploading Files to ${APP_UI_NAME}"
-Copy-BuildToStorage -StorageAccount $APP_UI_NAME -LocalPath (Join-Path -Path $ui_source_dir -ChildPath "build")
 
 Write-Log -Message "Deploying to Azure Static Web Site"
 Deploy-toAzStaticWebApp -Name $APP_UI_NAME -ResourceGroup $APP_UI_RG -LocalPath (Join-Path -Path $ui_source_dir -ChildPath "build")

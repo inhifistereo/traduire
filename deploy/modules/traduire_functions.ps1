@@ -76,12 +76,10 @@ function Add-AzureCliExtensions
 function Get-AzStaticWebAppSecret
 {
     param(
-        [string] $Name,
-        [string] $ResourceGroup
+        [string] $Name
     )
 
-    $id =$(az staticwebapp show -g $ResourceGroup -n $Name -o tsv --query id)
-    return $(az rest --method post --url "$id/listsecrets?api-version=2020-06-01" --query properties.apiKey -o tsv)
+    return (az staticwebapp secrets list --name $Name -o tsv --query "properties.apiKey")
 }
 
 function Get-WebPubSubAccessKey 
@@ -101,15 +99,9 @@ function Deploy-toAzStaticWebApp
         [string] $LocalPath
     )
 
-    $token = Get-AzStaticWebAppSecret -Name $Name -ResourceGroup $ResourceGroup
+    $token = Get-AzStaticWebAppSecret -Name $Name
+    swa deploy --app-location $LocalPath --deployment-token $token
 
-    docker run --entrypoint "/bin/staticsites/StaticSitesClient" `
-        --volume ${LocalPath}:/root/build `
-        mcr.microsoft.com/appsvc/staticappsclient:stable `
-        upload `
-        --skipAppBuild true `
-        --app /root/build `
-        --apiToken $token
 }
 
 function Set-ReactEnvironmentFile
@@ -222,6 +214,7 @@ function New-MSIAccount
     return (New-Object psobject -Property @{
         client_id = (az identity show -n $MSIName -g $MSIResourceGroup --query clientId -o tsv)
         resource_id = (az identity show -n $MSIName -g $MSIResourceGroup --query id -o tsv)
+        tenant_id = (az identity show -n $MSIName -g $MSIResourceGroup --query tenantId -o tsv)
     })
 }
 
@@ -239,6 +232,37 @@ function New-CognitiveServicesAccount
     })
 }
 
+function New-FederatedCredentials 
+{
+    param(
+        [string] $AKSNAME,
+        [string] $AKSResourceGroup,
+        [string] $Namespace,
+        [string] $ServiceAccountName
+    )
+    
+    function Get-OIDCIssuer 
+    {
+        param(
+            [string] $cluster,
+            [string] $rg
+        )
+        return (az aks show --resource-group $rg --name $cluster --query "oidcIssuerProfile.issuerUrl" -o tsv)
+    }
+
+    $federation_subject = "system:serviceaccount:${Namespace}:${ServiceAccountName}"
+    $OIDCIssuer = Get-OIDCIssuer -cluster $AKSNAME -rg $AKSResourceGroup
+
+    Write-Log -Message "Federate ${ServiceAccountName} with ${federation_subject}"
+    az identity federated-credential create `
+      --name $ServiceAccountName `
+      --identity-name $ServiceAccountName `
+      --resource-group $AKSResourceGroup `
+      --issuer $OIDCIssuer `
+      --subject $federation_subject
+
+}
+
 function Get-GitCommitVersion
 {
     Write-Log -Message "Get Latest Git commit version id"
@@ -254,7 +278,7 @@ function Build-DockerContainers
     )
 
     Write-Log -Message "Building ${ContainerName}"
-    docker build -t $ContainerName -f $DockerFile $SourcePath
+    docker build --no-cache -t $ContainerName -f $DockerFile $SourcePath
 
     Write-Log -Message "Pushing ${ContainerName}"
     docker push $ContainerName

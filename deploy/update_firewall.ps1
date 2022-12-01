@@ -10,8 +10,8 @@ param(
 . .\modules\traduire_functions.ps1
 
 Set-Variable -Name APP_RG_NAME      -Value ("{0}_app_rg" -f $AppName)        -Option Constant
-Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks01" -f $AppName)         -Option Constant
-Set-Variable -Name APP_ACR_NAME     -Value ("{0}acr01" -f $AppName)          -Option Constant
+Set-Variable -Name APP_K8S_NAME     -Value ("{0}-aks" -f $AppName)         -Option Constant
+Set-Variable -Name APP_ACR_NAME     -Value ("{0}acr" -f $AppName)          -Option Constant
 
 #Connect to Azure and Log into ACR
 #Connect-ToAzure -SubscriptionName $SubscriptionName
