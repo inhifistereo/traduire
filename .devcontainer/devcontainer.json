@@ -26,10 +26,14 @@
 
 	"remoteUser": "vscode",
 	"features": {
-		"docker-in-docker": "latest",
-		"terraform": "latest",
-		"azure-cli": "latest",
-		"powershell": "latest"
+		"ghcr.io/devcontainers/features/azure-cli:1": {},
+		"ghcr.io/devcontainers/features/common-utils:1": {},
+		"ghcr.io/devcontainers/features/terraform:1": {},
+		"ghcr.io/devcontainers/features/docker-from-docker:1": {},
+		"ghcr.io/devcontainers/features/sshd:1": {
+			"version": "latest"
+		},
+		"ghcr.io/devcontainers/features/powershell:1": {}
 	},
 
 	"waitFor": "postCreateCommand",
