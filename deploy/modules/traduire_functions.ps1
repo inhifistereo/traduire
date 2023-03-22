@@ -100,7 +100,7 @@ function Deploy-toAzStaticWebApp
     )
 
     $token = Get-AzStaticWebAppSecret -Name $Name
-    swa deploy --app-location $LocalPath --deployment-token $token
+    swa deploy --env production --app-location $LocalPath --deployment-token $token
 
 }
 
