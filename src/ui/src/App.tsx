@@ -25,11 +25,11 @@ class App extends Component<any, iApp> {
 	
   	render() {
 		const selectedFile = this.state.selectedFile;
-		const uploadFileUri = config.UPLOAD_URI ?? "http://localhost:3000/api/upload";
-		const statusUri = config.STATUS_URI ?? "http://localhost:3000/api/status/{0}";
-		const transcriptUri = config.TRANSCRIPT_URI ?? "http://localhost:3000/api/download/{0}";
-		const webpubSubUri = config.WEB_PUBSUB_URI ?? "http://localhost:5000";
-		const webpubSubKey = config.WEB_PUBSUB_KEY ?? null;
+		const uploadFileUri = config.UPLOAD_URI;
+		const statusUri = config.STATUS_URI;
+		const transcriptUri = config.TRANSCRIPT_URI;
+		const webpubSubUri = config.WEB_PUBSUB_URI;
+		const webpubSubKey = config.WEB_PUBSUB_KEY;
 		
 		return ( 
 			<div>
