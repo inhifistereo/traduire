@@ -11,7 +11,7 @@ resource "azurerm_kubernetes_cluster" "traduire_app" {
   node_resource_group             = "${azurerm_resource_group.traduire_app.name}_k8s_nodes"
   kubernetes_version              = data.azurerm_kubernetes_service_versions.current.latest_version
   dns_prefix                      = local.aks_name
-  sku_tier                        = "Paid"
+  sku_tier                        = "Standard"
   oidc_issuer_enabled             = true
   workload_identity_enabled       = true
   azure_policy_enabled            = true
