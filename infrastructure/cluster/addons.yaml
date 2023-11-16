@@ -15,34 +15,6 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
 kind: Kustomization
 metadata:
-  name: keda
-  namespace: flux-system
-spec:
-  interval: 10m0s
-  sourceRef:
-    kind: GitRepository
-    name: aks-flux-extension
-  path: ./infrastructure/cluster/keda
-  prune: true
-  validation: client
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
-kind: Kustomization
-metadata:
-  name: dapr
-  namespace: flux-system
-spec:
-  interval: 10m0s
-  sourceRef:
-    kind: GitRepository
-    name: aks-flux-extension
-  path: ./infrastructure/cluster/dapr
-  prune: true
-  validation: client
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1beta1
-kind: Kustomization
-metadata:
   name: kured
   namespace: flux-system
 spec:
@@ -67,4 +39,3 @@ spec:
   path: ./infrastructure/cluster/cert-manager
   prune: true
   validation: client
-
