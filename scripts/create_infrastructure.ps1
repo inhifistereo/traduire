@@ -7,22 +7,22 @@ param(
 )
 
 $today = (Get-Date).ToString("yyyyMMdd")
-$tfPlanFileName = "traduire.plan.{0}" -f $today
+$tf_plan = "traduire.plan.{0}" -f $today
 
 az account set -s $SubscriptionName
 terraform -chdir=../infrastructure init
-terraform -chdir=../infrastructure plan -out="$tfPlanFileName" -var "location=$region"
-terraform -chdir=../infrastructure apply -auto-approve $tfPlanFileName
+terraform -chdir=../infrastructure plan -out="${tf_plan}" -var "location=${region}"
+terraform -chdir=../infrastructure apply -auto-approve ${tf_plan}
 
-$APP_NAME=$(terraform -chdir=../infrastructure output -raw APP_NAME)
+$app_name=$(terraform -chdir=../infrastructure output -raw APP_NAME)
 
 if($?){
   Write-Host "------------------------------------"
-  Write-Host "Infrastructure built successfully. Application Name: $APP_NAME"
+  Write-Host "Infrastructure built successfully. Application Name: ${app_name}"
   Write-Host "------------------------------------"
 }
 else {
   Write-Host "------------------------------------"
-  Write-Host ("Errors encountered while building infrastructure. Please review. Application Name: $APP_NAME" )
+  Write-Host ("Errors encountered while building infrastructure. Please review. Application Name: ${app_name}E" )
   Write-Host "------------------------------------"
 }
