@@ -25,7 +25,6 @@ Set-Variable -Name ui_source_dir    -Value (Join-Path -Path $root -ChildPath "sr
 Set-Location -Path $ui_source_dir
 
 #Write-Log -Message "Logging into Azure"
-#Connect-ToAzure -SubscriptionName $SubscriptionName
 Add-AzureCliExtensions
 
 #Get AKS Credential file

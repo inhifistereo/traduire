@@ -45,7 +45,7 @@ locals {
   sb_name               = "${local.resource_name}-sbns"
   pubsub_name           = "${local.resource_name}-pubsub"
   cogs_name             = "${local.resource_name}-cogs"
-  app_path              = "./infrastructure/cluster/"
+  app_path              = "./cluster-config"
   flux_repository       = "https://github.com/briandenicola/traduire"
   vnet_cidr             = cidrsubnet("10.0.0.0/8", 8, random_integer.vnet_cidr.result)
   pe_subnet_cidr        = cidrsubnet(local.vnet_cidr, 8, 1)

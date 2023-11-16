@@ -5,7 +5,8 @@ metadata:
   name: {{ print .Values.app_name "-azure-servicebus-auth" }} 
 spec:
   podIdentity:
-    provider: azure
+    provider: azure-workload 
+    identityId: {{ .Values.msi_client_id }}
 ---
 apiVersion: keda.sh/v1alpha1
 kind: ScaledObject

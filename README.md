@@ -67,7 +67,7 @@ _Manually_
 * Select and upload assets\recording.m4a
 * Click 'Check Status' to watch the transcription go through its stages 
 * Then the final result should be: \
-    ![UI](./assets/ui.png)*
+    ![UI](./assets/ui.png)
 
 ### gRPC API 
 * cd sample\grpc.client
@@ -81,4 +81,6 @@ _Manually_
 - [X] Update Helm Chart - Service Accounts/Deployments 
 - [X] Test applciation deployment
 - [X] Validate application functionality
-- [ ] Update to Workload Identity when support comes to Dapr
+- [ ] Update to Workload Identity
+- [ ] Update React UI to latest versions
+- [ ] Deployment Updates
