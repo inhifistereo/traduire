@@ -23,7 +23,7 @@ Kong | API Gateway
 Keda | Autoscaler for saga components 
 
 ## Architecture
-![Dapr](./assets/dapr.png)
+![Dapr](./.assets/dapr.png)
 
 ## Deployment
 
@@ -67,7 +67,7 @@ _Manually_
 * Select and upload assets\recording.m4a
 * Click 'Check Status' to watch the transcription go through its stages 
 * Then the final result should be: \
-    ![UI](./assets/ui.png)
+    ![UI](./.assets/ui.png)
 
 ### gRPC API 
 * cd sample\grpc.client
