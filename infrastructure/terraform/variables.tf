@@ -3,6 +3,16 @@ variable "location" {
   default = "southcentralus"
 }
 
+variable "namespace" {
+  description = "The namespace Trauduire will be deployed to"
+  default     =  "trauduireapp"
+}
+
+variable "vm_sku" {
+  description = "The VM type for the system node pool"
+  default     = "Standard_D4ads_v5"
+}
+
 variable "postgresql_user_name" {
   description = "Azure PostgreSQL User Name"
   type        = string

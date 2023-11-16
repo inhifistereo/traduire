@@ -19,21 +19,21 @@ output "CLUSTER_NAME" {
 }
 
 output "KEDA_MI_NAME" {
-  value     = azurerm_user_assigned_identity.keda_sb_user.name
+  value     = azurerm_user_assigned_identity.traduire_identity.name
   sensitive = false
 }
 
 output "KEDA_RESOURCE_ID" {
-  value     = azurerm_user_assigned_identity.keda_sb_user.id
+  value     = azurerm_user_assigned_identity.traduire_identity.id
   sensitive = false
 }
 
 output "DAPR_MI_NAME" {
-  value     = azurerm_user_assigned_identity.dapr_reader.name
+  value     = azurerm_user_assigned_identity.traduire_identity.name
   sensitive = false
 }
 
 output "DAPR_RESOURCE_ID" {
-  value     = azurerm_user_assigned_identity.dapr_reader.id
+  value     = azurerm_user_assigned_identity.traduire_identity.id
   sensitive = false
 }

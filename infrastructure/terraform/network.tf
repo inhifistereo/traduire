@@ -15,10 +15,28 @@ resource "azurerm_subnet" "private-endpoints" {
 }
 
 resource "azurerm_subnet" "kubernetes" {
-  name                  = "kubernetes"
+  name                  = "nodes"
   resource_group_name   = azurerm_virtual_network.traduire_core.resource_group_name
   virtual_network_name  = azurerm_virtual_network.traduire_core.name
   address_prefixes      = [ local.k8s_subnet_cidr ]
+}
+
+resource "azurerm_subnet" "api" {
+  name                 = "api-severver"
+  resource_group_name  = azurerm_resource_group.traduire_core.name
+  virtual_network_name = azurerm_virtual_network.traduire_core.name
+  address_prefixes     = [ local.api_subnet_cidir ]
+  
+  delegation {
+    name = "aks-delegation"
+
+    service_delegation {
+      name    = "Microsoft.ContainerService/managedClusters"
+      actions = [
+        "Microsoft.Network/virtualNetworks/subnets/join/action",
+      ]  
+    }
+  }
 }
 
 resource "azurerm_subnet" "sql" {

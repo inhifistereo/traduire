@@ -17,7 +17,7 @@ resource "azurerm_key_vault" "traduire_app" {
 
   access_policy {
     tenant_id = data.azurerm_client_config.current.tenant_id
-    object_id = azurerm_user_assigned_identity.dapr_reader.principal_id 
+    object_id = azurerm_user_assigned_identity.traduire_identity.principal_id 
 
     secret_permissions = [
       "List",
