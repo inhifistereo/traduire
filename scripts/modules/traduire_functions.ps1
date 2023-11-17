@@ -9,11 +9,12 @@ function Build-Application
         [string] $SubscriptionName,
 
         [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
-        [string] $AcrName
-    )
+        [string] $AcrName,
 
-    $root   = ((Get-Item $PWD.Path).Parent).FullName
-    $source = Join-Path -Path $root -ChildPath "src"
+        [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
+        [string] $Source
+
+    )
 
     Start-Docker
 
@@ -22,10 +23,10 @@ function Build-Application
 
     #Build Source
     $commit_version = Get-GitCommitVersion
-    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/api:${commit_version}" -DockerFile "$source/dockerfile.api" -SourcePath $source
-    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/onstarted.handler:${commit_version}" -DockerFile "$source/dockerfile.onstarted" -SourcePath $source
-    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/onprocessing.handler:${commit_version}" -DockerFile "$source/dockerfile.onprocessing" -SourcePath $source
-    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/oncompletion.handler:${commit_version}" -DockerFile "$source/dockerfile.oncompletion" -SourcePath $source
+    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/api:${commit_version}" -DockerFile "$source/dockerfile.api" -SourcePath $Source
+    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/onstarted.handler:${commit_version}" -DockerFile "$source/dockerfile.onstarted" -SourcePath $Source
+    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/onprocessing.handler:${commit_version}" -DockerFile "$source/dockerfile.onprocessing" -SourcePath $Source
+    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/oncompletion.handler:${commit_version}" -DockerFile "$source/dockerfile.oncompletion" -SourcePath $Source
 }
 
 function Write-Log 
