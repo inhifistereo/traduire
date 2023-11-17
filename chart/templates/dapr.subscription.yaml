@@ -2,7 +2,7 @@ apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
   name: ontranscription-submitted
-  
+  namespace: {{ .Values.NAMESPACE }}
 spec:
   topic: ontranscription_submitted
   route: /transcribe
@@ -14,6 +14,7 @@ apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
   name: ontranscription-processing
+  namespace: {{ .Values.NAMESPACE }}
 spec:
   topic: ontranscription_processing
   route: /status
@@ -25,6 +26,7 @@ apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
   name: ontranscription-completed
+  namespace: {{ .Values.NAMESPACE }}
 spec:
   topic:  ontranscription_completed
   route: /completed
