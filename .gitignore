@@ -361,3 +361,4 @@ infrastructure/terraform/.terraform/
 src/ui/.env
 src/ui/build
 src/ui/src/config.json
+traduire.sln
