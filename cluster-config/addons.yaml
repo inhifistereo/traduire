@@ -8,7 +8,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: aks-flux-extension
-  path: ./infrastructure/cluster/kong
+  path: ./cluster-config/kong
   prune: true
   validation: client
 ---
@@ -22,7 +22,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: aks-flux-extension
-  path: ./infrastructure/cluster/kured
+  path: ./cluster-config/kured
   prune: true
   validation: client
 ---
@@ -36,6 +36,6 @@ spec:
   sourceRef:
     kind: GitRepository
     name: aks-flux-extension
-  path: ./infrastructure/cluster/cert-manager
+  path: ./cluster-config/cert-manager
   prune: true
   validation: client
