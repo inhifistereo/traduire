@@ -49,7 +49,7 @@ else
     $cogs = Get-CognitiveServicesAccount -CogsAccountName $APP_COGS_NAME -CogsResourceGroup $APP_RG_NAME
 
     # Install App using Helm Chart
-    Write-Log -Message "Deploying Traduire"
+    Write-Log -Message "Deploying Traduire to ${commit_version}"
     helm upgrade -i traduire ../chart/. `
         --set APP_NAME=$AppName `
         --set NAMESPACE=$APP_NAMESPACE `
