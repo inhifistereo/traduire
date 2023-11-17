@@ -83,4 +83,5 @@ _Manually_
 - [X] Validate application functionality
 - [ ] Update to Workload Identity
 - [ ] Update React UI to latest versions
+- [ ] Update to dotnet8 
 - [ ] Deployment Updates
