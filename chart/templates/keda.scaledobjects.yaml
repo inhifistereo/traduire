@@ -1,0 +1,52 @@
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: {{ .Values.SERVICE_BUS.TRIGGER_AUTH_NAME }}
+  namespace: {{ .Values.NAMESPACE }}
+spec:
+  podIdentity:
+    provider: azure-workload 
+    identityId: {{ .Values.WORKLOAD_ID.CLIENT_ID }}
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ print .Values.APP_NAME "-onstarted-scaledobject" }}
+  namespace: {{ .Values.NAMESPACE }}
+spec:
+  scaleTargetRef:
+    name: {{ print .Values.APP_NAME "-onstarted" }}
+  minReplicaCount: 1
+  maxReplicaCount: 4
+  pollingInterval: 15
+  triggers:
+  - type: azure-servicebus
+    metadata:
+      topicName: {{ .Values.SERVICE_BUS.TOPICS.STARTED }} 
+      subscriptionName: {{ print .Values.APP_NAME "-onstarted" }}
+      namespace: {{ print .Values.SERVICE_BUS.NAMESPACE }}
+      messageCount: "5" 
+    authenticationRef:
+      name: {{ .Values.SERVICE_BUS.TRIGGER_AUTH_NAME }}
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: {{ print .Values.APP_NAME "-onprocessing-scaledobject" }}
+  namespace: {{ .Values.NAMESPACE }}
+spec:
+  scaleTargetRef:
+    name: {{ print .Values.APP_NAME "-onprocessing" }}
+  minReplicaCount: 1
+  maxReplicaCount: 4
+  pollingInterval: 15
+  triggers:
+  - type: azure-servicebus
+    metadata:
+      topicName: {{ .Values.SERVICE_BUS.TOPICS.PROCESSING }} 
+      subscriptionName: {{ print .Values.APP_NAME "-onprocessing" }}
+      namespace: {{ print .Values.SERVICE_BUS.NAMESPACE }}
+      messageCount: "5" 
+    authenticationRef:
+        name: {{ .Values.SERVICE_BUS.TRIGGER_AUTH_NAME }}

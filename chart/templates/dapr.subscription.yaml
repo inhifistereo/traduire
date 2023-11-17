@@ -2,12 +2,13 @@ apiVersion: dapr.io/v1alpha1
 kind: Subscription
 metadata:
   name: ontranscription-submitted
+  
 spec:
   topic: ontranscription_submitted
   route: /transcribe
   pubsubname: pubsub
 scopes:
-- {{ print .Values.app_name "-onstarted" }}
+- {{ print .Values.APP_NAME "-onstarted" }}
 ---
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
@@ -18,7 +19,7 @@ spec:
   route: /status
   pubsubname: pubsub
 scopes:
-- {{ print .Values.app_name "-onprocessing" }}
+- {{ print .Values.APP_NAME "-onprocessing" }}
 ---
 apiVersion: dapr.io/v1alpha1
 kind: Subscription
@@ -29,4 +30,4 @@ spec:
   route: /completed
   pubsubname: pubsub
 scopes:
-- {{ print .Values.app_name "-oncompletion" }}
+- {{ print .Values.APP_NAME "-oncompletion" }}

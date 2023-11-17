@@ -1,26 +1,48 @@
-app_name                                : ""
-msi_client_id                           : ""
-msi_selector                            : ""
-keyvault_name                           : ""
-storage_name                            : ""
-acr_name                                : ""
-cogs_region                             : ""
-app_insights_key                        : ""
-frontend_uri                            : ""
-namespace                               : "default"              
-service_bus_connection_string_secret    : "sbconnection" 
-storage_connection_string_secret        : "storagekey"
-postgresql_connection_string_secret     : "postgresqlconnection"
-service_bus_queue                       : "events"
-storage_container                       : "mp3files"
-utils_container                         : "bjd145/utils:latest"
-commit_version                          : "1.0"
-kong_api_secret                         : ""
-kong_api_uri                            : ""
-cert_email_address                      : "brian@bjdazure.tech"
-delay_time_in_seconds                   : 5
-service_port                            : 8081
-service_bus_oncompleted_topic           : "ontranscription_completed"
-service_bus_onpending_topic             : "ontranscription_processing"
-service_bus_onstarted_topic             : "ontranscription_submitted" 
-service_bus_onsleep_topic               : "ontranscription_sleep"
+APP_NAME                                : ""
+NAMESPACE                               : "traduire"
+
+GIT_COMMIT_VERSION                      : "1.0"
+DELAY_IN_SECONDS                        : 5
+SERVICE_PORT                            : 8081
+REGION                                  : "centralus"
+UTILS_CONTAINER                         : "bjd145/utils:3.16"
+
+URIS:
+  FRONTEND_ENDPOINT                     : ""
+  KONG:                                   
+    API_SECRET                          : ""
+    API_ENDPOINT                        : ""
+
+STORAGE:
+  NAME                                  : ""
+  CONTAINER_NAME                        : "mp3files"
+
+ACR:
+  NAME                                  : ""
+
+APP_INSIGHTS:
+  INSTRUMENTION_KEY                     : ""
+              
+WORKLOAD_ID:
+  NAME                                  : ""
+  CLIENT_ID                             : ""
+  TENANT_ID                             : ""
+
+KEYVAULT:
+  NAME                                  : ""
+  SECRETS:
+    SERVICE_BUS                         : "sbconnection" 
+    STORAGE                             : "storagekey"
+    SQL                                 : "postgresqlconnection"
+
+SERVICE_BUS:
+  TRIGGER_AUTH_NAME                     : "keda-azure-servicebus-auth"
+  NAMESPACE                             : ""
+  QUEUE_NAME                            : "events"
+  TOPICS:
+    ONCOMPLETED                         : "ontranscription_completed"
+    PROCESSING                          : "ontranscription_processing"
+    STARTED                             : "ontranscription_submitted" 
+
+CERT:
+  EMAIL_ADDRESS                         : "brian@bjdazure.tech"

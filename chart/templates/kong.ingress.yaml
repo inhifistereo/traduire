@@ -2,51 +2,55 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: {{ print .Values.app_name "-apikey" }}
+  name: {{ print .Values.APP_NAME "-apikey" }}
+  namespace: {{ .Values.NAMESPACE }}
 data:
     kongCredType: a2V5LWF1dGg=
-    key: {{ .Values.kong_api_secret }}
+    key: {{ .Values.URIS.KONG.API_SECRET }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ print .Values.app_name "-ingress" }}
+  name: {{ print .Values.APP_NAME "-ingress" }}
+  namespace: {{ .Values.NAMESPACE }}
   annotations:
     kubernetes.io/ingress.class: kong
     konghq.com/protocols: "grpc,grpcs,https"
-    konghq.com/plugins: {{ print .Values.app_name "-cors, httpbin-auth" }}
+    konghq.com/plugins: {{ print .Values.APP_NAME "-cors, httpbin-auth" }}
     kubernetes.io/tls-acme: "true"
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   tls: 
-  - secretName: {{ print .Values.kong_api_uri "-tls" | replace "." "-" }}
+  - secretName: {{ print .Values.URIS.KONG.API_ENDPOINT "-tls" | replace "." "-" }}
     hosts:
-    - {{ .Values.kong_api_uri }}
+    - {{ .Values.URIS.KONG.API_ENDPOINT }}
   rules:
-  - host: {{ .Values.kong_api_uri }}
+  - host: {{ .Values.URIS.KONG.API_ENDPOINT }}
     http:
       paths:
       - path: /
         pathType: Prefix
         backend:
           service:
-            name: {{ print .Values.app_name "-svc" }}
+            name: {{ print .Values.APP_NAME "-svc" }}
             port: 
-              number: {{ .Values.service_port }}
+              number: {{ .Values.SERVICE_PORT }}
 ---
 apiVersion: configuration.konghq.com/v1
 kind: KongPlugin
 metadata:
   name: httpbin-auth
+  namespace: {{ .Values.NAMESPACE }}
 plugin: key-auth
 ---
 apiVersion: configuration.konghq.com/v1
 kind: KongPlugin
 metadata:
-  name: {{ print .Values.app_name "-cors" }}
+  name: {{ print .Values.APP_NAME "-cors" }}
+  namespace: {{ .Values.NAMESPACE }}
 config: 
   origins:
-  - {{ print .Values.frontend_uri }}
+  - {{ print .Values.URIS.FRONTEND_ENDPOINT }}
   methods:
   - GET
   - POST
@@ -72,9 +76,10 @@ plugin: cors
 apiVersion: configuration.konghq.com/v1
 kind: KongConsumer
 metadata:
-  name: {{ .Values.app_name }}
+  name: {{ .Values.APP_NAME }}
+  namespace: {{ .Values.NAMESPACE }}
   annotations:
     kubernetes.io/ingress.class: kong
-username: {{ .Values.app_name }}
+username: {{ .Values.APP_NAME }}
 credentials:
--  {{ print .Values.app_name "-apikey" }}
+-  {{ print .Values.APP_NAME "-apikey" }}

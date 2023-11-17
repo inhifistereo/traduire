@@ -12,7 +12,10 @@ function Build-Application
         [string] $AcrName,
 
         [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
-        [string] $Source
+        [string] $Source,
+
+        [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
+        [string] $Version
 
     )
 
@@ -22,11 +25,11 @@ function Build-Application
     Connect-ToAzureContainerRepo -ACRName $AcrName
 
     #Build Source
-    $commit_version = Get-GitCommitVersion
-    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/api:${commit_version}" -DockerFile "$source/dockerfile.api" -SourcePath $Source
-    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/onstarted.handler:${commit_version}" -DockerFile "$source/dockerfile.onstarted" -SourcePath $Source
-    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/onprocessing.handler:${commit_version}" -DockerFile "$source/dockerfile.onprocessing" -SourcePath $Source
-    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/oncompletion.handler:${commit_version}" -DockerFile "$source/dockerfile.oncompletion" -SourcePath $Source
+
+    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/api:${Version}" -DockerFile "${Source}/dockerfile.api" -SourcePath $Source
+    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/onstarted.handler:${Version}" -DockerFile "${Source}/dockerfile.onstarted" -SourcePath $Source
+    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/onprocessing.handler:${Version}" -DockerFile "${Source}/dockerfile.onprocessing" -SourcePath $Source
+    Build-DockerContainers -ContainerName "${AcrName}.azurecr.io/traduire/oncompletion.handler:${Version}" -DockerFile "${Source}/dockerfile.oncompletion" -SourcePath $Source
 }
 
 function Write-Log 
@@ -228,13 +231,13 @@ function Get-APIGatewayIP
 {
     function Test-IPAddress($IP) { return ($IP -as [IPAddress] -as [Bool]) }
 
-    $ip = (kubectl -n kong-gateway get service kong-kong-proxy -o jsonpath=`{.status.loadBalancer.ingress[].ip`})
+    $ip = (kubectl -n kong-gateway get service kong-gateway-kong-release-kong-proxy -o jsonpath=`{.status.loadBalancer.ingress[].ip`})
 
     if( (Test-IPAddress -IP $ip) ) { return $ip }
     return [string]::Empty
 }
 
-function New-MSIAccount 
+function Get-MSIAccountInfo
 {
     param(
         [string] $MSIName,
@@ -249,7 +252,7 @@ function New-MSIAccount
     })
 }
 
-function New-CognitiveServicesAccount 
+function Get-CognitiveServicesAccount
 {
     param(
         [string] $CogsAccountName,
@@ -260,6 +263,19 @@ function New-CognitiveServicesAccount
     return (New-Object psobject -Property @{
         region = (az cognitiveservices account show -n $CogsAccountName -g $CogsResourceGroup -o tsv --query location)
         key = (ConvertTo-Base64EncodedString (az cognitiveservices account keys list -n $CogsAccountName -g $CogsResourceGroup -o tsv --query key1))
+    })
+}
+function Get-AppInsightsKey
+{
+    param(
+        [string] $AppInsightsAccountName,
+        [string] $AppInsightsResourceGroup
+    )
+
+    Write-Log -Message "Get ${AppInsightsAccountName} Application Insights Account properties"
+    return (New-Object psobject -Property @{
+        key = (az monitor app-insights component show --app $AppInsightsAccountName -g $AppInsightsResourceGroup --query instrumentationKey -o tsv)
+        connection_string = (az monitor app-insights component show --app $AppInsightsAccountName -g $AppInsightsResourceGroup --query connectionString -o tsv)
     })
 }
 

@@ -15,6 +15,7 @@ Set-Variable -Name APP_SA_NAME          -Value ("{0}files" -f $UriFriendlyAppNam
 Set-Variable -Name APP_SERVICE_ACCT     -Value ("{0}-traduire-identity" -f $AppName)    -Option Constant
 Set-Variable -Name APP_COGS_NAME        -Value ("{0}-cogs" -f $AppName)                 -Option Constant
 Set-Variable -Name APP_AI_NAME          -Value ("{0}-appinsights" -f $AppName)          -Option Constant
+Set-Variable -Name APP_SB_NAMESPACE     -Value ("{0}-sbns" -f $AppName)                 -Option Constant
 Set-Variable -Name APP_NAMESPACE        -Value "traduire"                               -Option Constant
 
 Set-Variable -Name UI_SOURCE_DIR        -Value (Join-Path -Path $root -ChildPath "src\ui")
