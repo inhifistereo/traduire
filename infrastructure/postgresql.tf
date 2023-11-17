@@ -12,11 +12,12 @@ resource "azurerm_postgresql_flexible_server" "traduire_app" {
   location               = azurerm_resource_group.traduire_app.location
   delegated_subnet_id    = azurerm_subnet.sql.id
   private_dns_zone_id    = azurerm_private_dns_zone.privatelink_postgres_database_azure_com.id
-  version                = "12"
+  version                = "15"
   administrator_login    = var.postgresql_user_name
   administrator_password = random_password.postgresql_user_password.result
   storage_mb             = 32768
   sku_name               = "GP_Standard_D2ds_v4"
+  zone                   = "2"
 }
 
 resource "azurerm_postgresql_flexible_server_database" "transcription" {
