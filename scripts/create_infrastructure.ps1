@@ -9,20 +9,28 @@ param(
 $today = (Get-Date).ToString("yyyyMMdd")
 $tf_plan = "traduire.plan.{0}" -f $today
 
-az account set -s $SubscriptionName
-terraform -chdir=../infrastructure init
-terraform -chdir=../infrastructure plan -out="${tf_plan}" -var "location=${region}"
-terraform -chdir=../infrastructure apply -auto-approve ${tf_plan}
+$current = $PWD.Path
+$infra = Join-Path -Path ((Get-Item $PWD.Path).Parent).FullName -ChildPath "infrastructure"
+Set-Location -Path $infra
 
-$app_name=$(terraform -chdir=../infrastructure output -raw APP_NAME)
+az account set -s $SubscriptionName
+terraform workspace new ${region}
+terraform workspace select ${region}
+terraform init
+terraform plan -out="${tf_plan}" -var "location=${region}"
+terraform apply -auto-approve ${tf_plan}
+
+$app_name=$(terraform output -raw APP_NAME)
 
 if($?){
   Write-Host "------------------------------------"
-  Write-Host "Infrastructure built successfully. Application Name: ${app_name}"
+  Write-Host "Infrastructure built successfully. Environment Name: ${app_name}"
   Write-Host "------------------------------------"
 }
 else {
   Write-Host "------------------------------------"
-  Write-Host ("Errors encountered while building infrastructure. Please review. Application Name: ${app_name}E" )
+  Write-Host ("Errors encountered while building infrastructure. Please review. Environment Name: ${app_name}" )
   Write-Host "------------------------------------"
 }
+
+Set-Location -Path $current

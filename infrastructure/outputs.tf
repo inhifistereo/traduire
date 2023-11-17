@@ -1,3 +1,8 @@
+output "APP_NAME" {
+  value     = local.resource_name
+  sensitive = false
+}
+
 output "postgresql_password" {
   value     = random_password.postgresql_user_password.result
   sensitive = true

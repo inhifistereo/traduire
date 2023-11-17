@@ -12,7 +12,7 @@ function Build-Application
         [string] $AcrName
     )
 
-    $root   = ((Get-Item $PWD.Path).Parent).Parent.FullName
+    $root   = ((Get-Item $PWD.Path).Parent).FullName
     $source = Join-Path -Path $root -ChildPath "src"
 
     Start-Docker

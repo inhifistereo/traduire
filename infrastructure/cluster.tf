@@ -44,6 +44,12 @@ resource "azurerm_kubernetes_cluster" "traduire_app" {
     authorized_ip_ranges     = local.allowed_ip_range
   }
 
+  azure_active_directory_role_based_access_control {
+    managed                = true
+    azure_rbac_enabled     = true
+    tenant_id              = data.azurerm_client_config.current.tenant_id
+  }
+
   linux_profile {
     admin_username = "manager"
     ssh_key {
