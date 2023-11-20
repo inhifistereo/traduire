@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ print .Values.APP_NAME "-validation" }}
+  namespace: {{ .Values.NAMESPACE }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.APP_NAME }}
+  template:
+    metadata:
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/config: {{ print .Values.APP_NAME "-config" | quote }}
+        dapr.io/app-id: {{ print .Values.APP_NAME "-validation" | nospace | quote }}
+        dapr.io/log-level: "info"
+      labels:
+        app: {{ .Values.APP_NAME }}
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: {{ .Values.WORKLOAD_ID.NAME }}
+      containers:
+      - name: utils
+        image: {{ .Values.UTILS_CONTAINER }}
+        imagePullPolicy: Always
+      tolerations:
+      - key: "app"
+        operator: "Equal"
+        value: "traduire"
+        effect: "NoSchedule"

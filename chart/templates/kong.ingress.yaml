@@ -1,0 +1,85 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ print .Values.APP_NAME "-apikey" }}
+  namespace: {{ .Values.NAMESPACE }}
+data:
+    kongCredType: a2V5LWF1dGg=
+    key: {{ .Values.URIS.KONG.API_SECRET }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ print .Values.APP_NAME "-ingress" }}
+  namespace: {{ .Values.NAMESPACE }}
+  annotations:
+    kubernetes.io/ingress.class: kong
+    konghq.com/protocols: "grpc,grpcs,https"
+    konghq.com/plugins: {{ print .Values.APP_NAME "-cors, httpbin-auth" }}
+    kubernetes.io/tls-acme: "true"
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls: 
+  - secretName: {{ print .Values.URIS.KONG.API_ENDPOINT "-tls" | replace "." "-" }}
+    hosts:
+    - {{ .Values.URIS.KONG.API_ENDPOINT }}
+  rules:
+  - host: {{ .Values.URIS.KONG.API_ENDPOINT }}
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ print .Values.APP_NAME "-svc" }}
+            port: 
+              number: {{ .Values.SERVICE_PORT }}
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: httpbin-auth
+  namespace: {{ .Values.NAMESPACE }}
+plugin: key-auth
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: {{ print .Values.APP_NAME "-cors" }}
+  namespace: {{ .Values.NAMESPACE }}
+config: 
+  origins:
+  - {{ print .Values.URIS.FRONTEND_ENDPOINT }}
+  methods:
+  - GET
+  - POST
+  - PUT
+  - PATCH
+  - OPTIONS
+  - CONNECT
+  headers:
+  - Accept
+  - Accept-Version
+  - Content-Length
+  - Content-MD5
+  - Content-Type
+  - Date
+  - X-Auth-Token
+  exposed_headers:
+  - X-Auth-Token
+  credentials: true
+  max_age: 3600
+  preflight_continue: false
+plugin: cors
+---
+apiVersion: configuration.konghq.com/v1
+kind: KongConsumer
+metadata:
+  name: {{ .Values.APP_NAME }}
+  namespace: {{ .Values.NAMESPACE }}
+  annotations:
+    kubernetes.io/ingress.class: kong
+username: {{ .Values.APP_NAME }}
+credentials:
+-  {{ print .Values.APP_NAME "-apikey" }}

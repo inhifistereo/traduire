@@ -1,0 +1,6 @@
+apiVersion: v2
+name: Traduire
+description: A demo application using Dapr to transcribe podcasts
+type: application
+version: 2.0.0
+appVersion: 2.0.1

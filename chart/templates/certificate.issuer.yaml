@@ -1,0 +1,29 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-prod
+  namespace: {{ .Values.NAMESPACE }}
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: {{ .Values.CERT.EMAIL_ADDRESS | quote }}
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: kong
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.URIS.KONG.API_ENDPOINT | replace "." "-" }}
+  namespace: {{ .Values.NAMESPACE }}
+spec:
+  secretName: {{ print .Values.URIS.KONG.API_ENDPOINT "-tls" | replace "." "-" }}
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: {{ .Values.URIS.KONG.API_ENDPOINT }}
+  dnsNames:
+  -  {{ .Values.URIS.KONG.API_ENDPOINT }}      

@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ print .Values.APP_NAME "-api" }}
+  namespace: {{ .Values.NAMESPACE }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ print .Values.APP_NAME "-api" }}
+  template:
+    metadata:
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/config: {{ print .Values.APP_NAME "-config" | quote }}
+        dapr.io/app-id: {{ print .Values.APP_NAME "-api" | quote }}
+        dapr.io/log-level: "info"
+        dapr.io/http-max-request-size: "512"
+        {{ print .Values.APP_NAME "/config-hash" }}: {{ include (print $.Template.BasePath "/dapr.components.yaml") . | sha256sum }}
+      labels:
+        app: {{ print .Values.APP_NAME "-api" }}
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: {{ .Values.WORKLOAD_ID.NAME }}
+      containers:
+      - name: api
+        image: {{ print .Values.ACR.NAME ".azurecr.io/traduire/api:" .Values.GIT_COMMIT_VERSION }}
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: "2"
+            memory: 2048Mi
+          requests:
+            cpu: "1"
+            memory: 1024Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+        env:
+        - name: AZURE_COGS_REGION
+          value: {{ .Values.REGION }}
+        - name: MSI_CLIENT_ID
+          value: {{ .Values.WORKLOAD_ID.CLIENT_ID }}
+      tolerations:
+      - key: "app"
+        operator: "Equal"
+        value: "traduire"
+        effect: "NoSchedule"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ print .Values.APP_NAME "-svc" }}
+  namespace: {{ .Values.NAMESPACE }}
+  labels:
+    version: {{ .Values.GIT_COMMIT_VERSION | quote }}
+  annotations:
+    konghq.com/protocol: "grpc"
+spec:
+  selector:
+    app: {{ print .Values.APP_NAME "-api" }} 
+  ports:
+  - port: {{ .Values.SERVICE_PORT }}
+    targetPort: 80
+  type: NodePort
