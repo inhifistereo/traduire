@@ -70,7 +70,7 @@ else
 }
 
 if($?){
-    Write-Log ("{0} {1} @ {2}" -f $msg,$uri, (Get-APIGatewayIP))
+    Write-Log ("{0} {1} @ {2}" -f $msg,$APP_API_URI, (Get-APIGatewayIP))
     Write-Log "Application successfully deployed. . ."
 }
 else {
