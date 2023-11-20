@@ -68,10 +68,11 @@ function Get-KubernetesSecret
 {
     param(
         [string] $secret,
-        [string] $value
+        [string] $value,
+        [string] $namespace="default"
     )
 
-    $encoded_key = kubectl get secret $secret -o json | ConvertFrom-Json
+    $encoded_key = kubectl -n $namespace get secret $secret -o json | ConvertFrom-Json
     return ConvertFrom-Base64String($encoded_key.data.$value)
 }
 
