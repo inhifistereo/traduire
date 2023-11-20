@@ -7,16 +7,16 @@ param(
     [string] $SubscriptionName,
 
     [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
-    [string] $Uri,
-
-    [Parameter(ParameterSetName = 'Default', Mandatory=$true)]
-    [string] $FrontEndUri,
+    [string] $DomainName,
 
     [Parameter(ParameterSetName = 'Default', Mandatory=$false)]
     [switch] $Upgrade,
 
     [Parameter(ParameterSetName = 'Default', Mandatory=$false)]
-    [switch] $SkipBuild
+    [switch] $SkipBuild,
+
+    [Parameter(ParameterSetName = 'Default', Mandatory=$false)]
+    [switch] $BuildOnly
 )
 
 . ./modules/traduire_functions.ps1
@@ -30,6 +30,8 @@ $commit_version = Get-GitCommitVersion
 if(-not $SkipBuild) {
     Build-Application -AppName $AppName -AcrName $APP_ACR_NAME -SubscriptionName $SubscriptionName -Source $APP_SOURCE_DIR -Version $commit_version
 }
+
+if($BuildOnly) { exit(0) }
 
 if($Upgrade) {
     $msg = "Review DNS (A) Record:"
@@ -56,15 +58,15 @@ else
         --set GIT_COMMIT_VERSION=$commit_version `
         --set WORKLOAD_ID.CLIENT_ID=$($app_msi.client_id) `
         --set WORKLOAD_ID.TENANT_ID=$($app_msi.tenant_id) `
-        --set WORKLOAD_ID.NAME=$($app_msi.client_id) `
+        --set WORKLOAD_ID.NAME=$APP_SERVICE_ACCT `
         --set KEYVAULT.NAME=$APP_KV_NAME `
         --set STORAGE.NAME=$APP_SA_NAME `
         --set ACR.NAME=$APP_ACR_NAME `
         --set REGION=$($cogs.region) `
-        --set APP_INSIGHTS.INSTRUMENTION_KEY=$app_insights_key `
+        --set APP_INSIGHTS.INSTRUMENTION_KEY=$($app_insights_key.key) `
         --set URIS.KONG.API_SECRET=$kong_api_secret `
-        --set URIS.KONG.API_ENDPOINT=$Uri `
-        --set URIS.FRONTEND_ENDPOINT="https://$FrontEndUri"
+        --set URIS.KONG.API_ENDPOINT=$APP_API_URI `
+        --set URIS.FRONTEND_ENDPOINT=$APP_FE_URI
 }
 
 if($?){

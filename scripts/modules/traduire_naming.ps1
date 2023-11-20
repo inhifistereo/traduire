@@ -18,6 +18,9 @@ Set-Variable -Name APP_AI_NAME          -Value ("{0}-appinsights" -f $AppName)  
 Set-Variable -Name APP_SB_NAMESPACE     -Value ("{0}-sbns" -f $AppName)                 -Option Constant
 Set-Variable -Name APP_NAMESPACE        -Value "traduire"                               -Option Constant
 
+Set-Variable -Name APP_API_URI          -Value ("{0}.api.traduire.{1}" -f $AppName, $DomainName)        -Option Constant
+Set-Variable -Name APP_FE_URI           -Value ("https://{0}.traduire.{1}" -f $AppName, $DomainName)    -Option Constant
+
 Set-Variable -Name UI_SOURCE_DIR        -Value (Join-Path -Path $root -ChildPath "src\ui")
 Set-Variable -Name INFRA_DIR            -Value (Join-Path -Path $root -ChildPath "src\ui")
 Set-Variable -Name APP_SOURCE_DIR       -Value (Join-Path -Path $root -ChildPath "src")

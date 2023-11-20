@@ -38,12 +38,17 @@ function Write-Log
     Write-Verbose -Message ("[{0}] - {1} ..." -f $(Get-Date), $Message)
 }
 
-function ConvertFrom-Base64String($Text)
+function ConvertFrom-Base64String
 {
+    param( 
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [string] $Text 
+    )
     return [Text.Encoding]::ASCII.GetString([convert]::FromBase64String($Text))
 }
 
-function ConvertTo-Base64EncodedString {
+function ConvertTo-Base64EncodedString 
+{
     param( 
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
         [string] $Text 
@@ -54,7 +59,7 @@ function ConvertTo-Base64EncodedString {
     process {
         $encodedString = [convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes($Text))
     }
-    end{
+    end {
         return $encodedString
     }
 }
@@ -224,7 +229,8 @@ function Get-AKSCredentials
     )
 
     Write-Log -Message "Get ${AKSNAME} AKS Credentials"
-    az aks get-credentials -n $AKSNAME -g $AKSResourceGroup
+    az aks get-credentials -n $AKSNAME -g $AKSResourceGroup --overwrite-existing
+    sed -i s/devicecode/azurecli/g ~/.kube/config
 }
 
 function Get-APIGatewayIP 

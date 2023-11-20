@@ -5,7 +5,7 @@ variable "location" {
 
 variable "namespace" {
   description = "The namespace Trauduire will be deployed to"
-  default     =  "trauduireapp"
+  default     =  "traduire"
 }
 
 variable "vm_sku" {
