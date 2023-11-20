@@ -17,7 +17,7 @@ az account set -s $SubscriptionName
 terraform workspace new ${region}
 terraform workspace select ${region}
 terraform init
-terraform plan -out="${tf_plan}" -var "location=${region}" -var "branch=26-azure-wor…ort-and-more"
+terraform plan -out="${tf_plan}" -var "location=${region}" #-var "branch=..."
 terraform apply -auto-approve ${tf_plan}
 
 $app_name=$(terraform output -raw APP_NAME)
