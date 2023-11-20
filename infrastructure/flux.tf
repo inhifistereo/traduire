@@ -20,7 +20,7 @@ resource "azurerm_kubernetes_flux_configuration" "flux_config" {
   git_repository {
     url                      = local.flux_repository
     reference_type           = "branch"
-    reference_value          = "main"
+    reference_value          = var.github_repo_branch
     timeout_in_seconds       = 600
     sync_interval_in_seconds = 30
   }

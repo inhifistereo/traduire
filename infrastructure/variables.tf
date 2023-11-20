@@ -1,11 +1,11 @@
 variable "location" {
   description = "The location for this application deployment"
-  default = "southcentralus"
+  default     = "southcentralus"
 }
 
 variable "namespace" {
   description = "The namespace Trauduire will be deployed to"
-  default     =  "traduire"
+  default     = "traduire"
 }
 
 variable "vm_sku" {
@@ -53,4 +53,9 @@ variable "pubsub_secret_name" {
   description = "Key Vault Secret Name for Web PubSub Primary Key"
   type        = string
   default     = "pubsubkey"
+}
+
+variable "github_repo_branch" {
+  description = "The branched used for InfrastructureGitOps"
+  default     = "main"
 }
