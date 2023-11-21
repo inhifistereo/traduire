@@ -4,6 +4,7 @@
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
 .next 
+config.json 
 
 .terraform/
 .terraform.tfstate.lock.info
