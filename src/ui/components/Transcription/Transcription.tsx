@@ -1,6 +1,4 @@
-import React, { Component } from 'react';
-import './Transcription.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { Component, useState } from 'react';
 
 import { WebPubSubServiceClient, AzureKeyCredential } from "@azure/web-pubsub";
 
@@ -140,12 +138,14 @@ class Transcription extends Component<Props,State>
 		const transcriptionMessage = this.state.transcriptionMessage;
 		const transcriptionStatus = this.state.transcriptionStatus;
 	
+		console.log("Passed file was named: " + selectedFile)
+
 	  	return ( 
 			<div>
 				<Container>
 					<Row>
 						<Col>
-						<Button variant="primary" disabled={this.state.isLoading} size="lg" block onClick={this.uploadFile} >
+						<Button variant="primary" disabled={this.state.isLoading} size="lg" onClick={this.uploadFile} >
 							{this.state.isLoading ? 'Uploading ' : 'Upload ' + selectedFile.name }
 						</Button>
 						</Col>
@@ -154,7 +154,7 @@ class Transcription extends Component<Props,State>
 				<hr/>
 				<Container>
 					<Row>
-						<Col><Button variant="secondary" size="lg" block onClick={this.checkStatus}>Get Transcription</Button></Col>
+						<Col><Button variant="secondary" size="lg" onClick={this.checkStatus}>Get Transcription</Button></Col>
 						<Col><Alert variant="info">{transcriptionStatus}</Alert></Col>
 					</Row>
 					<Row>
