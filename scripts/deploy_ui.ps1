@@ -34,6 +34,6 @@ Write-Log -Message "Building UI Code"
 Start-UiBuild
 
 Write-Log -Message "Deploying to Azure Static Web Site"
-Deploy-toAzStaticWebApp -Name $APP_UI_NAME -ResourceGroup $APP_UI_RG -LocalPath (Join-Path -Path $UI_SOURCE_DIR -ChildPath "build")
+Deploy-toAzStaticWebApp -Name $APP_UI_NAME -ResourceGroup $APP_UI_RG -LocalPath (Join-Path -Path $UI_SOURCE_DIR -ChildPath "out")
 
 Set-Location -Path $cwd
