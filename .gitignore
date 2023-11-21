@@ -5,6 +5,7 @@
 
 .next 
 config.json 
+out/
 
 .terraform/
 .terraform.tfstate.lock.info
