@@ -28,12 +28,12 @@ Write-Log -Message "Getting Web PubSub AccessKey"
 $pubsub_key = Get-WebPubSubAccessKey -PubSubName $APP_PUBSUB_NAME -ResourceGroup $APP_UI_RG
 
 Write-Log -Message "Setting Reactjs Environment File"
-Set-ReactEnvironmentFile -Path "src\config.json.template" -OutPath "src\config.json" -Uri $APP_FE_URI -Key $kong_api_key -WebPubSubUri $APP_PUBSUB_NAME  -WebPubSubKey $pubsub_key
+Set-ReactEnvironmentFile -Path "configs/config.json.template" -OutPath "configs/config.json" -Uri $APP_FE_URI -Key $kong_api_key -WebPubSubUri $APP_PUBSUB_NAME  -WebPubSubKey $pubsub_key
 
 Write-Log -Message "Building UI Code"
 Start-UiBuild
 
 Write-Log -Message "Deploying to Azure Static Web Site"
-#Deploy-toAzStaticWebApp -Name $APP_UI_NAME -ResourceGroup $APP_UI_RG -LocalPath (Join-Path -Path $UI_SOURCE_DIR -ChildPath "build")
+Deploy-toAzStaticWebApp -Name $APP_UI_NAME -ResourceGroup $APP_UI_RG -LocalPath (Join-Path -Path $UI_SOURCE_DIR -ChildPath "build")
 
 Set-Location -Path $cwd
