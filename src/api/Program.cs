@@ -28,7 +28,7 @@ namespace traduire.webapi
                 {
                     webBuilder.ConfigureKestrel(options =>
                     {
-                        options.ListenAnyIP(8080, o => o.Protocols = HttpProtocols.Http2);
+                        options.ListenAnyIP(8080, o => o.Protocols = HttpProtocols.Http1AndHttp2);
                     });
 
                     webBuilder.UseStartup<Startup>();
