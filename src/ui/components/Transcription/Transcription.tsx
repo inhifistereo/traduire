@@ -73,8 +73,6 @@ class Transcription extends Component<Props,State>
 		ws.onmessage = (event:MessageEvent) => {
 			let msg = JSON.parse(event.data)
 			
-			console.log(msg.statusMessage)
-
 			this.setState({
 				transcriptionStatus: `[${new Date(msg.lastUpdated)}]: ${msg.statusMessage}`
 			})
