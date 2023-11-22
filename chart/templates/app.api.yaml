@@ -64,4 +64,4 @@ spec:
   ports:
   - port: {{ .Values.SERVICE_PORT }}
     targetPort: 8080
-  type: NodePort
+  type: ClusterIP
