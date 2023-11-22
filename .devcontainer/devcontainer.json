@@ -3,7 +3,7 @@
 	"build": {
 		"dockerfile": "Dockerfile",
 		"args": { 
-			"VARIANT": "6.0-bullseye",
+			"VARIANT": "6.0-jammy",
 			"NODE_VERSION": "lts/*"
 		}
 	},
