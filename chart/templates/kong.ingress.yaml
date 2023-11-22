@@ -4,6 +4,8 @@ kind: Secret
 metadata:
   name: {{ print .Values.APP_NAME "-apikey" }}
   namespace: {{ .Values.NAMESPACE }}
+  labels:
+    konghq.com/credential: key-auth
 data:
     kongCredType: a2V5LWF1dGg=
     key: {{ .Values.URIS.KONG.API_SECRET }}

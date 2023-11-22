@@ -14,7 +14,7 @@ spec:
         dapr.io/enabled: "true"
         dapr.io/config: {{ print .Values.APP_NAME "-config" | quote }}
         dapr.io/app-id: {{ print .Values.APP_NAME "-oncompletion" | quote  }}
-        dapr.io/app-port: "80"
+        dapr.io/app-port: "8080"
         dapr.io/log-level: "info"
         {{ print .Values.APP_NAME "/config-hash" }}: {{ include (print $.Template.BasePath "/dapr.components.yaml") . | sha256sum }}
       labels:
@@ -27,7 +27,7 @@ spec:
         image: {{  print .Values.ACR.NAME ".azurecr.io/traduire/oncompletion.handler:" .Values.GIT_COMMIT_VERSION | nospace  }}
         imagePullPolicy: Always
         ports:
-        - containerPort: 80
+        - containerPort: 8080
         resources:
           limits:
             cpu: "1"
