@@ -28,7 +28,7 @@ Write-Log -Message "Getting Web PubSub AccessKey"
 $pubsub_key = Get-WebPubSubAccessKey -PubSubName $APP_PUBSUB_NAME -ResourceGroup $APP_UI_RG
 
 Write-Log -Message "Setting Reactjs Environment File"
-Set-ReactEnvironmentFile -Path "configs/config.json.template" -OutPath "configs/config.json" -Uri $APP_FE_URI -Key $kong_api_key -WebPubSubUri $APP_PUBSUB_NAME  -WebPubSubKey $pubsub_key
+Set-ReactEnvironmentFile -Path "configs/config.json.template" -OutPath "configs/config.json" -Uri $APP_API_URI -Key $kong_api_key -WebPubSubUri $APP_PUBSUB_NAME  -WebPubSubKey $pubsub_key
 
 Write-Log -Message "Building UI Code"
 Start-UiBuild

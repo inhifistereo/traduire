@@ -56,8 +56,8 @@ metadata:
   namespace: {{ .Values.NAMESPACE }}
   labels:
     version: {{ .Values.GIT_COMMIT_VERSION | quote }}
-  annotations:
-    konghq.com/protocol: "grpc"
+  # annotations:
+  #   konghq.com/protocol: "grpc"
 spec:
   selector:
     app: {{ print .Values.APP_NAME "-api" }} 
