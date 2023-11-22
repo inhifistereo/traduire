@@ -30,11 +30,11 @@ Keda | Autoscaler for saga components
 ### Prerequisite 
 __Or use DevContainer__
 * A Linux machine or Windows Subsytem for Linux or Docker for Windows 
-* PowerShell 7
+* PowerShell 7 in Linux/WSL
 * Azure Cli and an Azure Subscription
-* Terraform 0.12 or greater
+* Terraform 
 * Kubectl
-* Helm 3 or greater
+* Helm 3 
 * Docker 
 
 ### Infrastructure 
@@ -55,12 +55,14 @@ __Or use DevContainer__
 
 ## Validate 
 
-### Web Application
-* Install [Playwright](https://playwright.dev)
-* cd tests
-* ./run-tests.sh traduire.bjd.tech #Or whatever your default Url from Azure Static Web Apps 
+### Automated with Playwright
+* bash
+* cd scripts
+* ./run-tests.sh traduire.bjd.tech #Or whatever your default Url from Azure Static Web Apps
+* Playwright will test the UI functionality and display the trace on completion. 
+    ![Playwright](./.assets/playwright.png)
 
-_Manually_
+### Manually
 * Launch Browser
 * Navigate to the URI outputed by the deploy_ui.ps1
     * Azure Static Website supports custom domain names, if desired. 
@@ -69,12 +71,6 @@ _Manually_
 * Then the final result should be: \
     ![UI](./.assets/ui.png)
 
-### gRPC API 
-* cd sample\grpc.client
-* dotnet build 
-* dontet run /ApiServer https://api.bjd.tech /ApiKey {{apikey}}
-    * API Key is stored as a Secret in Kubernetes
-
 ## Backlog 
 - [X] Add null_resource to bin Keda's identity to cluster
 - [X] Test Cluster creation with new Terraform and Flux extension
@@ -82,6 +78,6 @@ _Manually_
 - [X] Test applciation deployment
 - [X] Validate application functionality
 - [X] Update to Workload Identity
-- [ ] Update React UI to Next.js
+- [X] Update React UI to Next.js
 - [X] Update to dotnet8 
 - [X] Deployment Updates
