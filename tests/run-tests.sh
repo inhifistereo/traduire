@@ -23,6 +23,10 @@ while (( "$#" )); do
   esac
 done
 
+echo `date "+%F %T"` - Installing Playwright ${uri}echo 
+npm install
+npx playwright install  
+
 echo `date "+%F %T"` - Running Tests against ${uri}
-URI=${uri} npx playwright test
+APPLICATION_URI=${uri} npx playwright test
 npx playwright show-trace trace.zip

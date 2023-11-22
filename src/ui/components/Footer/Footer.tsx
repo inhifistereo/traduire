@@ -1,9 +1,6 @@
 import React, { Component } from 'react';
-import './Footer.css';
 import Container from 'react-bootstrap/Container';
 import Row from 'react-bootstrap/Row';
-
-import 'bootstrap/dist/css/bootstrap.min.css';
 
 type Props = {
 }

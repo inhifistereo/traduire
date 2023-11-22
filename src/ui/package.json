@@ -1,48 +1,28 @@
 {
-  "name": "traduire-ui",
-  "version": "0.5.1",
+  "name": "traduire",
+  "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
   "dependencies": {
     "@azure/web-pubsub": "1.0.0",
-    "@types/node": "^18.15.5",
-    "@types/react": "^18.0.28",
-    "@types/react-dom": "^18.0.11",
-    "bootstrap": "^4.6.0",
-    "buffer": "^6.0.3",
-    "crypto": "npm:crypto-browserify",
-    "crypto-browserify": "^3.12.0",
-    "process": "^0.11.10",
-    "react": "^18.2.0",
-    "react-app-rewired": "^2.2.1",
-    "react-bootstrap": "^1.6.4",
-    "react-dom": "^18.2.0",
-    "react-scripts": "^5.0.1",
-    "stream": "0.0.2",
-    "typescript": "^4.6.4",
-    "util": "^0.12.4",
-    "yarn": "^1.22.18"
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.2",
+    "next": "14.0.3",
+    "react": "^18",
+    "react-bootstrap": "^2.9.1",
+    "react-dom": "^18"
   },
-  "scripts": {
-    "start": "react-app-rewired start",
-    "build": "react-app-rewired build",
-    "test": "react-app-rewired test",
-    "eject": "react-app-rewired eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.0.3",
+    "typescript": "^5"
   }
 }
