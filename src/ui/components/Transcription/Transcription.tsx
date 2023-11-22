@@ -140,15 +140,15 @@ class Transcription extends Component<Props,State>
 	  	return ( 
 			<div>
 				<Container>
-				<Stack gap={2} direction="horizontal">
-					<Button variant="primary" disabled={this.state.isLoading} onClick={this.uploadFile} >
-						{this.state.isLoading ? 'Uploading ' + selectedFile.name  : 'Upload ' + selectedFile.name }
-					</Button> 
-					<Button variant="primary" disabled={!this.state.isReady} onClick={this.getTranscription}>
-						Get Transcription
-					</Button>
-				</Stack>
-				<hr/>
+					<Stack gap={2} direction="horizontal">
+						<Button variant="primary" disabled={this.state.isLoading} onClick={this.uploadFile} >
+							{this.state.isLoading ? 'Uploading ' + selectedFile.name  : 'Upload ' + selectedFile.name }
+						</Button> 
+						<Button variant="primary" disabled={!this.state.isReady} onClick={this.getTranscription}>
+							Get Transcription
+						</Button>
+					</Stack>
+					<hr/>
 				</Container>
 				<Container>
 					<Row>
@@ -158,7 +158,6 @@ class Transcription extends Component<Props,State>
 						<Col><Card body>{transcriptionMessage}</Card></Col>
 					</Row>
 				</Container>
-
 			</div>
   		);
   	}

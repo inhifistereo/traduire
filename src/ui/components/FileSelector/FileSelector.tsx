@@ -1,7 +1,8 @@
 import React, { Component, useEffect } from 'react'
-import Form from 'react-bootstrap/Form';
-import Container from 'react-bootstrap/Container';
-import Stack from 'react-bootstrap/Stack';
+import Form from 'react-bootstrap/Form'
+import Container from 'react-bootstrap/Container'
+import { Placeholder } from 'react-bootstrap'
+import { Card } from 'react-bootstrap'
 
 interface iFileSelector {
 	selectedFile: File,
@@ -20,8 +21,7 @@ class FileSelector extends Component<any,iFileSelector> {
 	render() {
 		return ( 
 			<div>
-				<Container>
-					<Stack gap={15}>
+				<Container >
 					<Form>
 						<Form.Group> 
 						<Form.Label>Select Podcast to Transcribe</Form.Label>
@@ -31,7 +31,7 @@ class FileSelector extends Component<any,iFileSelector> {
 							onChange={this.handleChange}/>
 						</Form.Group>
 					</Form>
-					</Stack>
+					<p aria-hidden="true"></p>
 				</Container>
 			</div>
 		)
