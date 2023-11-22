@@ -1,8 +1,6 @@
 import React, { Component, useEffect } from 'react'
 import Form from 'react-bootstrap/Form'
 import Container from 'react-bootstrap/Container'
-import { Placeholder } from 'react-bootstrap'
-import { Card } from 'react-bootstrap'
 
 interface iFileSelector {
 	selectedFile: File,
