@@ -2,17 +2,17 @@ import { test, expect, PlaywrightTestConfig } from '@playwright/test';
 
 declare var process : {
   env: {
-    BASE_URL: string
+    APPLICATION_URI: string
   }
 }
 
-const BASE_URL = process.env["URI"];
+const BASE_URL =process.env["APPLICATION_URI"];
 
 test('test transcription', async ({ page, context }) => {
   await context.tracing.start({ screenshots: true, snapshots: true });
   await page.goto(BASE_URL);
   await page.click('input[type="file"]');
-  await page.setInputFiles('input[type="file"]', '../assets/Recording.m4a');
+  await page.setInputFiles('input[type="file"]', '../.assets/Recording.m4a');
   await page.click('text=Upload Recording.m4a');
   await page.waitForSelector('text=Completed', { timeout: 0 });
   await page.click('text=Get Transcription');
