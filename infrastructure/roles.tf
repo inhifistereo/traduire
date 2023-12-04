@@ -19,6 +19,12 @@ resource "azurerm_role_assignment" "acr_pullrole_node" {
   skip_service_principal_aad_check = true
 }
 
+resource "azurerm_role_assignment" "admin" {
+  scope                = azurerm_key_vault.traduire_app.id
+  role_definition_name = "Key Vault Administrator"
+  principal_id         = data.azurerm_client_config.current.object_id 
+}
+
 resource "azurerm_role_assignment" "keda_sb_data_owner" {
   scope                            = azurerm_servicebus_namespace.traduire_app.id
   role_definition_name             = "Azure Service Bus Data Owner"
