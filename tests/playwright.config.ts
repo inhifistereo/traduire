@@ -1,4 +1,4 @@
-import { PlaywrightTestConfig } from '@playwright/test';
+import { PlaywrightTestConfig, devices } from '@playwright/test';
 
 const config: PlaywrightTestConfig = {
     timeout: 90000,
@@ -10,6 +10,20 @@ const config: PlaywrightTestConfig = {
     },
     reporter: [
         ['list'],
-    ]
+    ],
+    projects: [
+        // {
+        //   name: 'chromium',
+        //   use: {
+        //     ...devices['Desktop Chrome'],
+        //   },
+        // },
+        {
+          name: 'Mobile Safari',
+          use: {
+            ...devices['iPhone 13'],
+          },
+        },
+      ],
 };
 export default config;
