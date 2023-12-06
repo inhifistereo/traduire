@@ -36,6 +36,10 @@ __Or use DevContainer__
 * Kubectl
 * Helm 3 
 * Docker 
+* Azure subscription with Owner access permissions
+* [AKS Preview Features](https://github.com/briandenicola/kubernetes-cluster-setup/blob/main/scripts/aks-preview-features.sh)
+    * Script requires /usr/bin/watch which is not part of the default bash shell on macos.
+    * Run brew install watch to install on macos
 
 ### Infrastructure 
 * pwsh
@@ -57,7 +61,7 @@ __Or use DevContainer__
 
 ### Automated with Playwright
 * bash
-* cd scripts
+* cd ./scripts
 * ./run-tests.sh traduire.bjd.tech #Or whatever your default Url from Azure Static Web Apps
 * Playwright will test the UI functionality and display the trace on completion. 
     ![Playwright](./.assets/playwright.png)
@@ -66,7 +70,9 @@ __Or use DevContainer__
 * Launch Browser
 * Navigate to the URI outputed by the deploy_ui.ps1
     * Azure Static Website supports custom domain names, if desired. 
-* Select and upload assets\recording.m4a
+* Select and upload any podcast.  
+    * [The History of Rome Episode #1](http://traffic.libsyn.com/historyofrome/01-_In_the_Beginning.mp3) is a great example.
+    * File size must be less than 50mb and limited to one speaker
 * Click 'Check Status' to watch the transcription go through its stages 
 * Then the final result should be: \
     ![UI](./.assets/ui.png)
@@ -81,3 +87,4 @@ __Or use DevContainer__
 - [X] Update React UI to Next.js
 - [X] Update to dotnet8 
 - [X] Deployment Updates
+- [ ] Swap Cognitive Services with OpenAI
