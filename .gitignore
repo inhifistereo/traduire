@@ -7,6 +7,8 @@
 config.json 
 out/
 
+.vscode/
+
 .terraform/
 .terraform.tfstate.lock.info
 .terraform.lock.hcl 
