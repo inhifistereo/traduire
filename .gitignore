@@ -3,11 +3,19 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+.next 
+config.json 
+out/
+
+.vscode/
+
 .terraform/
 .terraform.tfstate.lock.info
 .terraform.lock.hcl 
  terraform.tfstate 
 terraform.tfstate.backup 
+terraform.tfstate.d/
+traduire.plan*
 
 # User-specific files
 *.rsuser
@@ -361,3 +369,4 @@ infrastructure/terraform/.terraform/
 src/ui/.env
 src/ui/build
 src/ui/src/config.json
+traduire.sln

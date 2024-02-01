@@ -1,0 +1,73 @@
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: keyvault
+  namespace: {{ .Values.NAMESPACE }}
+spec:
+  type: secretstores.azure.keyvault
+  version: v1
+  metadata:
+  - name: vaultName
+    value: {{ .Values.KEYVAULT.NAME }} 
+  - name: spnClientId
+    value: {{ .Values.WORKLOAD_ID.CLIENT_ID }} 
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: pubsub
+  namespace: {{ .Values.NAMESPACE }}
+spec:
+  type: pubsub.azure.servicebus
+  version: v1
+  metadata:
+  - name: connectionString
+    secretKeyRef:
+      name: {{ .Values.KEYVAULT.SECRETS.SERVICE_BUS }} 
+      key: {{ .Values.KEYVAULT.SECRETS.SERVICE_BUS }} 
+auth:
+  secretStore: keyvault
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: storage
+  namespace: {{ .Values.NAMESPACE }}
+spec:
+  type: bindings.azure.blobstorage
+  version: v1
+  metadata:
+  - name: storageAccount
+    value: {{ .Values.STORAGE.NAME }} 
+  - name: storageAccessKey
+    secretKeyRef:
+      name: {{ .Values.KEYVAULT.SECRETS.STORAGE }} 
+      key: {{ .Values.KEYVAULT.SECRETS.STORAGE }} 
+  - name: container
+    value: {{ .Values.STORAGE.CONTAINER_NAME }} 
+  - name: decodeBase64 
+    value: "true"
+auth:
+  secretStore: keyvault
+scopes:
+  - {{ print .Values.APP_NAME "-api" }}
+---
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: sql
+  namespace: {{ .Values.NAMESPACE }}
+spec:
+  type: state.postgresql
+  version: v1
+  metadata:
+  - name: connectionString 
+    secretKeyRef:
+      name: {{ .Values.KEYVAULT.SECRETS.SQL }} 
+      key: {{ .Values.KEYVAULT.SECRETS.SQL }} 
+  - name: actorStateStore
+    value: "true"
+  - name: keyPrefix
+    value: none
+auth:
+  secretStore: keyvault

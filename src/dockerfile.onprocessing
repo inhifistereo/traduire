@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
 
 WORKDIR /app/transcription.common
 COPY ./transcription.common/*.csproj .
@@ -17,7 +17,9 @@ COPY ./transcription.OnProcessing/. .
 RUN dotnet publish -c Release -o out
 
 #Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-jammy-chiseled
 WORKDIR /app
 COPY --from=build-env /app/onprocessing/out .
-ENTRYPOINT ["dotnet", "transcription.onprocessing.dll"]
+
+#ENTRYPOINT ["dotnet", "transcription.onprocessing.dll"]
+ENTRYPOINT ["/app/transcription.onprocessing"]

@@ -4,7 +4,7 @@
 This is an application to demonstrates various Azure services. It will transcribe an audio podcast (up to 50mb in size) to text using Azure Cognitive Services. It uses the Saga pattern and Virtual Actors to manage the transcription process.  It uses [Dapr](https://dapr.io) as the distributive runtime to manage communication between the various service components. The application exposes both a REST API consumed by a React-based UI and a gRPC API consumed by a commandline application
 
 ## Languages
-* C# and dotnet 5 
+* C# and dotnet 8
 * PowerShell
 * Hashicorp Terraform 
 
@@ -23,57 +23,59 @@ Kong | API Gateway
 Keda | Autoscaler for saga components 
 
 ## Architecture
-![Dapr](./assets/dapr.png)
+![Dapr](./.assets/dapr.png)
 
 ## Deployment
 
 ### Prerequisite 
 __Or use DevContainer__
 * A Linux machine or Windows Subsytem for Linux or Docker for Windows 
-* PowerShell 7
+* PowerShell 7 in Linux/WSL
 * Azure Cli and an Azure Subscription
-* Terraform 0.12 or greater
+* Terraform 
 * Kubectl
-* Helm 3 or greater
+* Helm 3 
 * Docker 
+* Azure subscription with Owner access permissions
+* [AKS Preview Features](https://github.com/briandenicola/kubernetes-cluster-setup/blob/main/scripts/aks-preview-features.sh)
+    * Script requires /usr/bin/watch which is not part of the default bash shell on macos.
+    * Run brew install watch to install on macos
 
 ### Infrastructure 
 * pwsh
-* cd ./Infrastructure
-* ./create_infrastructure.ps1 -Subscription BJD_AZ_SUB01 -Region southcentralus
+* cd ./scripts
+* ./create_infrastructure.ps1 -Subscription BJD_AZ_SUB01 -Region southcentralus 
 
 ### Application Deployment 
 * pwsh
-* cd ./Deploy
-* ./deploy_application.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -Uri api.bjd.tech -FrontEndUri traduire.bjd.tech [-upgrade] -verbose
+* cd ./scripts
+* ./deploy_application.ps1 -AppName $AppName -Subscription BJD_AZ_SUB01 -DomainName bjdazure.tech [-SkipBuild] [-BuildOnly] [-upgrade] -verbose
 * Update the DNS record of Uri to the IP Address returned by the script
 
 ### UI Deployment 
 * pwsh
-* cd ./Deploy
-* ./deploy_ui.ps1 -AppName $AppName -ApiUri api.bjd.tech -Verbose
+* cd ./scripts
+* ./deploy_ui.ps1 -AppName $AppName -DomainName bjdazure.tech -Verbose
 
 ## Validate 
 
-### Web Application
-* Install [Playwright](https://playwright.dev)
-* cd tests
-* ./run-tests.sh traduire.bjd.tech #Or whatever your default Url from Azure Static Web Apps 
+### Automated with Playwright
+* bash
+* cd ./scripts
+* ./run-tests.sh traduire.bjd.tech #Or whatever your default Url from Azure Static Web Apps
+* Playwright will test the UI functionality and display the trace on completion. 
+    ![Playwright](./.assets/playwright.png)
 
-_Manually_
+### Manually
 * Launch Browser
 * Navigate to the URI outputed by the deploy_ui.ps1
     * Azure Static Website supports custom domain names, if desired. 
-* Select and upload assets\recording.m4a
+* Select and upload any podcast.  
+    * [The History of Rome Episode #1](http://traffic.libsyn.com/historyofrome/01-_In_the_Beginning.mp3) is a great example.
+    * File size must be less than 50mb and limited to one speaker
 * Click 'Check Status' to watch the transcription go through its stages 
 * Then the final result should be: \
-    ![UI](./assets/ui.png)*
-
-### gRPC API 
-* cd sample\grpc.client
-* dotnet build 
-* dontet run /ApiServer https://api.bjd.tech /ApiKey {{apikey}}
-    * API Key is stored as a Secret in Kubernetes
+    ![UI](./.assets/ui.png)
 
 ## Backlog 
 - [X] Add null_resource to bin Keda's identity to cluster
@@ -81,4 +83,8 @@ _Manually_
 - [X] Update Helm Chart - Service Accounts/Deployments 
 - [X] Test applciation deployment
 - [X] Validate application functionality
-- [ ] Update to Workload Identity when support comes to Dapr
+- [X] Update to Workload Identity
+- [X] Update React UI to Next.js
+- [X] Update to dotnet8 
+- [X] Deployment Updates
+- [ ] Swap Cognitive Services with OpenAI

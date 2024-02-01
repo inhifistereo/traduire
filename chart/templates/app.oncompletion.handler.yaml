@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ print .Values.APP_NAME "-oncompletion" }}
+  namespace: {{ .Values.NAMESPACE }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ print .Values.APP_NAME "-oncompletion" }}
+  template:
+    metadata:
+      annotations:
+        dapr.io/enabled: "true"
+        dapr.io/config: {{ print .Values.APP_NAME "-config" | quote }}
+        dapr.io/app-id: {{ print .Values.APP_NAME "-oncompletion" | quote  }}
+        dapr.io/app-port: "8080"
+        dapr.io/log-level: "info"
+        {{ print .Values.APP_NAME "/config-hash" }}: {{ include (print $.Template.BasePath "/dapr.components.yaml") . | sha256sum }}
+      labels:
+        app: {{ print .Values.APP_NAME "-oncompletion" }}
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: {{ .Values.WORKLOAD_ID.NAME }}
+      containers:
+      - name: eventhandler
+        image: {{  print .Values.ACR.NAME ".azurecr.io/traduire/oncompletion.handler:" .Values.GIT_COMMIT_VERSION | nospace  }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: "1"
+            memory: 256Mi
+          requests:
+            cpu: "0.5"
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+        env:
+        - name: AZURE_COGS_REGION
+          value: {{ .Values.REGION }}
+      tolerations:
+      - key: "app"
+        operator: "Equal"
+        value: "traduire"
+        effect: "NoSchedule"
